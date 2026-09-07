@@ -9,6 +9,7 @@ Run after parse_pricelist.py whenever the price list changes:
 """
 import json
 import shutil
+import time
 from pathlib import Path
 
 from vial_svg import render_vial, CATEGORY_COLORS
@@ -16,6 +17,11 @@ from parse_pricelist import slugify
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data" / "products.json"
+
+# Cache-busting query param appended to every asset URL, so a rebuild is
+# guaranteed to bypass browser/CDN caches for CSS and JS instead of
+# visitors (or you, testing locally) silently seeing stale files.
+ASSET_VERSION = str(int(time.time()))
 
 SITE_NAME = "hlix"
 SITE_DOMAIN = "hlix.io"
@@ -84,18 +90,22 @@ def nav_html(prefix, active):
     <div class="container nav">
       <a href="{prefix}index.html" class="brand"><span class="brand__mark">h</span>hlix</a>
       <nav class="nav__links">{links}</nav>
+      <div class="nav__search" data-search-inline>
+        {icon('search')}
+        <input type="text" placeholder="Search for peptides…" data-search-input-nav autocomplete="off" spellcheck="false">
+        <div class="nav__search-dropdown" data-search-dropdown></div>
+      </div>
       <div class="nav__cta">
         <button class="nav__search-trigger" data-search-trigger aria-label="Search products">{icon('search')}</button>
-        <a href="{prefix}calculator.html" class="btn btn--ghost">{icon('calc')} Calculator</a>
         <a href="{prefix}catalog.html" class="btn btn--accent">View Catalog</a>
         <button class="nav__toggle" aria-label="Open menu" aria-expanded="false">{icon('menu')}</button>
       </div>
     </div>
-    <div class="mobile-menu">
-      <button class="mobile-menu__search" data-search-trigger>{icon('search')} Search products…</button>
-      {mobile_links}<a href="{prefix}calculator.html" class="btn btn--accent btn--block">Dosage Calculator</a>
-    </div>
   </header>
+  <div class="mobile-menu">
+    <button class="mobile-menu__search" data-search-trigger>{icon('search')} Search products…</button>
+    {mobile_links}<a href="{prefix}calculator.html" class="btn btn--accent btn--block">Dosage Calculator</a>
+  </div>
   <div class="search-overlay" data-search-overlay>
     <div class="search-panel">
       <div class="search-panel__input-row">
@@ -167,13 +177,13 @@ def page_shell(*, title, description, prefix, active, body, extra_head=""):
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 <title>{canonical_title}</title>
 <meta name="description" content="{description}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{prefix}assets/css/style.css">
+<link rel="stylesheet" href="{prefix}assets/css/style.css?v={ASSET_VERSION}">
 {extra_head}
 </head>
 <body>
@@ -182,10 +192,10 @@ def page_shell(*, title, description, prefix, active, body, extra_head=""):
 {body}
 {footer_html(prefix)}
 {lightbox_html()}
-<script src="{prefix}assets/js/search-index.js"></script>
-<script src="{prefix}assets/js/search.js"></script>
-<script src="{prefix}assets/js/main.js"></script>
-<script src="{prefix}assets/js/chatbot.js"></script>
+<script src="{prefix}assets/js/search-index.js?v={ASSET_VERSION}"></script>
+<script src="{prefix}assets/js/search.js?v={ASSET_VERSION}"></script>
+<script src="{prefix}assets/js/main.js?v={ASSET_VERSION}"></script>
+<script src="{prefix}assets/js/chatbot.js?v={ASSET_VERSION}"></script>
 </body>
 </html>'''
 
@@ -517,7 +527,7 @@ def render_product_page(g, groups):
         prefix=prefix,
         active="catalog",
         body=body,
-        extra_head=f'<script src="{prefix}assets/js/product.js" defer></script>',
+        extra_head=f'<script src="{prefix}assets/js/product.js?v={ASSET_VERSION}" defer></script>',
     )
 
 
@@ -742,7 +752,7 @@ def render_calculator():
         prefix=prefix,
         active="calculator",
         body=body,
-        extra_head=f'<script src="{prefix}assets/js/calculator.js" defer></script>',
+        extra_head=f'<script src="{prefix}assets/js/calculator.js?v={ASSET_VERSION}" defer></script>',
     )
 
 
