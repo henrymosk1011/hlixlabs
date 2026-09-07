@@ -12,19 +12,34 @@
 
 </head>
 <body>
+<script>window.HLIX_PREFIX = "";</script>
 <header class="site-header">
     <div class="ticker"><div class="ticker__track"><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>RESEARCH USE ONLY</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v6.5L4.5 18a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8.5V2"/><path d="M7.5 14h9"/></svg>HPLC VERIFIED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>BATCH TESTED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></svg>USA BASED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>≥99% PURITY MINIMUM</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>RESEARCH USE ONLY</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v6.5L4.5 18a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8.5V2"/><path d="M7.5 14h9"/></svg>HPLC VERIFIED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>BATCH TESTED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></svg>USA BASED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>≥99% PURITY MINIMUM</span></div></div>
     <div class="container nav">
       <a href="index.html" class="brand"><span class="brand__mark">h</span>hlix</a>
-      <nav class="nav__links"><a href="catalog.html" class="">Catalog</a><a href="calculator.html" class="">Dosage Calculator</a><a href="about.html" class="">About</a><a href="contact.html" class="">Contact</a></nav>
+      <nav class="nav__links"><a href="about.html" class="">About</a><a href="catalog.html" class="">Catalog</a><a href="calculator.html" class="">Dosage Calculator</a><a href="contact.html" class="">Contact</a></nav>
       <div class="nav__cta">
+        <button class="nav__search-trigger" data-search-trigger aria-label="Search products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>
         <a href="calculator.html" class="btn btn--ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg> Calculator</a>
         <a href="catalog.html" class="btn btn--accent">View Catalog</a>
         <button class="nav__toggle" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
       </div>
     </div>
-    <div class="mobile-menu"><a href="catalog.html" class="">Catalog</a><a href="calculator.html" class="">Dosage Calculator</a><a href="about.html" class="">About</a><a href="contact.html" class="">Contact</a><a href="calculator.html" class="btn btn--accent btn--block">Dosage Calculator</a></div>
+    <div class="mobile-menu">
+      <button class="mobile-menu__search" data-search-trigger><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg> Search products…</button>
+      <a href="about.html" class="">About</a><a href="catalog.html" class="">Catalog</a><a href="calculator.html" class="">Dosage Calculator</a><a href="contact.html" class="">Contact</a><a href="calculator.html" class="btn btn--accent btn--block">Dosage Calculator</a>
+    </div>
   </header>
+  <div class="search-overlay" data-search-overlay>
+    <div class="search-panel">
+      <div class="search-panel__input-row">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" placeholder="Search peptides, categories…" data-search-input autocomplete="off" spellcheck="false">
+        <button class="search-panel__close" data-search-close aria-label="Close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+      </div>
+      <div class="search-panel__results" data-search-results></div>
+    </div>
+  </div>
 
   <section class="hero">
     <div class="container hero__grid">
@@ -37,7 +52,7 @@
           <a href="calculator.html" class="btn btn--ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg> Dosage Calculator</a>
         </div>
         <div class="hero__stats">
-          <div><div class="stat__value">130</div><div class="stat__label">Compounds Logged</div></div>
+          <div><div class="stat__value">67</div><div class="stat__label">Compounds Logged</div></div>
           <div><div class="stat__value">8</div><div class="stat__label">Categories</div></div>
           <div><div class="stat__value">99%+</div><div class="stat__label">Purity Minimum</div></div>
           <div><div class="stat__value">RUO</div><div class="stat__label">Research Use Only</div></div>
@@ -91,13 +106,13 @@
 
   <text text-anchor="middle" font-family="'Space Grotesk','Inter',sans-serif" font-weight="700" font-size="14.5" fill="#111214"><tspan x="130" y="243.5">RESEARCH</tspan><tspan x="130" y="260.5">PEPTIDE</tspan></text>
 
-  <text x="130" y="294.5" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#33e6b0">hlix</text>
+  <text data-role="dose-text" x="130" y="294.5" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#33e6b0">hlix</text>
 
   <line x1="80" y1="308.5" x2="180" y2="308.5" stroke="#d8dadc" stroke-width="1"/>
   <text x="130" y="322.5" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" letter-spacing="1" fill="#9aa0a5">FOR RESEARCH USE ONLY</text>
   <text x="130" y="333.5" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" letter-spacing="0.5" fill="#b7bcc0">NOT FOR HUMAN CONSUMPTION</text>
 
-  <text x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-000</text>
+  <text data-role="sku-text" x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-000</text>
 </svg></div>
     </div>
   </section>
@@ -109,22 +124,22 @@
         <a href="catalog.html" class="btn btn--ghost">View All <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
       </div>
       <div class="product-grid">
-        <a class="card" href="peptides/tirzepatide-5mg.html" data-card-category="metabolic">
+        <a class="card" href="peptides/glp2-t.html" data-card-category="metabolic" data-card-name="GLP2-T">
   <div class="card__media" style="--cat-color:#33e6b0">
     <span class="card__badge">HPLC 99%+</span>
     <span class="card__stock">IN STOCK</span>
-    <svg viewBox="0 0 260 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Tirzepatide 5mg vial">
+    <svg viewBox="0 0 260 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GLP2-T 5mg vial">
   <defs>
-    <linearGradient id="glass-tirzepatide-5mg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="glass-glp2-t" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#3a4750" stop-opacity="0.55"/>
       <stop offset="45%" stop-color="#1c2429" stop-opacity="0.4"/>
       <stop offset="100%" stop-color="#0c1113" stop-opacity="0.6"/>
     </linearGradient>
-    <linearGradient id="cap-tirzepatide-5mg" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="cap-glp2-t" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#33e6b0" stop-opacity="0.95"/>
       <stop offset="100%" stop-color="#33e6b0" stop-opacity="0.65"/>
     </linearGradient>
-    <linearGradient id="shine-tirzepatide-5mg" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="shine-glp2-t" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
       <stop offset="50%" stop-color="#ffffff" stop-opacity="0.18"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
@@ -137,7 +152,7 @@
   <rect x="98" y="66" width="64" height="26" rx="4" fill="#2b2f33"/>
 
   <!-- crimp cap -->
-  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-tirzepatide-5mg)"/>
+  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-glp2-t)"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#33e6b0"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#ffffff" opacity="0.12"/>
   <g stroke="#000" stroke-opacity="0.15" stroke-width="1.5">
@@ -148,8 +163,8 @@
   </g>
 
   <!-- glass body -->
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-tirzepatide-5mg)" stroke="#ffffff" stroke-opacity="0.14"/>
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-tirzepatide-5mg)"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-glp2-t)" stroke="#ffffff" stroke-opacity="0.14"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-glp2-t)"/>
 
   <!-- label -->
   <rect x="66" y="170" width="128" height="176" rx="14" fill="#f4f5f6"/>
@@ -159,42 +174,42 @@
   <text x="130" y="209" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="7" letter-spacing="1.5" fill="#8a8f94">RESEARCH PEPTIDE</text>
   <line x1="80" y1="218" x2="180" y2="218" stroke="#d8dadc" stroke-width="1"/>
 
-  <text text-anchor="middle" font-family="'Space Grotesk','Inter',sans-serif" font-weight="700" font-size="17" fill="#111214"><tspan x="130" y="252.0">Tirzepatide</tspan></text>
+  <text text-anchor="middle" font-family="'Space Grotesk','Inter',sans-serif" font-weight="700" font-size="17" fill="#111214"><tspan x="130" y="252.0">GLP2-T</tspan></text>
 
-  <text x="130" y="286.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#33e6b0">5mg</text>
+  <text data-role="dose-text" x="130" y="286.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#33e6b0">5mg</text>
 
   <line x1="80" y1="300.0" x2="180" y2="300.0" stroke="#d8dadc" stroke-width="1"/>
   <text x="130" y="314.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" letter-spacing="1" fill="#9aa0a5">FOR RESEARCH USE ONLY</text>
   <text x="130" y="325.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" letter-spacing="0.5" fill="#b7bcc0">NOT FOR HUMAN CONSUMPTION</text>
 
-  <text x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-101</text>
+  <text data-role="sku-text" x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-101</text>
 </svg>
   </div>
   <div class="card__body">
     <span class="card__cat" style="--cat-color:#33e6b0">Metabolic Research</span>
-    <h3 class="card__name">Tirzepatide</h3>
-    <span class="card__dose">5mg</span>
+    <h3 class="card__name">GLP2-T</h3>
+    <span class="card__dose">9 sizes · 5mg–60mg</span>
     <div class="card__foot">
-      <span class="card__price">$35 <small>/ vial</small></span>
+      <span class="card__price"><small>FROM</small> $35 <small>/ vial</small></span>
       <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </div>
   </div>
-</a><a class="card" href="peptides/ghrp-2-acetate-5mg.html" data-card-category="growth">
+</a><a class="card" href="peptides/ghrp-2-acetate.html" data-card-category="growth" data-card-name="GHRP-2 Acetate">
   <div class="card__media" style="--cat-color:#6ea8ff">
     <span class="card__badge">HPLC 99%+</span>
     <span class="card__stock">IN STOCK</span>
     <svg viewBox="0 0 260 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GHRP-2 Acetate 5mg vial">
   <defs>
-    <linearGradient id="glass-ghrp-2-acetate-5mg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="glass-ghrp-2-acetate" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#3a4750" stop-opacity="0.55"/>
       <stop offset="45%" stop-color="#1c2429" stop-opacity="0.4"/>
       <stop offset="100%" stop-color="#0c1113" stop-opacity="0.6"/>
     </linearGradient>
-    <linearGradient id="cap-ghrp-2-acetate-5mg" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="cap-ghrp-2-acetate" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#6ea8ff" stop-opacity="0.95"/>
       <stop offset="100%" stop-color="#6ea8ff" stop-opacity="0.65"/>
     </linearGradient>
-    <linearGradient id="shine-ghrp-2-acetate-5mg" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="shine-ghrp-2-acetate" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
       <stop offset="50%" stop-color="#ffffff" stop-opacity="0.18"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
@@ -207,7 +222,7 @@
   <rect x="98" y="66" width="64" height="26" rx="4" fill="#2b2f33"/>
 
   <!-- crimp cap -->
-  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-ghrp-2-acetate-5mg)"/>
+  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-ghrp-2-acetate)"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#6ea8ff"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#ffffff" opacity="0.12"/>
   <g stroke="#000" stroke-opacity="0.15" stroke-width="1.5">
@@ -218,8 +233,8 @@
   </g>
 
   <!-- glass body -->
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-ghrp-2-acetate-5mg)" stroke="#ffffff" stroke-opacity="0.14"/>
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-ghrp-2-acetate-5mg)"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-ghrp-2-acetate)" stroke="#ffffff" stroke-opacity="0.14"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-ghrp-2-acetate)"/>
 
   <!-- label -->
   <rect x="66" y="170" width="128" height="176" rx="14" fill="#f4f5f6"/>
@@ -231,40 +246,40 @@
 
   <text text-anchor="middle" font-family="'Space Grotesk','Inter',sans-serif" font-weight="700" font-size="17" fill="#111214"><tspan x="130" y="242.0">GHRP-2</tspan><tspan x="130" y="262.0">Acetate</tspan></text>
 
-  <text x="130" y="296.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#6ea8ff">5mg</text>
+  <text data-role="dose-text" x="130" y="296.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#6ea8ff">5mg</text>
 
   <line x1="80" y1="310.0" x2="180" y2="310.0" stroke="#d8dadc" stroke-width="1"/>
   <text x="130" y="324.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" letter-spacing="1" fill="#9aa0a5">FOR RESEARCH USE ONLY</text>
   <text x="130" y="335.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" letter-spacing="0.5" fill="#b7bcc0">NOT FOR HUMAN CONSUMPTION</text>
 
-  <text x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-153</text>
+  <text data-role="sku-text" x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-153</text>
 </svg>
   </div>
   <div class="card__body">
     <span class="card__cat" style="--cat-color:#6ea8ff">Growth & GH Secretagogues</span>
     <h3 class="card__name">GHRP-2 Acetate</h3>
-    <span class="card__dose">5mg</span>
+    <span class="card__dose">3 sizes · 5mg–15mg</span>
     <div class="card__foot">
-      <span class="card__price">$23 <small>/ vial</small></span>
+      <span class="card__price"><small>FROM</small> $23 <small>/ vial</small></span>
       <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </div>
   </div>
-</a><a class="card" href="peptides/kpv-5mg.html" data-card-category="recovery">
+</a><a class="card" href="peptides/kpv.html" data-card-category="recovery" data-card-name="kpv">
   <div class="card__media" style="--cat-color:#ff9466">
     <span class="card__badge">HPLC 99%+</span>
     <span class="card__stock">IN STOCK</span>
     <svg viewBox="0 0 260 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="kpv 5mg vial">
   <defs>
-    <linearGradient id="glass-kpv-5mg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="glass-kpv" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#3a4750" stop-opacity="0.55"/>
       <stop offset="45%" stop-color="#1c2429" stop-opacity="0.4"/>
       <stop offset="100%" stop-color="#0c1113" stop-opacity="0.6"/>
     </linearGradient>
-    <linearGradient id="cap-kpv-5mg" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="cap-kpv" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#ff9466" stop-opacity="0.95"/>
       <stop offset="100%" stop-color="#ff9466" stop-opacity="0.65"/>
     </linearGradient>
-    <linearGradient id="shine-kpv-5mg" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="shine-kpv" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
       <stop offset="50%" stop-color="#ffffff" stop-opacity="0.18"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
@@ -277,7 +292,7 @@
   <rect x="98" y="66" width="64" height="26" rx="4" fill="#2b2f33"/>
 
   <!-- crimp cap -->
-  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-kpv-5mg)"/>
+  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-kpv)"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#ff9466"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#ffffff" opacity="0.12"/>
   <g stroke="#000" stroke-opacity="0.15" stroke-width="1.5">
@@ -288,8 +303,8 @@
   </g>
 
   <!-- glass body -->
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-kpv-5mg)" stroke="#ffffff" stroke-opacity="0.14"/>
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-kpv-5mg)"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-kpv)" stroke="#ffffff" stroke-opacity="0.14"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-kpv)"/>
 
   <!-- label -->
   <rect x="66" y="170" width="128" height="176" rx="14" fill="#f4f5f6"/>
@@ -301,13 +316,13 @@
 
   <text text-anchor="middle" font-family="'Space Grotesk','Inter',sans-serif" font-weight="700" font-size="17" fill="#111214"><tspan x="130" y="252.0">kpv</tspan></text>
 
-  <text x="130" y="286.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#ff9466">5mg</text>
+  <text data-role="dose-text" x="130" y="286.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#ff9466">5mg</text>
 
   <line x1="80" y1="300.0" x2="180" y2="300.0" stroke="#d8dadc" stroke-width="1"/>
   <text x="130" y="314.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" letter-spacing="1" fill="#9aa0a5">FOR RESEARCH USE ONLY</text>
   <text x="130" y="325.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" letter-spacing="0.5" fill="#b7bcc0">NOT FOR HUMAN CONSUMPTION</text>
 
-  <text x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-118</text>
+  <text data-role="sku-text" x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-118</text>
 </svg>
   </div>
   <div class="card__body">
@@ -319,22 +334,22 @@
       <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </div>
   </div>
-</a><a class="card" href="peptides/dsip-2mg.html" data-card-category="cognitive">
+</a><a class="card" href="peptides/dsip.html" data-card-category="cognitive" data-card-name="DSIP">
   <div class="card__media" style="--cat-color:#b48cff">
     <span class="card__badge">HPLC 99%+</span>
     <span class="card__stock">IN STOCK</span>
     <svg viewBox="0 0 260 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="DSIP 2mg vial">
   <defs>
-    <linearGradient id="glass-dsip-2mg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="glass-dsip" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#3a4750" stop-opacity="0.55"/>
       <stop offset="45%" stop-color="#1c2429" stop-opacity="0.4"/>
       <stop offset="100%" stop-color="#0c1113" stop-opacity="0.6"/>
     </linearGradient>
-    <linearGradient id="cap-dsip-2mg" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="cap-dsip" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#b48cff" stop-opacity="0.95"/>
       <stop offset="100%" stop-color="#b48cff" stop-opacity="0.65"/>
     </linearGradient>
-    <linearGradient id="shine-dsip-2mg" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="shine-dsip" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
       <stop offset="50%" stop-color="#ffffff" stop-opacity="0.18"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
@@ -347,7 +362,7 @@
   <rect x="98" y="66" width="64" height="26" rx="4" fill="#2b2f33"/>
 
   <!-- crimp cap -->
-  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-dsip-2mg)"/>
+  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-dsip)"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#b48cff"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#ffffff" opacity="0.12"/>
   <g stroke="#000" stroke-opacity="0.15" stroke-width="1.5">
@@ -358,8 +373,8 @@
   </g>
 
   <!-- glass body -->
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-dsip-2mg)" stroke="#ffffff" stroke-opacity="0.14"/>
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-dsip-2mg)"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-dsip)" stroke="#ffffff" stroke-opacity="0.14"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-dsip)"/>
 
   <!-- label -->
   <rect x="66" y="170" width="128" height="176" rx="14" fill="#f4f5f6"/>
@@ -371,40 +386,40 @@
 
   <text text-anchor="middle" font-family="'Space Grotesk','Inter',sans-serif" font-weight="700" font-size="17" fill="#111214"><tspan x="130" y="252.0">DSIP</tspan></text>
 
-  <text x="130" y="286.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#b48cff">2mg</text>
+  <text data-role="dose-text" x="130" y="286.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#b48cff">2mg</text>
 
   <line x1="80" y1="300.0" x2="180" y2="300.0" stroke="#d8dadc" stroke-width="1"/>
   <text x="130" y="314.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" letter-spacing="1" fill="#9aa0a5">FOR RESEARCH USE ONLY</text>
   <text x="130" y="325.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" letter-spacing="0.5" fill="#b7bcc0">NOT FOR HUMAN CONSUMPTION</text>
 
-  <text x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-121</text>
+  <text data-role="sku-text" x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-121</text>
 </svg>
   </div>
   <div class="card__body">
     <span class="card__cat" style="--cat-color:#b48cff">Cognitive & Neuro Health</span>
     <h3 class="card__name">DSIP</h3>
-    <span class="card__dose">2mg</span>
+    <span class="card__dose">3 sizes · 2mg–15mg</span>
     <div class="card__foot">
-      <span class="card__price">$20 <small>/ vial</small></span>
+      <span class="card__price"><small>FROM</small> $20 <small>/ vial</small></span>
       <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </div>
   </div>
-</a><a class="card" href="peptides/epithalon-10mg.html" data-card-category="longevity">
+</a><a class="card" href="peptides/epithalon.html" data-card-category="longevity" data-card-name="Epithalon">
   <div class="card__media" style="--cat-color:#ffd166">
     <span class="card__badge">HPLC 99%+</span>
     <span class="card__stock">IN STOCK</span>
     <svg viewBox="0 0 260 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Epithalon 10mg vial">
   <defs>
-    <linearGradient id="glass-epithalon-10mg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="glass-epithalon" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#3a4750" stop-opacity="0.55"/>
       <stop offset="45%" stop-color="#1c2429" stop-opacity="0.4"/>
       <stop offset="100%" stop-color="#0c1113" stop-opacity="0.6"/>
     </linearGradient>
-    <linearGradient id="cap-epithalon-10mg" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="cap-epithalon" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#ffd166" stop-opacity="0.95"/>
       <stop offset="100%" stop-color="#ffd166" stop-opacity="0.65"/>
     </linearGradient>
-    <linearGradient id="shine-epithalon-10mg" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="shine-epithalon" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
       <stop offset="50%" stop-color="#ffffff" stop-opacity="0.18"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
@@ -417,7 +432,7 @@
   <rect x="98" y="66" width="64" height="26" rx="4" fill="#2b2f33"/>
 
   <!-- crimp cap -->
-  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-epithalon-10mg)"/>
+  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-epithalon)"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#ffd166"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#ffffff" opacity="0.12"/>
   <g stroke="#000" stroke-opacity="0.15" stroke-width="1.5">
@@ -428,8 +443,8 @@
   </g>
 
   <!-- glass body -->
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-epithalon-10mg)" stroke="#ffffff" stroke-opacity="0.14"/>
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-epithalon-10mg)"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-epithalon)" stroke="#ffffff" stroke-opacity="0.14"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-epithalon)"/>
 
   <!-- label -->
   <rect x="66" y="170" width="128" height="176" rx="14" fill="#f4f5f6"/>
@@ -441,40 +456,40 @@
 
   <text text-anchor="middle" font-family="'Space Grotesk','Inter',sans-serif" font-weight="700" font-size="17" fill="#111214"><tspan x="130" y="252.0">Epithalon</tspan></text>
 
-  <text x="130" y="286.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#ffd166">10mg</text>
+  <text data-role="dose-text" x="130" y="286.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#ffd166">10mg</text>
 
   <line x1="80" y1="300.0" x2="180" y2="300.0" stroke="#d8dadc" stroke-width="1"/>
   <text x="130" y="314.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" letter-spacing="1" fill="#9aa0a5">FOR RESEARCH USE ONLY</text>
   <text x="130" y="325.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" letter-spacing="0.5" fill="#b7bcc0">NOT FOR HUMAN CONSUMPTION</text>
 
-  <text x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-130</text>
+  <text data-role="sku-text" x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-130</text>
 </svg>
   </div>
   <div class="card__body">
     <span class="card__cat" style="--cat-color:#ffd166">Longevity & Anti-Aging</span>
     <h3 class="card__name">Epithalon</h3>
-    <span class="card__dose">10mg</span>
+    <span class="card__dose">2 sizes · 10mg–50mg</span>
     <div class="card__foot">
-      <span class="card__price">$32 <small>/ vial</small></span>
+      <span class="card__price"><small>FROM</small> $32 <small>/ vial</small></span>
       <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </div>
   </div>
-</a><a class="card" href="peptides/mt-1-10mg.html" data-card-category="hormonal">
+</a><a class="card" href="peptides/mt-1.html" data-card-category="hormonal" data-card-name="MT-1">
   <div class="card__media" style="--cat-color:#ff6b9d">
     <span class="card__badge">HPLC 99%+</span>
     <span class="card__stock">IN STOCK</span>
     <svg viewBox="0 0 260 460" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="MT-1 10mg vial">
   <defs>
-    <linearGradient id="glass-mt-1-10mg" x1="0" y1="0" x2="1" y2="1">
+    <linearGradient id="glass-mt-1" x1="0" y1="0" x2="1" y2="1">
       <stop offset="0%" stop-color="#3a4750" stop-opacity="0.55"/>
       <stop offset="45%" stop-color="#1c2429" stop-opacity="0.4"/>
       <stop offset="100%" stop-color="#0c1113" stop-opacity="0.6"/>
     </linearGradient>
-    <linearGradient id="cap-mt-1-10mg" x1="0" y1="0" x2="0" y2="1">
+    <linearGradient id="cap-mt-1" x1="0" y1="0" x2="0" y2="1">
       <stop offset="0%" stop-color="#ff6b9d" stop-opacity="0.95"/>
       <stop offset="100%" stop-color="#ff6b9d" stop-opacity="0.65"/>
     </linearGradient>
-    <linearGradient id="shine-mt-1-10mg" x1="0" y1="0" x2="1" y2="0">
+    <linearGradient id="shine-mt-1" x1="0" y1="0" x2="1" y2="0">
       <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
       <stop offset="50%" stop-color="#ffffff" stop-opacity="0.18"/>
       <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
@@ -487,7 +502,7 @@
   <rect x="98" y="66" width="64" height="26" rx="4" fill="#2b2f33"/>
 
   <!-- crimp cap -->
-  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-mt-1-10mg)"/>
+  <rect x="82" y="58" width="96" height="46" rx="10" fill="url(#cap-mt-1)"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#ff6b9d"/>
   <ellipse cx="130" cy="58" rx="48" ry="13" fill="#ffffff" opacity="0.12"/>
   <g stroke="#000" stroke-opacity="0.15" stroke-width="1.5">
@@ -498,8 +513,8 @@
   </g>
 
   <!-- glass body -->
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-mt-1-10mg)" stroke="#ffffff" stroke-opacity="0.14"/>
-  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-mt-1-10mg)"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#glass-mt-1)" stroke="#ffffff" stroke-opacity="0.14"/>
+  <rect x="52" y="100" width="156" height="308" rx="30" fill="url(#shine-mt-1)"/>
 
   <!-- label -->
   <rect x="66" y="170" width="128" height="176" rx="14" fill="#f4f5f6"/>
@@ -511,13 +526,13 @@
 
   <text text-anchor="middle" font-family="'Space Grotesk','Inter',sans-serif" font-weight="700" font-size="17" fill="#111214"><tspan x="130" y="252.0">MT-1</tspan></text>
 
-  <text x="130" y="286.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#ff6b9d">10mg</text>
+  <text data-role="dose-text" x="130" y="286.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="#ff6b9d">10mg</text>
 
   <line x1="80" y1="300.0" x2="180" y2="300.0" stroke="#d8dadc" stroke-width="1"/>
   <text x="130" y="314.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" letter-spacing="1" fill="#9aa0a5">FOR RESEARCH USE ONLY</text>
   <text x="130" y="325.0" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" letter-spacing="0.5" fill="#b7bcc0">NOT FOR HUMAN CONSUMPTION</text>
 
-  <text x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-116</text>
+  <text data-role="sku-text" x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">HLX-116</text>
 </svg>
   </div>
   <div class="card__body">
@@ -542,32 +557,32 @@
       <div class="cat-grid"><a class="cat-card" href="catalog.html#metabolic" style="--cat-color:#33e6b0">
       <span class="cat-card__dot"></span>
       <h3>Metabolic Research</h3>
-      <p>GLP-1 analogs, tirzepatide, retatrutide, semaglutide and metabolic research compounds.</p>
-      <span class="count">33 compounds cataloged</span>
+      <p>GLP-1 analogs, GLP2-T, GLP3-R, GLP1-S and metabolic research compounds.</p>
+      <span class="count">10 compounds cataloged</span>
       <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
     </a><a class="cat-card" href="catalog.html#growth" style="--cat-color:#6ea8ff">
       <span class="cat-card__dot"></span>
       <h3>Growth & GH Secretagogues</h3>
       <p>GH secretagogues, IGF-1, HGH and growth-axis research peptides.</p>
-      <span class="count">38 compounds cataloged</span>
+      <span class="count">18 compounds cataloged</span>
       <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
     </a><a class="cat-card" href="catalog.html#recovery" style="--cat-color:#ff9466">
       <span class="cat-card__dot"></span>
       <h3>Healing & Recovery</h3>
       <p>BPC-157, TB-500, GHK-Cu and tissue-repair research compounds.</p>
-      <span class="count">17 compounds cataloged</span>
+      <span class="count">13 compounds cataloged</span>
       <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
     </a><a class="cat-card" href="catalog.html#cognitive" style="--cat-color:#b48cff">
       <span class="cat-card__dot"></span>
       <h3>Cognitive & Neuro Health</h3>
       <p>Selank, Semax, kisspeptin and nootropic research peptides.</p>
-      <span class="count">12 compounds cataloged</span>
+      <span class="count">5 compounds cataloged</span>
       <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
     </a><a class="cat-card" href="catalog.html#longevity" style="--cat-color:#ffd166">
       <span class="cat-card__dot"></span>
       <h3>Longevity & Anti-Aging</h3>
       <p>Epithalon, NAD+, SS-31 and longevity-focused research compounds.</p>
-      <span class="count">18 compounds cataloged</span>
+      <span class="count">10 compounds cataloged</span>
       <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
     </a><a class="cat-card" href="catalog.html#hormonal" style="--cat-color:#ff6b9d">
       <span class="cat-card__dot"></span>
@@ -579,7 +594,7 @@
       <span class="cat-card__dot"></span>
       <h3>Specialty Research</h3>
       <p>Specialty and niche research compounds.</p>
-      <span class="count">5 compounds cataloged</span>
+      <span class="count">4 compounds cataloged</span>
       <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
     </a></div>
     </div>
@@ -637,6 +652,8 @@
     <button class="lightbox__close" data-lightbox-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     <div class="lightbox__inner" data-lightbox-inner></div>
   </div>
+<script src="assets/js/search-index.js"></script>
+<script src="assets/js/search.js"></script>
 <script src="assets/js/main.js"></script>
 </body>
 </html>

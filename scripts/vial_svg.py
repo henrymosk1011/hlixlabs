@@ -135,11 +135,11 @@ def render_vial(product, gradient_id_suffix=""):
 
   <text text-anchor="middle" font-family="'Space Grotesk','Inter',sans-serif" font-weight="700" font-size="{typo['font_size']}" fill="#111214">{name_tspans}</text>
 
-  <text x="130" y="{dose_y:.1f}" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="{color}">{html.escape(dose)}</text>
+  <text data-role="dose-text" x="130" y="{dose_y:.1f}" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-weight="700" font-size="16" fill="{color}">{html.escape(dose)}</text>
 
   <line x1="80" y1="{dose_y + 14:.1f}" x2="180" y2="{dose_y + 14:.1f}" stroke="#d8dadc" stroke-width="1"/>
   <text x="130" y="{dose_y + 28:.1f}" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6.5" letter-spacing="1" fill="#9aa0a5">FOR RESEARCH USE ONLY</text>
   <text x="130" y="{dose_y + 39:.1f}" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="6" letter-spacing="0.5" fill="#b7bcc0">NOT FOR HUMAN CONSUMPTION</text>
 
-  <text x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">{html.escape(sku)}</text>
+  <text data-role="sku-text" x="185" y="340" text-anchor="end" font-family="'JetBrains Mono',monospace" font-size="6" fill="#c7cace">{html.escape(sku)}</text>
 </svg>'''

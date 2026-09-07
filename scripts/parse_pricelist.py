@@ -20,11 +20,19 @@ OUT = ROOT / "data" / "products.json"
 
 NS = {"a": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
+# Renamed on request — every downstream reference (category copy, search
+# index, etc.) keys off this map so the original names never resurface.
+RENAME_MAP = {
+    "semaglutide": "GLP1-S",
+    "tirzepatide": "GLP2-T",
+    "retatrutide": "GLP3-R",
+}
+
 # Base peptide name -> (category slug, category label)
 CATEGORY_MAP = {
-    "tirzepatide": ("metabolic", "Metabolic Research"),
-    "retatrutide": ("metabolic", "Metabolic Research"),
-    "semaglutide": ("metabolic", "Metabolic Research"),
+    "glp2-t": ("metabolic", "Metabolic Research"),
+    "glp3-r": ("metabolic", "Metabolic Research"),
+    "glp1-s": ("metabolic", "Metabolic Research"),
     "cagrilintide": ("metabolic", "Metabolic Research"),
     "survodutide": ("metabolic", "Metabolic Research"),
     "mazdutide": ("metabolic", "Metabolic Research"),
@@ -183,6 +191,8 @@ def main():
             continue
 
         name_clean = re.sub(r"\s+", " ", name).strip()
+        if name_clean.lower() in RENAME_MAP:
+            name_clean = RENAME_MAP[name_clean.lower()]
         amount, unit, vial_count = parse_quantity(qty)
         cat_slug, cat_label = categorize(name_clean)
 

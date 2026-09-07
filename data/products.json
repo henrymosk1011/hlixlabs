@@ -1,7 +1,7 @@
 [
   {
-    "slug": "tirzepatide-5mg",
-    "name": "Tirzepatide",
+    "slug": "glp2-t-5mg",
+    "name": "GLP2-T",
     "dose": "5mg",
     "dose_amount": "5",
     "dose_unit": "mg",
@@ -13,8 +13,8 @@
     "in_stock": true
   },
   {
-    "slug": "tirzepatide-10mg",
-    "name": "Tirzepatide",
+    "slug": "glp2-t-10mg",
+    "name": "GLP2-T",
     "dose": "10mg",
     "dose_amount": "10",
     "dose_unit": "mg",
@@ -26,8 +26,8 @@
     "in_stock": true
   },
   {
-    "slug": "tirzepatide-15mg",
-    "name": "Tirzepatide",
+    "slug": "glp2-t-15mg",
+    "name": "GLP2-T",
     "dose": "15mg",
     "dose_amount": "15",
     "dose_unit": "mg",
@@ -39,8 +39,8 @@
     "in_stock": true
   },
   {
-    "slug": "tirzepatide-20mg",
-    "name": "Tirzepatide",
+    "slug": "glp2-t-20mg",
+    "name": "GLP2-T",
     "dose": "20mg",
     "dose_amount": "20",
     "dose_unit": "mg",
@@ -52,8 +52,8 @@
     "in_stock": true
   },
   {
-    "slug": "tirzepatide-30mg",
-    "name": "Tirzepatide",
+    "slug": "glp2-t-30mg",
+    "name": "GLP2-T",
     "dose": "30mg",
     "dose_amount": "30",
     "dose_unit": "mg",
@@ -65,8 +65,8 @@
     "in_stock": true
   },
   {
-    "slug": "tirzepatide-40mg",
-    "name": "Tirzepatide",
+    "slug": "glp2-t-40mg",
+    "name": "GLP2-T",
     "dose": "40mg",
     "dose_amount": "40",
     "dose_unit": "mg",
@@ -78,8 +78,8 @@
     "in_stock": true
   },
   {
-    "slug": "tirzepatide-45mg",
-    "name": "Tirzepatide",
+    "slug": "glp2-t-45mg",
+    "name": "GLP2-T",
     "dose": "45mg",
     "dose_amount": "45",
     "dose_unit": "mg",
@@ -91,8 +91,8 @@
     "in_stock": true
   },
   {
-    "slug": "tirzepatide-50mg",
-    "name": "Tirzepatide",
+    "slug": "glp2-t-50mg",
+    "name": "GLP2-T",
     "dose": "50mg",
     "dose_amount": "50",
     "dose_unit": "mg",
@@ -104,8 +104,8 @@
     "in_stock": true
   },
   {
-    "slug": "tirzepatide-60mg",
-    "name": "Tirzepatide",
+    "slug": "glp2-t-60mg",
+    "name": "GLP2-T",
     "dose": "60mg",
     "dose_amount": "60",
     "dose_unit": "mg",
@@ -117,8 +117,8 @@
     "in_stock": true
   },
   {
-    "slug": "retatrutide-5mg",
-    "name": "Retatrutide",
+    "slug": "glp3-r-5mg",
+    "name": "GLP3-R",
     "dose": "5mg",
     "dose_amount": "5",
     "dose_unit": "mg",
@@ -130,8 +130,8 @@
     "in_stock": true
   },
   {
-    "slug": "retatrutide-10mg",
-    "name": "Retatrutide",
+    "slug": "glp3-r-10mg",
+    "name": "GLP3-R",
     "dose": "10mg",
     "dose_amount": "10",
     "dose_unit": "mg",
@@ -143,8 +143,8 @@
     "in_stock": true
   },
   {
-    "slug": "retatrutide-15mg",
-    "name": "Retatrutide",
+    "slug": "glp3-r-15mg",
+    "name": "GLP3-R",
     "dose": "15mg",
     "dose_amount": "15",
     "dose_unit": "mg",
@@ -156,8 +156,8 @@
     "in_stock": true
   },
   {
-    "slug": "retatrutide-20mg",
-    "name": "Retatrutide",
+    "slug": "glp3-r-20mg",
+    "name": "GLP3-R",
     "dose": "20mg",
     "dose_amount": "20",
     "dose_unit": "mg",
@@ -169,8 +169,8 @@
     "in_stock": true
   },
   {
-    "slug": "retatrutide-30mg",
-    "name": "Retatrutide",
+    "slug": "glp3-r-30mg",
+    "name": "GLP3-R",
     "dose": "30mg",
     "dose_amount": "30",
     "dose_unit": "mg",
@@ -182,8 +182,8 @@
     "in_stock": true
   },
   {
-    "slug": "retatrutide-50mg",
-    "name": "Retatrutide",
+    "slug": "glp3-r-50mg",
+    "name": "GLP3-R",
     "dose": "50mg",
     "dose_amount": "50",
     "dose_unit": "mg",
@@ -572,8 +572,8 @@
     "in_stock": true
   },
   {
-    "slug": "semaglutide-2mg",
-    "name": "Semaglutide",
+    "slug": "glp1-s-2mg",
+    "name": "GLP1-S",
     "dose": "2mg",
     "dose_amount": "2",
     "dose_unit": "mg",
@@ -585,8 +585,8 @@
     "in_stock": true
   },
   {
-    "slug": "semaglutide-5mg",
-    "name": "Semaglutide",
+    "slug": "glp1-s-5mg",
+    "name": "GLP1-S",
     "dose": "5mg",
     "dose_amount": "5",
     "dose_unit": "mg",
@@ -598,8 +598,8 @@
     "in_stock": true
   },
   {
-    "slug": "semaglutide-10mg",
-    "name": "Semaglutide",
+    "slug": "glp1-s-10mg",
+    "name": "GLP1-S",
     "dose": "10mg",
     "dose_amount": "10",
     "dose_unit": "mg",
@@ -611,8 +611,8 @@
     "in_stock": true
   },
   {
-    "slug": "semaglutide-15mg",
-    "name": "Semaglutide",
+    "slug": "glp1-s-15mg",
+    "name": "GLP1-S",
     "dose": "15mg",
     "dose_amount": "15",
     "dose_unit": "mg",
@@ -624,8 +624,8 @@
     "in_stock": true
   },
   {
-    "slug": "semaglutide-20mg",
-    "name": "Semaglutide",
+    "slug": "glp1-s-20mg",
+    "name": "GLP1-S",
     "dose": "20mg",
     "dose_amount": "20",
     "dose_unit": "mg",
@@ -637,8 +637,8 @@
     "in_stock": true
   },
   {
-    "slug": "semaglutide-30mg",
-    "name": "Semaglutide",
+    "slug": "glp1-s-30mg",
+    "name": "GLP1-S",
     "dose": "30mg",
     "dose_amount": "30",
     "dose_unit": "mg",

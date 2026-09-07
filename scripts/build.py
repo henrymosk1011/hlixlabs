@@ -12,6 +12,7 @@ import shutil
 from pathlib import Path
 
 from vial_svg import render_vial, CATEGORY_COLORS
+from parse_pricelist import slugify
 
 ROOT = Path(__file__).resolve().parent.parent
 DATA = ROOT / "data" / "products.json"
@@ -22,7 +23,7 @@ BASE_DESCRIPTION = "hlix is a personal research catalog for peptides — dosing,
 CONTACT_EMAIL = "hello@hlix.io"
 
 CATEGORY_ORDER = [
-    ("metabolic", "Metabolic Research", "GLP-1 analogs, tirzepatide, retatrutide, semaglutide and metabolic research compounds."),
+    ("metabolic", "Metabolic Research", "GLP-1 analogs, GLP2-T, GLP3-R, GLP1-S and metabolic research compounds."),
     ("growth", "Growth & GH Secretagogues", "GH secretagogues, IGF-1, HGH and growth-axis research peptides."),
     ("recovery", "Healing & Recovery", "BPC-157, TB-500, GHK-Cu and tissue-repair research compounds."),
     ("cognitive", "Cognitive & Neuro Health", "Selank, Semax, kisspeptin and nootropic research peptides."),
@@ -41,6 +42,7 @@ ICONS = {
     "usa": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></svg>',
     "arrow": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     "zoom": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/></svg>',
+    "search": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
     "close": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
     "menu": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>',
     "mail": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>',
@@ -69,31 +71,41 @@ def nav_html(prefix, active):
         cls = " active" if key == active else ""
         return f'<a href="{prefix}{href}" class="{cls.strip()}">{label}</a>'
 
-    links = "".join([
-        link("catalog.html", "Catalog", "catalog"),
-        link("calculator.html", "Dosage Calculator", "calculator"),
-        link("about.html", "About", "about"),
-        link("contact.html", "Contact", "contact"),
-    ])
-    mobile_links = "".join([
-        link("catalog.html", "Catalog", "catalog"),
-        link("calculator.html", "Dosage Calculator", "calculator"),
-        link("about.html", "About", "about"),
-        link("contact.html", "Contact", "contact"),
-    ])
+    nav_order = [
+        ("about.html", "About", "about"),
+        ("catalog.html", "Catalog", "catalog"),
+        ("calculator.html", "Dosage Calculator", "calculator"),
+        ("contact.html", "Contact", "contact"),
+    ]
+    links = "".join(link(*l) for l in nav_order)
+    mobile_links = "".join(link(*l) for l in nav_order)
     return f'''<header class="site-header">
     <div class="ticker"><div class="ticker__track">{_ticker_items() * 2}</div></div>
     <div class="container nav">
       <a href="{prefix}index.html" class="brand"><span class="brand__mark">h</span>hlix</a>
       <nav class="nav__links">{links}</nav>
       <div class="nav__cta">
+        <button class="nav__search-trigger" data-search-trigger aria-label="Search products">{icon('search')}</button>
         <a href="{prefix}calculator.html" class="btn btn--ghost">{icon('calc')} Calculator</a>
         <a href="{prefix}catalog.html" class="btn btn--accent">View Catalog</a>
         <button class="nav__toggle" aria-label="Open menu" aria-expanded="false">{icon('menu')}</button>
       </div>
     </div>
-    <div class="mobile-menu">{mobile_links}<a href="{prefix}calculator.html" class="btn btn--accent btn--block">Dosage Calculator</a></div>
-  </header>'''
+    <div class="mobile-menu">
+      <button class="mobile-menu__search" data-search-trigger>{icon('search')} Search products…</button>
+      {mobile_links}<a href="{prefix}calculator.html" class="btn btn--accent btn--block">Dosage Calculator</a>
+    </div>
+  </header>
+  <div class="search-overlay" data-search-overlay>
+    <div class="search-panel">
+      <div class="search-panel__input-row">
+        {icon('search')}
+        <input type="text" placeholder="Search peptides, categories…" data-search-input autocomplete="off" spellcheck="false">
+        <button class="search-panel__close" data-search-close aria-label="Close search">{icon('close')}</button>
+      </div>
+      <div class="search-panel__results" data-search-results></div>
+    </div>
+  </div>'''
 
 
 def _ticker_items():
@@ -165,35 +177,79 @@ def page_shell(*, title, description, prefix, active, body, extra_head=""):
 {extra_head}
 </head>
 <body>
+<script>window.HLIX_PREFIX = "{prefix}";</script>
 {nav_html(prefix, active)}
 {body}
 {footer_html(prefix)}
 {lightbox_html()}
+<script src="{prefix}assets/js/search-index.js"></script>
+<script src="{prefix}assets/js/search.js"></script>
 <script src="{prefix}assets/js/main.js"></script>
 </body>
 </html>'''
 
 
+# ------------------------------------------------------------ grouping ----
+
+def group_products(products):
+    """Groups flat (name, dose) rows into one product per peptide name,
+    each carrying every dose as a variant — one catalog page per peptide,
+    with dose/price selectable on that page, instead of one page per row."""
+    order = []
+    by_name = {}
+    for p in products:
+        key = p["name"]
+        if key not in by_name:
+            by_name[key] = []
+            order.append(key)
+        by_name[key].append(p)
+
+    groups = []
+    for name in order:
+        variants = sorted(by_name[name], key=lambda v: float(v["dose_amount"] or 0))
+        default = variants[0]
+        prices = [v["price"] for v in variants]
+        groups.append({
+            "name": name,
+            "slug": slugify(name),
+            "category": default["category"],
+            "category_label": default["category_label"],
+            "variants": variants,
+            "default": default,
+            "min_price": min(prices),
+            "max_price": max(prices),
+        })
+    return groups
+
+
 # -------------------------------------------------------------- pieces -----
 
-def render_card(p, prefix):
-    svg = render_vial(p)
-    return f'''<a class="card" href="{prefix}peptides/{p['slug']}.html" data-card-category="{p['category']}">
-  <div class="card__media" style="--cat-color:{CATEGORY_COLORS.get(p['category'], '#33e6b0')}">
+def render_card(g, prefix):
+    d = g["default"]
+    svg = render_vial(d, gradient_id_suffix=g["slug"])
+    multi = len(g["variants"]) > 1
+    price_html = f"<small>FROM</small> {money(g['min_price'])}" if multi else money(d["price"])
+    dose_line = f"{len(g['variants'])} sizes · {g['variants'][0]['dose']}–{g['variants'][-1]['dose']}" if multi else d["dose"]
+    return f'''<a class="card" href="{prefix}peptides/{g['slug']}.html" data-card-category="{g['category']}" data-card-name="{html_escape(g['name'])}">
+  <div class="card__media" style="--cat-color:{CATEGORY_COLORS.get(g['category'], '#33e6b0')}">
     <span class="card__badge">HPLC 99%+</span>
     <span class="card__stock">IN STOCK</span>
     {svg}
   </div>
   <div class="card__body">
-    <span class="card__cat" style="--cat-color:{CATEGORY_COLORS.get(p['category'], '#33e6b0')}">{p['category_label']}</span>
-    <h3 class="card__name">{p['name']}</h3>
-    <span class="card__dose">{p['dose']}</span>
+    <span class="card__cat" style="--cat-color:{CATEGORY_COLORS.get(g['category'], '#33e6b0')}">{g['category_label']}</span>
+    <h3 class="card__name">{g['name']}</h3>
+    <span class="card__dose">{dose_line}</span>
     <div class="card__foot">
-      <span class="card__price">{money(p['price'])} <small>/ vial</small></span>
+      <span class="card__price">{price_html} <small>/ vial</small></span>
       <span class="card__arrow">{icon('arrow')}</span>
     </div>
   </div>
 </a>'''
+
+
+def html_escape(s):
+    return s.replace("&", "&amp;").replace('"', "&quot;").replace("<", "&lt;").replace(">", "&gt;")
 
 
 def trust_grid_html():
@@ -215,10 +271,10 @@ def ruo_notice():
 
 # ---------------------------------------------------------------- home -----
 
-def render_home(products):
+def render_home(groups):
     prefix = ""
-    total = len(products)
-    categories_used = sorted({p["category"] for p in products})
+    total = len(groups)
+    categories_used = sorted({g["category"] for g in groups})
 
     hero_vial = render_vial({
         "name": "RESEARCH PEPTIDE",
@@ -228,15 +284,13 @@ def render_home(products):
         "slug": "hero",
     }, gradient_id_suffix="hero")
 
-    featured_slugs_seen = set()
     featured = []
     for slug, _, _ in CATEGORY_ORDER:
         if slug == "supplies":
             continue
-        for p in products:
-            if p["category"] == slug and p["name"] not in featured_slugs_seen:
-                featured.append(p)
-                featured_slugs_seen.add(p["name"])
+        for g in groups:
+            if g["category"] == slug:
+                featured.append(g)
                 break
     featured = featured[:6]
 
@@ -244,7 +298,7 @@ def render_home(products):
     for slug, label, desc in CATEGORY_ORDER:
         if slug == "supplies":
             continue
-        count = sum(1 for p in products if p["category"] == slug)
+        count = sum(1 for g in groups if g["category"] == slug)
         color = CATEGORY_COLORS[slug]
         cat_cards += f'''<a class="cat-card" href="catalog.html#{slug}" style="--cat-color:{color}">
       <span class="cat-card__dot"></span>
@@ -343,7 +397,7 @@ def render_catalog(products):
     <div class="container">
       <span class="eyebrow">THE CATALOG</span>
       <h1>Every compound, one list.</h1>
-      <p>{len(products)} cataloged entries across {len({p['category'] for p in products})} categories. Priced as 1 vial at the sourced pack rate — filter by category or scroll the full list.</p>
+      <p>{len(products)} peptides cataloged across {len({p['category'] for p in products})} categories, every available vial size on its own product page. Priced as 1 vial at the sourced pack rate — filter by category, search, or scroll the full list.</p>
     </div>
   </section>
   <section class="section">
@@ -365,38 +419,56 @@ def render_catalog(products):
 
 # --------------------------------------------------------- product page ----
 
-def render_product_page(p, products):
+def render_product_page(g, groups):
     prefix = "../"
-    svg = render_vial(p)
-    related = [x for x in products if x["category"] == p["category"] and x["slug"] != p["slug"]][:4]
+    d = g["default"]
+    svg = render_vial(d, gradient_id_suffix=g["slug"])
+    related = [x for x in groups if x["category"] == g["category"] and x["slug"] != g["slug"]][:4]
     related_html = "".join(render_card(r, prefix) for r in related)
     related_section = f'''
   <section class="related">
     <div class="section__head">
-      <div><span class="section__kicker">// RELATED</span><h2>More from {p['category_label']}</h2></div>
+      <div><span class="section__kicker">// RELATED</span><h2>More from {g['category_label']}</h2></div>
     </div>
     <div class="product-grid">{related_html}</div>
   </section>''' if related else ""
 
+    variants = g["variants"]
+    multi = len(variants) > 1
+    variant_chips = "".join(
+        f'<button class="chip{" is-active" if v is d else ""}" data-variant '
+        f'data-dose="{html_escape(v["dose"])}" data-price="{v["price"]:.2f}" data-sku="{html_escape(v["sku"])}">{v["dose"]}</button>'
+        for v in variants
+    )
+    variant_selector = f'''
+        <div class="calc-group" style="margin-bottom:26px;">
+          <div class="calc-group__label">Vial size</div>
+          <div class="chip-row" data-variant-group>{variant_chips}</div>
+        </div>''' if multi else ""
+
+    price_note = "1 vial" if not multi else "per vial · sizes above"
+
     body = f'''
   <div class="container">
     <nav class="breadcrumb">
-      <a href="{prefix}index.html">Home</a> / <a href="{prefix}catalog.html">Catalog</a> / <a href="{prefix}catalog.html#{p['category']}">{p['category_label']}</a> / <span>{p['name']}</span>
+      <a href="{prefix}index.html">Home</a> / <a href="{prefix}catalog.html">Catalog</a> / <a href="{prefix}catalog.html#{g['category']}">{g['category_label']}</a> / <span>{g['name']}</span>
     </nav>
-    <div class="product-layout">
-      <div class="product-media" data-zoom-trigger style="--cat-color:{CATEGORY_COLORS.get(p['category'], '#33e6b0')}">
+    <div class="product-layout" data-product-page>
+      <div class="product-media" data-zoom-trigger style="--cat-color:{CATEGORY_COLORS.get(g['category'], '#33e6b0')}">
         {svg}
         <span class="product-media__hint">{icon('zoom')} Click to enlarge</span>
       </div>
       <div class="product-info">
         <span class="product-info__purity">{icon('flask')} ≥99% Purity · HPLC Verified</span>
-        <h1>{p['name']}</h1>
-        <div class="product-info__dose">{p['dose']} · SKU {p['sku']}</div>
+        <h1>{g['name']}</h1>
+        <div class="product-info__dose"><span data-field="dose">{d['dose']}</span> · SKU <span data-field="sku">{d['sku']}</span></div>
         <div class="product-info__price-row">
-          <span class="product-info__price">{money(p['price'])}</span>
-          <span class="product-info__price-note">per vial · {p['dose']}</span>
+          <span class="product-info__price" data-field="price">{money(d['price'])}</span>
+          <span class="product-info__price-note">{price_note}</span>
         </div>
         <div class="product-info__stock">In stock — ready in inventory</div>
+
+        {variant_selector}
 
         <div class="mini-trust">
           <div>{icon('flask')}HPLC Tested</div>
@@ -415,12 +487,12 @@ def render_product_page(p, products):
           </div>
           <div class="tabs__panel is-active" data-tab-panel="overview">
             <h3>Research Summary</h3>
-            <p>{p['name']} — {p['dose']} vial, cataloged under {p['category_label'].lower()}. Logged at ≥99% purity per the standard applied across this catalog.</p>
+            <p>{g['name']} — cataloged under {g['category_label'].lower()}, available in {len(variants)} vial size{'s' if multi else ''}. Logged at ≥99% purity per the standard applied across this catalog.</p>
             <table class="data-table">
-              <tr><td>Category</td><td>{p['category_label']}</td></tr>
-              <tr><td>Dose per vial</td><td>{p['dose']}</td></tr>
+              <tr><td>Category</td><td>{g['category_label']}</td></tr>
+              <tr><td>Dose per vial</td><td data-field="dose">{d['dose']}</td></tr>
               <tr><td>Purity standard</td><td>≥99% (HPLC verified)</td></tr>
-              <tr><td>SKU</td><td>{p['sku']}</td></tr>
+              <tr><td>SKU</td><td data-field="sku">{d['sku']}</td></tr>
               <tr><td>Research use only</td><td>Not for human consumption</td></tr>
             </table>
           </div>
@@ -439,11 +511,12 @@ def render_product_page(p, products):
   </div>
 '''
     return page_shell(
-        title=f"{p['name']} {p['dose']}",
-        description=f"{p['name']} {p['dose']} — {p['category_label']} research compound, ≥99% purity, HPLC verified.",
+        title=g["name"],
+        description=f"{g['name']} — {g['category_label']} research compound, ≥99% purity, HPLC verified. {len(variants)} vial size{'s' if multi else ''} available.",
         prefix=prefix,
         active="catalog",
         body=body,
+        extra_head=f'<script src="{prefix}assets/js/product.js" defer></script>',
     )
 
 
@@ -674,11 +747,26 @@ def render_calculator():
 
 # ----------------------------------------------------------------- main ----
 
+def render_search_index(groups):
+    entries = [{
+        "name": g["name"],
+        "slug": g["slug"],
+        "category": g["category_label"],
+        "priceFrom": g["min_price"],
+        "multi": len(g["variants"]) > 1,
+    } for g in groups]
+    js = "window.HLIX_SEARCH_INDEX = " + json.dumps(entries) + ";"
+    (ROOT / "assets" / "js" / "search-index.js").write_text(js)
+
+
 def main():
     products = load_products()
+    groups = group_products(products)
 
-    (ROOT / "index.html").write_text(render_home(products))
-    (ROOT / "catalog.html").write_text(render_catalog(products))
+    render_search_index(groups)
+
+    (ROOT / "index.html").write_text(render_home(groups))
+    (ROOT / "catalog.html").write_text(render_catalog(groups))
     (ROOT / "about.html").write_text(render_about())
     (ROOT / "contact.html").write_text(render_contact())
     (ROOT / "calculator.html").write_text(render_calculator())
@@ -687,10 +775,10 @@ def main():
     if peptides_dir.exists():
         shutil.rmtree(peptides_dir)
     peptides_dir.mkdir()
-    for p in products:
-        (peptides_dir / f"{p['slug']}.html").write_text(render_product_page(p, products))
+    for g in groups:
+        (peptides_dir / f"{g['slug']}.html").write_text(render_product_page(g, groups))
 
-    print(f"Built {5} core pages + {len(products)} product pages.")
+    print(f"Built 5 core pages + {len(groups)} product pages ({len(products)} vial variants total).")
 
 
 if __name__ == "__main__":
