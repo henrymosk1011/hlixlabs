@@ -71,6 +71,13 @@
     return f.replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
   }
 
+  // Syringe SVG geometry — must match the coordinates in the markup.
+  var SYR_BARREL_X = 75;
+  var SYR_BARREL_W = 260;
+  var SYR_CAP_W = 8;
+  var SYR_ROD_LEN = 70;
+  var SYR_FLANGE_W = 14;
+
   function render() {
     var vial = state.vial;
     var water = state.water;
@@ -87,16 +94,29 @@
       if (el) el.textContent = value;
     };
 
+    set("vialEcho", fmt(vial, 2) + " mg");
+    set("waterEcho", fmt(water, 2) + " mL");
     set("calcConcentration", concentration > 0 ? fmt(concentration, 2) : "—");
     set("calcDrawUnits", drawUnits > 0 ? fmt(drawUnits, 1) : "—");
     set("calcDrawVolume", drawVolumeMl > 0 ? fmt(drawVolumeMl, 3) : "—");
 
-    var gaugeFill = document.getElementById("syringeGaugeFill");
+    var fillRect = document.getElementById("syringeFillRect");
+    var plungerCap = document.getElementById("syringePlungerCap");
+    var rod = document.getElementById("syringeRod");
+    var flange = document.getElementById("syringeFlange");
     var warn = document.getElementById("syringeWarn");
-    if (gaugeFill) {
-      var pct = syringeMaxUnits > 0 ? Math.min(100, (drawUnits / syringeMaxUnits) * 100) : 0;
-      gaugeFill.style.width = pct + "%";
-    }
+
+    var pct = syringeMaxUnits > 0 ? Math.min(100, (drawUnits / syringeMaxUnits) * 100) : 0;
+    var fillW = (pct / 100) * SYR_BARREL_W;
+    var capX = SYR_BARREL_X + fillW - SYR_CAP_W / 2;
+    var rodX = capX + SYR_CAP_W / 2;
+    var flangeX = rodX + SYR_ROD_LEN - SYR_FLANGE_W;
+
+    if (fillRect) fillRect.setAttribute("width", fillW.toFixed(1));
+    if (plungerCap) plungerCap.setAttribute("x", capX.toFixed(1));
+    if (rod) { rod.setAttribute("x", rodX.toFixed(1)); rod.setAttribute("width", SYR_ROD_LEN); }
+    if (flange) flange.setAttribute("x", flangeX.toFixed(1));
+
     if (warn) {
       var overCapacity = drawUnits > syringeMaxUnits && syringeMaxUnits > 0;
       warn.classList.toggle("is-visible", overCapacity);

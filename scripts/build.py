@@ -49,6 +49,7 @@ ICONS = {
     "arrow": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>',
     "zoom": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3M11 8v6M8 11h6"/></svg>',
     "search": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>',
+    "sparkles": '<svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg>',
     "close": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg>',
     "menu": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>',
     "mail": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m2 7 10 6 10-6"/></svg>',
@@ -77,14 +78,19 @@ def nav_html(prefix, active):
         cls = " active" if key == active else ""
         return f'<a href="{prefix}{href}" class="{cls.strip()}">{label}</a>'
 
-    nav_order = [
+    # Contact is promoted to the accent CTA button, so it's dropped from
+    # the desktop text links (it would otherwise appear twice). The
+    # mobile slide-out menu keeps a full link list since it doesn't have
+    # a persistent, always-visible Contact button the way desktop does.
+    nav_order_desktop = [
         ("about.html", "About", "about"),
         ("catalog.html", "Catalog", "catalog"),
         ("calculator.html", "Dosage Calculator", "calculator"),
-        ("contact.html", "Contact", "contact"),
     ]
-    links = "".join(link(*l) for l in nav_order)
-    mobile_links = "".join(link(*l) for l in nav_order)
+    nav_order_mobile = nav_order_desktop + [("contact.html", "Contact", "contact")]
+
+    links = "".join(link(*l) for l in nav_order_desktop)
+    mobile_links = "".join(link(*l) for l in nav_order_mobile)
     return f'''<header class="site-header">
     <div class="ticker"><div class="ticker__track">{_ticker_items() * 2}</div></div>
     <div class="container nav">
@@ -97,14 +103,14 @@ def nav_html(prefix, active):
       </div>
       <div class="nav__cta">
         <button class="nav__search-trigger" data-search-trigger aria-label="Search products">{icon('search')}</button>
-        <a href="{prefix}catalog.html" class="btn btn--accent">View Catalog</a>
+        <a href="{prefix}contact.html" class="btn btn--accent">Contact</a>
         <button class="nav__toggle" aria-label="Open menu" aria-expanded="false">{icon('menu')}</button>
       </div>
     </div>
   </header>
   <div class="mobile-menu">
     <button class="mobile-menu__search" data-search-trigger>{icon('search')} Search products…</button>
-    {mobile_links}<a href="{prefix}calculator.html" class="btn btn--accent btn--block">Dosage Calculator</a>
+    {mobile_links}<a href="{prefix}contact.html" class="btn btn--accent btn--block">Contact</a>
   </div>
   <div class="search-overlay" data-search-overlay>
     <div class="search-panel">
@@ -368,6 +374,16 @@ def render_home(groups):
         <div><span class="section__kicker">// STANDARD</span><h2>The same bar, every time</h2><p>Every compound in this catalog is held to one standard before it's logged.</p></div>
       </div>
       {trust_grid_html()}
+    </div>
+  </section>
+
+  <section class="section--tight">
+    <div class="container">
+      <div class="cta-band cta-band--ai">
+        <span class="cta-band__icon">{icon('sparkles')}</span>
+        <h2>Ask the hlix AI assistant</h2>
+        <p>It knows the whole catalog — every compound, category and price — plus general research background on peptides. Look for the sparkle icon in the bottom-right corner of any page.</p>
+      </div>
     </div>
   </section>
 
@@ -671,7 +687,7 @@ def render_calculator():
             </div>
           </div>
           <div class="calc-group">
-            <div class="calc-group__label">Bacteriostatic water added</div>
+            <div class="calc-group__label">Bacteriostatic water added <span class="calc-group__value" id="waterEcho">2 mL</span></div>
             <div class="chip-row" data-calc="water">
               {chip_row('water', [0.5,1,2,2.5,3,5], ' mL', 2)}
               <button class="chip" data-value="custom">Custom</button>
@@ -713,12 +729,41 @@ def render_calculator():
         <div class="results-card">
           <h2>Results</h2>
           <div class="result-big">
-            <div class="result-big__value" id="calcConcentration">2.5</div>
-            <div class="result-big__unit">mg / mL CONCENTRATION</div>
+            <div class="result-big__value"><span id="calcDrawUnits">10</span></div>
+            <div class="result-big__unit">UNITS — DRAW TO THIS LINE</div>
           </div>
-          <div class="result-row"><span class="result-row__label">Draw to</span><span class="result-row__value"><span id="calcDrawUnits">10</span> units</span></div>
+          <div class="result-row"><span class="result-row__label">Concentration</span><span class="result-row__value"><span id="calcConcentration">2.5</span> mg/mL</span></div>
           <div class="result-row"><span class="result-row__label">Volume</span><span class="result-row__value"><span id="calcDrawVolume">0.1</span> mL</span></div>
-          <div class="syringe-gauge"><div class="syringe-gauge__fill" id="syringeGaugeFill" style="width:10%"></div></div>
+
+          <div class="syringe" aria-hidden="true">
+            <svg viewBox="0 0 440 100" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <clipPath id="syringeBarrelClip">
+                  <rect x="75" y="32" width="260" height="36" rx="6"/>
+                </clipPath>
+                <linearGradient id="syringeGlass" x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="0%" stop-color="#3a4750" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#0c1113" stop-opacity="0.55"/>
+                </linearGradient>
+              </defs>
+              <line x1="8" y1="50" x2="50" y2="50" stroke="#8a8f94" stroke-width="2.5" stroke-linecap="round"/>
+              <polygon points="50,42 72,46 72,54 50,58" fill="#3a4046"/>
+              <rect x="75" y="30" width="260" height="40" rx="8" fill="url(#syringeGlass)" stroke="#ffffff" stroke-opacity="0.14"/>
+              <g stroke="#ffffff" stroke-opacity="0.16" stroke-width="1">
+                <line x1="107.5" y1="34" x2="107.5" y2="66"/>
+                <line x1="140" y1="38" x2="140" y2="62"/>
+                <line x1="172.5" y1="34" x2="172.5" y2="66"/>
+                <line x1="205" y1="38" x2="205" y2="62"/>
+                <line x1="237.5" y1="34" x2="237.5" y2="66"/>
+                <line x1="270" y1="38" x2="270" y2="62"/>
+                <line x1="302.5" y1="34" x2="302.5" y2="66"/>
+              </g>
+              <rect id="syringeFillRect" x="75" y="30" width="26" height="40" fill="#33e6b0" fill-opacity="0.5" clip-path="url(#syringeBarrelClip)"/>
+              <rect id="syringeRod" x="101" y="45" width="70" height="10" rx="3" fill="#4b5359"/>
+              <rect id="syringeFlange" x="157" y="35" width="14" height="30" rx="4" fill="#4b5359"/>
+              <rect id="syringePlungerCap" x="97" y="24" width="8" height="52" rx="3" fill="#33e6b0"/>
+            </svg>
+          </div>
           <div class="result-warn" id="syringeWarn"></div>
 
           <h2 style="margin-top:30px;">Supply</h2>
