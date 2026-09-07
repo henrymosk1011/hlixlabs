@@ -185,6 +185,7 @@ def page_shell(*, title, description, prefix, active, body, extra_head=""):
 <script src="{prefix}assets/js/search-index.js"></script>
 <script src="{prefix}assets/js/search.js"></script>
 <script src="{prefix}assets/js/main.js"></script>
+<script src="{prefix}assets/js/chatbot.js"></script>
 </body>
 </html>'''
 

@@ -1,9 +1,12 @@
 # hlix
 
-A personal research-peptide catalog: one page per compound, a category-filtered
-catalog, an About/Contact page, and a standalone reconstitution/dosage
-calculator. Static HTML/CSS/JS — no build step, no backend, no shopping cart.
-Deploys as-is to GitHub Pages (or any static host).
+A personal research-peptide catalog: one page per compound (with a
+vial-size selector when a peptide has multiple doses), a category-filtered
+and searchable catalog, an About/Contact page, a standalone
+reconstitution/dosage calculator, and an optional AI chat widget backed by
+a small serverless function. The site itself is static HTML/CSS/JS — no
+build step to view it, no shopping cart. The chat widget is the one piece
+that needs a real backend; see "Chat backend" below.
 
 ## Structure
 
@@ -22,10 +25,13 @@ hlix/
 ├── data/
 │   ├── price_list_source.xlsx   Source of truth — replace this file to update prices
 │   └── products.json            Generated from the xlsx — do not hand-edit
-└── scripts/
-    ├── parse_pricelist.py  xlsx -> data/products.json
-    ├── build.py             products.json -> all HTML pages
-    └── vial_svg.py          Generates the coded vial "product photo" per item
+├── scripts/
+│   ├── parse_pricelist.py  xlsx -> data/products.json
+│   ├── build.py             products.json -> all HTML pages + search index
+│   └── vial_svg.py          Generates the coded vial "product photo" per item
+└── api/
+    └── chat.js               Serverless function backing the chat widget
+                               (Vercel Node function — needs ANTHROPIC_API_KEY)
 ```
 
 ## Updating the catalog
@@ -49,11 +55,19 @@ single vial, per how you price things.
 
 ## Product images
 
-There's no photo generation involved — every "photo" is a coded SVG vial
-with your label text rendered onto it (`scripts/vial_svg.py`), color-coded by
-category. If you ever get real product photography, swap `render_vial()`'s
-output for an `<img>` tag pointing at your photos; the rest of the template
-doesn't care which it gets.
+Every "photo" right now is a coded SVG vial with your label text rendered
+onto it (`scripts/vial_svg.py`), color-coded by category — there's no actual
+image generation involved, since this session doesn't have that tool.
+
+`python3 scripts/generate_image_prompts.py` writes `data/image-prompts.txt`:
+one ready-to-paste prompt per category (8 total) for a **blank** vial in that
+category's cap color. Paste each into an image generator (Midjourney, DALL·E
+via ChatGPT, Google Gemini/Imagen, Adobe Firefly) and save the result. Blank
+on purpose — AI image models render small precise label text badly, so the
+plan is: 8 real/AI photos for the glass+cap, with the existing crisp
+HTML/CSS label kept as an overlay on top, the same way it's rendered today.
+Send the resulting images back and I'll wire up the img-with-overlay
+version — the rest of the build pipeline doesn't change.
 
 ## Before you publish anywhere public
 
@@ -67,18 +81,46 @@ doesn't care which it gets.
 
 ## Local preview
 
-No dependencies. From the project root:
+No dependencies for the static site itself. From the project root:
 ```bash
 python3 -m http.server 8000
 ```
-then open http://localhost:8000.
+then open http://localhost:8000. The chat widget will render but can't reach
+a backend this way (see below) — that's expected locally.
 
-## Hosting on GitHub
+## Getting this onto GitHub
 
 ```bash
 git remote add origin <your-empty-github-repo-url>
 git branch -M main
 git push -u origin main
 ```
-Then in the repo's Settings → Pages, set the source to the `main` branch,
-root folder. No build step needed — it's already static HTML.
+Create the empty repo on GitHub first (github.com → New repository, no
+README/gitignore — this project already has both), then run the above with
+that repo's URL.
+
+## Hosting — two options depending on whether you want the chat widget live
+
+**Static only, no chat backend:** GitHub Pages works as-is. Repo Settings →
+Pages → source = `main` branch, root folder. No build step. The chat bubble
+will still show but always says it can't reach the assistant, since Pages
+can't run server code.
+
+**With the chat backend (recommended):** deploy to **Vercel** instead —
+Vercel serves the static pages *and* runs `api/chat.js` as a serverless
+function from the same repo, so GitHub Pages isn't needed at all in this
+case:
+1. Push the repo to GitHub (above).
+2. Go to vercel.com → sign in with GitHub → "Add New Project" → import this
+   repo. Leave build settings on their defaults (no framework, no build
+   command needed — it's static files plus one `/api` function).
+3. Before or after the first deploy, go to the project's **Settings →
+   Environment Variables** and add `ANTHROPIC_API_KEY` with a real key from
+   console.anthropic.com. Redeploy if you added it after the first deploy.
+4. Visit the `*.vercel.app` URL Vercel gives you — the chat widget now
+   actually answers. Every future `git push` to `main` auto-redeploys.
+
+Cost note: `api/chat.js` uses Claude Haiku by default (cheap) and caps each
+visitor to 30 messages/hour per IP as a basic abuse guard — see the comments
+in that file if you want to tighten it further or swap in a real rate
+limiter (Vercel KV / Upstash) once there's real traffic.

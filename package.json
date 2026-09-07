@@ -1,0 +1,9 @@
+{
+  "name": "hlix",
+  "private": true,
+  "version": "1.0.0",
+  "description": "hlix — personal research peptide catalog with a serverless chat backend.",
+  "engines": {
+    "node": ">=18"
+  }
+}
