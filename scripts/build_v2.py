@@ -56,6 +56,30 @@ def syringe_svg(uid):
 </svg>'''
 
 
+
+VIALS = ROOT / "assets" / "img" / "vials"
+
+
+def has_photo(v):
+    return (VIALS / f"{v['sku'].lower()}.webp").exists()
+
+
+def vial_media(v, uid, size, root, alt=None, eager=False):
+    """Photoreal composited bottle when assets/img/vials/<sku>.webp exists, else the coded SVG.
+
+    size 's' = 480x600 thumbnail, 'l' = 1280x1600. root = relative path to the site root.
+    """
+    if has_photo(v):
+        sku = v["sku"].lower()
+        f = f"{sku}-s.webp" if size == "s" else f"{sku}.webp"
+        w, h = (480, 600) if size == "s" else (1280, 1600)
+        alt = alt or f"{v['name']} {v['dose']} research vial"
+        load = "" if eager else ' loading="lazy"'
+        return (f'<img src="{root}assets/img/vials/{f}" data-base="{root}assets/img/vials/" alt="{esc(alt)}" '
+                f'width="{w}" height="{h}" decoding="async"{load}>')
+    return render_vial(v, gradient_id_suffix=uid)
+
+
 # ---------------------------------------------------------------- shell ---
 
 def nav(p, page):
@@ -153,7 +177,7 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 
 def card(g, p, uid_prefix="c"):
     d = g["default"]
-    svg = render_vial(d, gradient_id_suffix=f"{uid_prefix}-{g['slug']}")
+    svg = vial_media(d, f"{uid_prefix}-{g['slug']}", "s", p + "../")
     multi = len(g["variants"]) > 1
     price = f"from {money(g['min_price'])}" if multi else money(d["price"])
     meta = f"{g['category_label']} · {len(g['variants'])} sizes" if multi else f"{g['category_label']} · {d['dose']}"
@@ -177,15 +201,16 @@ def page_home(groups):
         hero.append(groups[len(hero)])
 
     def hv(g, cls, sp, rot, uid):
-        svg = render_vial(g["default"], gradient_id_suffix=f"hero-{uid}")
-        return f'<div class="hv {cls}" data-parallax="{sp}" data-rot="{rot}"><div class="hv__in">{svg}</div></div>'
+        svg = vial_media(g["default"], f"hero-{uid}", "l", "../", eager=True)
+        photo = " hv--photo" if has_photo(g["default"]) else ""
+        return f'<div class="hv {cls}{photo}" data-parallax="{sp}" data-rot="{rot}"><div class="hv__in">{svg}</div></div>'
 
     hero_vials = hv(hero[0], "hv--a", "-0.10", "0", "a") + hv(hero[1], "hv--b", "0.06", "0", "b") + hv(hero[2], "hv--c", "0.14", "0", "c")
 
     lcards = ""
     for i, g in enumerate(featured):
         d = g["default"]
-        svg = render_vial(d, gradient_id_suffix=f"ln-{g['slug']}")
+        svg = vial_media(d, f"ln-{g['slug']}", "s", "../")
         multi = len(g["variants"]) > 1
         price = f"from {money(g['min_price'])}" if multi else money(d["price"])
         color = CATEGORY_COLORS.get(g["category"], "#33e6b0")
@@ -321,7 +346,7 @@ def page_catalog(groups):
 
 def page_product(g, groups):
     d = g["default"]
-    svg = render_vial(d, gradient_id_suffix=f"pdp-{g['slug']}")
+    svg = vial_media(d, f"pdp-{g['slug']}", "l", "../../", eager=True)
     variants = g["variants"]
     multi = len(variants) > 1
     color = CATEGORY_COLORS.get(g["category"], "#33e6b0")
@@ -329,7 +354,7 @@ def page_product(g, groups):
     if multi:
         btns = "".join(
             f'<button role="radio" aria-checked="{"true" if v is d else "false"}" class="{"is-active" if v is d else ""}" data-variant '
-            f'data-dose="{esc(v["dose"])}" data-price="{v["price"]:.0f}" data-sku="{esc(v["sku"])}">{esc(v["dose"])}</button>'
+            f'data-dose="{esc(v["dose"])}" data-price="{v["price"]:.0f}" data-sku="{esc(v["sku"])}" data-img="{v["sku"].lower()}">{esc(v["dose"])}</button>'
             for v in variants
         )
         seg = f'<span class="field-l">vial size</span><div class="seg" data-seg role="radiogroup" aria-label="vial size"><span class="seg__thumb"></span>{btns}</div>'

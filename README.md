@@ -87,6 +87,26 @@ HTML/CSS label kept as an overlay on top, the same way it's rendered today.
 Send the resulting images back and I'll wire up the img-with-overlay
 version — the rest of the build pipeline doesn't change.
 
+## Photoreal bottles (v2)
+
+v2 uses real product photography: one AI-generated photo of a black-labeled
+vial (`data/photo/base-black.webp`), with a printed label composited on for
+every one of the 130 catalog variants. Regenerate after a price/name change:
+
+```bash
+python3 -m venv .venv && ./.venv/bin/pip install pillow numpy   # once
+./.venv/bin/python scripts/photo_labels.py                       # all 130 (~70s)
+./.venv/bin/python scripts/photo_labels.py --only glp1-s         # one product
+python3 scripts/build_v2.py
+```
+
+Each label is typeset from `data/products.json`, wrapped around the bottle's
+cylinder (so type foreshortens toward the edges) and lit using
+`data/photo/base-white.webp` — the same bottle with a white label — as a
+lighting map. Output goes to `assets/img/vials/<sku>.webp` (1280x1600) plus
+`<sku>-s.webp` (480x600). Any variant with no image falls back to the coded
+SVG vial. To change the look, edit `render_art()` in `scripts/photo_labels.py`.
+
 ## Before you publish anywhere public
 
 - `CONTACT_EMAIL` in `scripts/build.py` is a placeholder (`hello@hlix.io`) —

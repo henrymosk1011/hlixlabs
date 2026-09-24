@@ -51,7 +51,7 @@ CATEGORY_MAP = {
     "ghrp-2 acetate": ("growth", "Growth & GH Secretagogues"),
     "ghrp-6 acetate": ("growth", "Growth & GH Secretagogues"),
     "tesamorelin": ("growth", "Growth & GH Secretagogues"),
-    "hgh 191aa(somatropin）": ("growth", "Growth & GH Secretagogues"),
+    "hgh 191aa(somatropin)": ("growth", "Growth & GH Secretagogues"),
     "hcg": ("growth", "Growth & GH Secretagogues"),
     "hmg": ("growth", "Growth & GH Secretagogues"),
     "mgf": ("growth", "Growth & GH Secretagogues"),
@@ -62,7 +62,7 @@ CATEGORY_MAP = {
     "follistatin": ("growth", "Growth & GH Secretagogues"),
 
     "bpc 157": ("recovery", "Healing & Recovery"),
-    "tb500(thymosin b4 acetate）": ("recovery", "Healing & Recovery"),
+    "tb500(thymosin b4 acetate)": ("recovery", "Healing & Recovery"),
     "bpc 5mg + tb 5mg": ("recovery", "Healing & Recovery"),
     "bpc 10mg + tb 10mg": ("recovery", "Healing & Recovery"),
     "ghk-cu": ("recovery", "Healing & Recovery"),
@@ -190,7 +190,7 @@ def main():
         if not name:
             continue
 
-        name_clean = re.sub(r"\s+", " ", name).strip()
+        name_clean = re.sub(r"\s+", " ", name.replace("\uff08", "(").replace("\uff09", ")")).strip()
         if name_clean.lower() in RENAME_MAP:
             name_clean = RENAME_MAP[name_clean.lower()]
         amount, unit, vial_count = parse_quantity(qty)

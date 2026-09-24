@@ -630,3 +630,32 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 .chat__form button { width: 44px; height: 44px; border-radius: var(--r); background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
 .chat__form button svg { width: 17px; height: 17px; }
 @media (max-width: 900px) { .calc-page .chat-fab { bottom: 84px; } }
+
+/* ------------------------------------------------------------
+   photoreal bottle mode (composited product photos)
+   ------------------------------------------------------------ */
+.lcard__stage img, .pcard__stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: transform 1s var(--ease); }
+.lcard:hover .lcard__stage img, .pcard:hover .pcard__stage img { transform: scale(1.045); }
+.lcard__stage, .pcard__stage { background: #101011; }
+.pcard__stage::after { z-index: 1; }
+.stage img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transform: perspective(1200px) rotateX(calc(var(--rx, 0deg) * 0.35)) rotateY(calc(var(--ry, 0deg) * 0.35)) scale(1.03); transition: transform 0.6s var(--ease), opacity 0.4s; }
+.stage img.bump { animation: bump-img 0.7s var(--ease); }
+@keyframes bump-img { 0% { opacity: 0.35; transform: scale(1.09); } 100% { opacity: 1; } }
+.stage:has(img) { background: #101011; }
+.stage__hint { z-index: 2; text-shadow: 0 1px 8px rgba(0, 0, 0, 0.8); }
+.lb__in img { width: 100%; height: auto; border-radius: var(--r-lg); box-shadow: 0 50px 70px rgba(0, 0, 0, 0.7); }
+
+/* hero: the photo backgrounds are near-black; contrast pushes them to true black and
+   screen blending lets the hero glow show through instead of a gray box */
+.hv--photo { mix-blend-mode: screen; }
+.hv--photo img { display: block; width: 100%; height: auto; filter: contrast(1.45) brightness(1.02); -webkit-mask-image: radial-gradient(closest-side, #000 62%, transparent 100%); mask-image: radial-gradient(closest-side, #000 62%, transparent 100%); }
+.hv--a.hv--photo { width: clamp(280px, 31vw, 520px); right: 5%; top: 6%; }
+.hv--b.hv--photo { width: clamp(200px, 22vw, 370px); right: 29%; top: 21%; }
+.hv--c.hv--photo { width: clamp(190px, 21vw, 350px); right: -2%; top: 23%; }
+@media (max-width: 900px) {
+  .hv--a.hv--photo { width: 62vw; right: auto; left: 19vw; top: 1%; }
+  .hv--b.hv--photo { width: 42vw; right: auto; left: -10vw; top: 10%; }
+  .hv--c.hv--photo { width: 40vw; right: -9vw; top: 11%; }
+}
+
+@media (max-width: 700px) { .lineup__count { display: none; } }

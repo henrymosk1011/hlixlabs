@@ -456,7 +456,7 @@
   },
   {
     "slug": "tb500thymosin-b4-acetate-2mg",
-    "name": "TB500(Thymosin B4 Acetate\uff09",
+    "name": "TB500(Thymosin B4 Acetate)",
     "dose": "2mg",
     "dose_amount": "2",
     "dose_unit": "mg",
@@ -469,7 +469,7 @@
   },
   {
     "slug": "tb500thymosin-b4-acetate-5mg",
-    "name": "TB500(Thymosin B4 Acetate\uff09",
+    "name": "TB500(Thymosin B4 Acetate)",
     "dose": "5mg",
     "dose_amount": "5",
     "dose_unit": "mg",
@@ -482,7 +482,7 @@
   },
   {
     "slug": "tb500thymosin-b4-acetate-10mg",
-    "name": "TB500(Thymosin B4 Acetate\uff09",
+    "name": "TB500(Thymosin B4 Acetate)",
     "dose": "10mg",
     "dose_amount": "10",
     "dose_unit": "mg",
@@ -781,7 +781,7 @@
   },
   {
     "slug": "hgh-191aasomatropin-10iu",
-    "name": "HGH 191AA(Somatropin\uff09",
+    "name": "HGH 191AA(Somatropin)",
     "dose": "10iu",
     "dose_amount": "10",
     "dose_unit": "iu",
@@ -794,7 +794,7 @@
   },
   {
     "slug": "hgh-191aasomatropin-12iu",
-    "name": "HGH 191AA(Somatropin\uff09",
+    "name": "HGH 191AA(Somatropin)",
     "dose": "12iu",
     "dose_amount": "12",
     "dose_unit": "iu",
@@ -807,7 +807,7 @@
   },
   {
     "slug": "hgh-191aasomatropin-15iu",
-    "name": "HGH 191AA(Somatropin\uff09",
+    "name": "HGH 191AA(Somatropin)",
     "dose": "15iu",
     "dose_amount": "15",
     "dose_unit": "iu",
