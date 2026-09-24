@@ -8,6 +8,7 @@
   if (!group) return;
 
   var media = page.querySelector("[data-zoom-trigger]");
+  var img = media ? media.querySelector("img") : null;
   var doseText = media ? media.querySelector('[data-role="dose-text"]') : null;
   var skuText = media ? media.querySelector('[data-role="sku-text"]') : null;
 
@@ -30,6 +31,18 @@
 
       if (doseText) doseText.textContent = dose;
       if (skuText) skuText.textContent = sku;
+
+      var imgId = chip.getAttribute("data-img");
+      if (img && imgId) {
+        var url = img.getAttribute("data-base") + imgId + ".webp";
+        var pre = new Image();
+        pre.onload = function () {
+          img.src = url;
+          var name = page.querySelector("h1");
+          img.alt = (name ? name.textContent : "") + " " + dose + " research vial";
+        };
+        pre.src = url;
+      }
     });
   });
 })();

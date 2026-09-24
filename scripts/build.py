@@ -241,14 +241,40 @@ def group_products(products):
 
 # -------------------------------------------------------------- pieces -----
 
+VIALS = ROOT / "assets" / "img" / "vials"
+
+
+def has_photo(v):
+    return (VIALS / f"{v['sku'].lower()}.webp").exists()
+
+
+def vial_media(v, uid, size, prefix, eager=False):
+    """Composited product photo if assets/img/vials/<sku>.webp exists, else the coded SVG vial.
+
+    size 's' = 480x600 thumbnail, 'l' = 1280x1600. prefix = relative path to the site root.
+    """
+    if has_photo(v):
+        sku = v["sku"].lower()
+        f = f"{sku}-s.webp" if size == "s" else f"{sku}.webp"
+        w, h = (480, 600) if size == "s" else (1280, 1600)
+        load = "" if eager else ' loading="lazy"'
+        alt = html_escape(f"{v['name']} {v['dose']} research vial")
+        return (f'<img src="{prefix}assets/img/vials/{f}" data-base="{prefix}assets/img/vials/" alt="{alt}" '
+                f'width="{w}" height="{h}" decoding="async"{load}>')
+    return render_vial(v, gradient_id_suffix=uid)
+
+
+
+
 def render_card(g, prefix):
     d = g["default"]
-    svg = render_vial(d, gradient_id_suffix=g["slug"])
+    svg = vial_media(d, g["slug"], "s", prefix)
+    photo_cls = " card__media--photo" if has_photo(d) else ""
     multi = len(g["variants"]) > 1
     price_html = f"<small>FROM</small> {money(g['min_price'])}" if multi else money(d["price"])
     dose_line = f"{len(g['variants'])} sizes · {g['variants'][0]['dose']}–{g['variants'][-1]['dose']}" if multi else d["dose"]
     return f'''<a class="card" href="{prefix}peptides/{g['slug']}.html" data-card-category="{g['category']}" data-card-name="{html_escape(g['name'])}">
-  <div class="card__media" style="--cat-color:{CATEGORY_COLORS.get(g['category'], '#33e6b0')}">
+  <div class="card__media{photo_cls}" style="--cat-color:{CATEGORY_COLORS.get(g['category'], '#33e6b0')}">
     <span class="card__badge">HPLC 99%+</span>
     <span class="card__stock">IN STOCK</span>
     {svg}
@@ -293,13 +319,13 @@ def render_home(groups):
     total = len(groups)
     categories_used = sorted({g["category"] for g in groups})
 
-    hero_vial = render_vial({
-        "name": "RESEARCH PEPTIDE",
-        "dose": "hlix",
-        "category": "metabolic",
-        "sku": "HLX-000",
-        "slug": "hero",
-    }, gradient_id_suffix="hero")
+    hero_pick = next((g for g in groups if g["name"] == "GLP1-S"), groups[0])["default"]
+    if has_photo(hero_pick):
+        hero_vial = vial_media(hero_pick, "hero", "l", prefix, eager=True)
+        hero_cls = " hero__art--photo"
+    else:
+        hero_vial = render_vial({"name": "RESEARCH PEPTIDE", "dose": "hlix", "category": "metabolic", "sku": "HLX-000", "slug": "hero"}, gradient_id_suffix="hero")
+        hero_cls = ""
 
     featured = []
     for slug, _, _ in CATEGORY_ORDER:
@@ -343,7 +369,7 @@ def render_home(groups):
           <div><div class="stat__value">RUO</div><div class="stat__label">Research Use Only</div></div>
         </div>
       </div>
-      <div class="hero__art"><div class="hero__art-glow"></div>{hero_vial}</div>
+      <div class="hero__art{hero_cls}"><div class="hero__art-glow"></div>{hero_vial}</div>
     </div>
   </section>
 
@@ -449,7 +475,8 @@ def render_catalog(products):
 def render_product_page(g, groups):
     prefix = "../"
     d = g["default"]
-    svg = render_vial(d, gradient_id_suffix=g["slug"])
+    svg = vial_media(d, g["slug"], "l", prefix, eager=True)
+    media_cls = " product-media--photo" if has_photo(d) else ""
     related = [x for x in groups if x["category"] == g["category"] and x["slug"] != g["slug"]][:4]
     related_html = "".join(render_card(r, prefix) for r in related)
     related_section = f'''
@@ -464,7 +491,7 @@ def render_product_page(g, groups):
     multi = len(variants) > 1
     variant_chips = "".join(
         f'<button class="chip{" is-active" if v is d else ""}" data-variant '
-        f'data-dose="{html_escape(v["dose"])}" data-price="{v["price"]:.2f}" data-sku="{html_escape(v["sku"])}">{v["dose"]}</button>'
+        f'data-dose="{html_escape(v["dose"])}" data-price="{v["price"]:.2f}" data-sku="{html_escape(v["sku"])}" data-img="{v["sku"].lower()}">{v["dose"]}</button>'
         for v in variants
     )
     variant_selector = f'''
@@ -481,7 +508,7 @@ def render_product_page(g, groups):
       <a href="{prefix}index.html">Home</a> / <a href="{prefix}catalog.html">Catalog</a> / <a href="{prefix}catalog.html#{g['category']}">{g['category_label']}</a> / <span>{g['name']}</span>
     </nav>
     <div class="product-layout" data-product-page>
-      <div class="product-media" data-zoom-trigger style="--cat-color:{CATEGORY_COLORS.get(g['category'], '#33e6b0')}">
+      <div class="product-media{media_cls}" data-zoom-trigger style="--cat-color:{CATEGORY_COLORS.get(g['category'], '#33e6b0')}">
         {svg}
         <span class="product-media__hint">{icon('zoom')} Click to enlarge</span>
       </div>

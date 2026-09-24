@@ -25,7 +25,7 @@
   if (media && lightbox) {
     var inner = lightbox.querySelector("[data-lightbox-inner]");
     var openLightbox = function () {
-      inner.innerHTML = media.querySelector("svg").outerHTML;
+      inner.innerHTML = media.querySelector("svg, img").outerHTML;
       lightbox.classList.add("is-open");
       document.body.style.overflow = "hidden";
     };
