@@ -34,6 +34,24 @@ hlix/
                                (Vercel Node function — needs ANTHROPIC_API_KEY)
 ```
 
+## v2 preview (private redesign)
+
+`/v2/` is a complete second design of the site — minimal, bold, all-lowercase,
+scroll-driven — built alongside the original so nothing is lost. It reuses the
+same catalog data, vial artwork, search index and `/api/chat` backend, but has
+its own markup, CSS and JS.
+
+- **How to reach it:** on the original site, the `©` in the footer is an
+  unlabeled link to `/v2/`. Or go straight to `/v2/index.html`.
+- **Hidden, not secret:** v2 pages are `noindex` and unlinked except for that
+  `©`, but anyone who guesses the URL can open them. Add auth if it ever matters.
+- **Rebuild it:** `python3 scripts/build_v2.py` (writes only inside `v2/`).
+  Run it after `parse_pricelist.py` whenever prices change, same as `build.py`.
+- **Motion off:** append `?motion=off` to any v2 URL (also respected
+  automatically for `prefers-reduced-motion`).
+- **Promoting v2:** ask Claude to swap it in as the main site; the original
+  would be kept in `/classic/`.
+
 ## Updating the catalog
 
 1. Replace `data/price_list_source.xlsx` with your updated price list (same

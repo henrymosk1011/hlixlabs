@@ -1088,3 +1088,6 @@ p { margin: 0; }
   display: inline-flex; align-items: center; gap: 6px;
   font-family: var(--font-mono); font-size: 11px; color: var(--text-faint);
 }
+
+/* unlabeled private link to the v2 preview (the © in the footer) — must look and behave like plain text */
+.v2-link { color: inherit; text-decoration: none; cursor: inherit; padding: 8px 6px; margin: -8px -6px; }

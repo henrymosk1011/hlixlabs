@@ -170,7 +170,7 @@ def footer_html(prefix):
         </div>
       </div>
       <div class="footer__legal">
-        <p class="footer__ruo">© 2026 hlix. For laboratory research use only. Not for human or animal consumption. Nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
+        <p class="footer__ruo"><a class="v2-link" href="{prefix}v2/index.html" tabindex="-1" aria-hidden="true">©</a> 2026 hlix. For laboratory research use only. Not for human or animal consumption. Nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
         <p>Built with a personal catalog generator.</p>
       </div>
     </div>
