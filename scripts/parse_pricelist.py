@@ -17,6 +17,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 SRC = ROOT / "data" / "price_list_source.xlsx"
 OUT = ROOT / "data" / "products.json"
+SKU_CODES = ROOT / "data" / "sku_codes.json"
 
 NS = {"a": "http://schemas.openxmlformats.org/spreadsheetml/2006/main"}
 
@@ -172,6 +173,8 @@ def categorize(name):
 def main():
     rows = load_rows()
     data_rows = rows[1:]  # skip header
+    sku_codes = json.loads(SKU_CODES.read_text()) if SKU_CODES.exists() else {}
+    next_auto_sku = 101
 
     last_name = None
     products = []
@@ -214,6 +217,11 @@ def main():
             i += 1
         seen_slugs.add(slug)
 
+        sku = sku_codes.get(f"{name_clean.lower()}|{display_dose}")
+        if not sku:
+            sku = f"HLX-{next_auto_sku}"
+            next_auto_sku += 1
+
         index_by_key[dedupe_key] = len(products)
         products.append({
             "slug": slug,
@@ -225,7 +233,7 @@ def main():
             "price": float(price),
             "category": cat_slug,
             "category_label": cat_label,
-            "sku": f"HLX-{len(products) + 101}",
+            "sku": sku,
             "in_stock": True,
         })
 

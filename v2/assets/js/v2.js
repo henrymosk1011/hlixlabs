@@ -397,9 +397,16 @@
   // ------------------------------------------------------------------
   var stageImg = $("[data-zoom] img");
   var stage = stageImg || $("[data-zoom] svg");
+  var priceEl = $(".price__n");
+  function moneyStr(n) {
+    return Number.isInteger(n) ? "$" + n : "$" + n.toFixed(2);
+  }
   var imgState = {
     sku: stageImg ? (stageImg.getAttribute("data-sku") || "") : "",
-    form: stageImg ? (stageImg.getAttribute("data-form") || "recon") : "recon"
+    form: stageImg ? (stageImg.getAttribute("data-form") || "recon") : "recon",
+    priceBase: priceEl ? parseFloat(priceEl.getAttribute("data-price")) || 0 : 0,
+    priceRecon: priceEl ? parseFloat(priceEl.getAttribute("data-price-recon")) || 0 : 0,
+    priceShown: priceEl ? parseFloat(priceEl.getAttribute("data-price-recon")) || 0 : 0
   };
   function applyStageImage(dose) {
     if (!stageImg || !imgState.sku) return;
@@ -411,6 +418,12 @@
       if (!reduce) { stageImg.classList.remove("bump"); void stageImg.getBoundingClientRect(); stageImg.classList.add("bump"); }
     };
     pre.src = url;
+  }
+  function applyPrice() {
+    if (!priceEl) return;
+    var target = imgState.form === "recon" ? imgState.priceRecon : imgState.priceBase;
+    tween(imgState.priceShown, target, 700, function (v) { priceEl.textContent = moneyStr(Math.round(v * 100) / 100); }, function () { priceEl.textContent = moneyStr(target); });
+    imgState.priceShown = target;
   }
 
   $$("[data-seg]").forEach(function (seg) {
@@ -438,6 +451,7 @@
           place(b);
           imgState.form = b.getAttribute("data-form");
           applyStageImage();
+          applyPrice();
         });
       });
       return;
@@ -445,23 +459,20 @@
 
     var doseText = !stageImg && stage ? $('[data-role="dose-text"]', stage) : null;
     var skuText = stage ? $('[data-role="sku-text"]', stage) : null;
-    var priceEl = $(".price__n");
-    var current = parseFloat(priceEl ? priceEl.getAttribute("data-price") : "0") || 0;
 
     btns.forEach(function (b) {
       b.addEventListener("click", function () {
         btns.forEach(function (x) { x.classList.remove("is-active"); x.setAttribute("aria-checked", "false"); });
         b.classList.add("is-active"); b.setAttribute("aria-checked", "true");
         place(b);
-        var dose = b.getAttribute("data-dose"), sku = b.getAttribute("data-sku"), price = parseFloat(b.getAttribute("data-price"));
+        var dose = b.getAttribute("data-dose"), sku = b.getAttribute("data-sku");
         $$("[data-dose-out]").forEach(function (el) { el.textContent = dose; });
         $$("[data-sku-out]").forEach(function (el) { el.textContent = sku; });
         if (doseText) doseText.textContent = dose;
         if (skuText) skuText.textContent = sku;
-        if (priceEl) {
-          tween(current, price, 700, function (v) { priceEl.textContent = "$" + Math.round(v); }, function () { priceEl.textContent = "$" + Math.round(price); });
-          current = price;
-        }
+        imgState.priceBase = parseFloat(b.getAttribute("data-price")) || 0;
+        imgState.priceRecon = parseFloat(b.getAttribute("data-price-recon")) || 0;
+        applyPrice();
         var imgId = b.getAttribute("data-img");
         if (stageImg && imgId) {
           imgState.sku = imgId;

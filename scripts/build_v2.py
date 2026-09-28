@@ -28,6 +28,7 @@ CLOSE = b.icon("close")
 
 esc = b.html_escape
 money = b.money
+recon_price = b.recon_price
 
 
 # ------------------------------------------------------------------ svg ---
@@ -356,7 +357,8 @@ def page_product(g, groups):
     if multi:
         btns = "".join(
             f'<button role="radio" aria-checked="{"true" if v is d else "false"}" class="{"is-active" if v is d else ""}" data-variant '
-            f'data-dose="{esc(v["dose"])}" data-price="{v["price"]:.0f}" data-sku="{esc(v["sku"])}" data-img="{v["sku"].lower()}">{esc(v["dose"])}</button>'
+            f'data-dose="{esc(v["dose"])}" data-price="{v["price"]:.2f}" data-price-recon="{recon_price(v["price"]):.2f}" '
+            f'data-sku="{esc(v["sku"])}" data-img="{v["sku"].lower()}">{esc(v["dose"])}</button>'
             for v in variants
         )
         seg = f'<span class="field-l">vial size</span><div class="seg" data-seg="size" role="radiogroup" aria-label="vial size"><span class="seg__thumb"></span>{btns}</div>'
@@ -380,7 +382,7 @@ def page_product(g, groups):
       <div class="pdp__info">
         <p class="kicker" style="color:var(--c)" data-reveal="fade">// {esc(g['category_label'].lower())}</p>
         <h1 class="pdp__name" data-split>{esc(g['name'])}</h1>
-        <div class="price" data-reveal><span class="price__n" data-price="{d['price']:.0f}">{money(d['price'])}</span><span class="price__u">/ vial</span></div>
+        <div class="price" data-reveal><span class="price__n" data-price="{d['price']:.2f}" data-price-recon="{recon_price(d['price']):.2f}">{money(recon_price(d['price']))}</span><span class="price__u">/ vial</span></div>
         <div data-reveal>{seg}</div>
         <p class="stock" data-reveal>in stock</p>
         <dl class="specs" data-reveal>

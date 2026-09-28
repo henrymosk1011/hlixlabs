@@ -255,9 +255,17 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 @keyframes cue { 0% { transform: scaleY(0); } 50% { transform: scaleY(1); } 100% { transform: scaleY(1); opacity: 0; } }
 
 @media (max-width: 900px) {
-  .hv--a { width: 34vw; right: auto; left: 33vw; top: 7%; }
-  .hv--b { width: 24vw; right: auto; left: 6vw; top: 15%; }
-  .hv--c { width: 22vw; right: 6vw; top: 17%; }
+  /* Pin the decorative zone to a fixed, definite height instead of the
+     hero's own min-height box: some mobile browsers (Chrome in particular)
+     resolve child percentage offsets against the hero's auto content
+     height rather than its stretched min-height, letting the vials drift
+     down into the label/title text. A fixed vh height removes that
+     ambiguity so the vials stay confined to the top of the hero on every
+     browser. */
+  .hero__vials { top: 0; right: 0; bottom: auto; left: 0; height: 38vh; max-height: 300px; }
+  .hv--a { width: min(34vw, 20vh); right: auto; left: 33vw; top: 4%; }
+  .hv--b { width: min(24vw, 14vh); right: auto; left: 6vw; top: 10%; }
+  .hv--c { width: min(22vw, 13vh); right: 6vw; top: 12%; }
   .hero__bar { flex-direction: column; align-items: flex-start; padding-right: 0; }
   .cue { display: none; }
 }
@@ -653,9 +661,9 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 .hv--b.hv--photo { width: clamp(200px, 22vw, 370px); right: 29%; top: 21%; }
 .hv--c.hv--photo { width: clamp(190px, 21vw, 350px); right: -2%; top: 23%; }
 @media (max-width: 900px) {
-  .hv--a.hv--photo { width: 62vw; right: auto; left: 19vw; top: 1%; }
-  .hv--b.hv--photo { width: 42vw; right: auto; left: -10vw; top: 10%; }
-  .hv--c.hv--photo { width: 40vw; right: -9vw; top: 11%; }
+  .hv--a.hv--photo { width: min(58vw, 32vh); right: auto; left: 19vw; top: 2%; }
+  .hv--b.hv--photo { width: min(40vw, 24vh); right: auto; left: -6vw; top: 8%; }
+  .hv--c.hv--photo { width: min(38vw, 22vh); right: -6vw; top: 10%; }
 }
 
 @media (max-width: 700px) { .lineup__count { display: none; } }

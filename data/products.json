@@ -9,7 +9,7 @@
     "price": 35.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-101",
+    "sku": "HLX-TR5",
     "in_stock": true
   },
   {
@@ -22,7 +22,7 @@
     "price": 50.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-102",
+    "sku": "HLX-TR10",
     "in_stock": true
   },
   {
@@ -35,7 +35,7 @@
     "price": 70.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-103",
+    "sku": "HLX-TR15",
     "in_stock": true
   },
   {
@@ -48,7 +48,7 @@
     "price": 95.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-104",
+    "sku": "HLX-TR20",
     "in_stock": true
   },
   {
@@ -61,7 +61,7 @@
     "price": 128.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-105",
+    "sku": "HLX-TR30",
     "in_stock": true
   },
   {
@@ -74,7 +74,7 @@
     "price": 165.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-106",
+    "sku": "HLX-TR40",
     "in_stock": true
   },
   {
@@ -87,7 +87,7 @@
     "price": 185.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-107",
+    "sku": "HLX-TR45",
     "in_stock": true
   },
   {
@@ -100,7 +100,7 @@
     "price": 200.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-108",
+    "sku": "HLX-TR50",
     "in_stock": true
   },
   {
@@ -113,7 +113,7 @@
     "price": 220.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-109",
+    "sku": "HLX-TR60",
     "in_stock": true
   },
   {
@@ -126,7 +126,7 @@
     "price": 80.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-110",
+    "sku": "HLX-RT5",
     "in_stock": true
   },
   {
@@ -139,7 +139,7 @@
     "price": 90.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-111",
+    "sku": "HLX-RT10",
     "in_stock": true
   },
   {
@@ -152,7 +152,7 @@
     "price": 110.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-112",
+    "sku": "HLX-RT15",
     "in_stock": true
   },
   {
@@ -165,7 +165,7 @@
     "price": 145.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-113",
+    "sku": "HLX-RT20",
     "in_stock": true
   },
   {
@@ -178,7 +178,7 @@
     "price": 190.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-114",
+    "sku": "HLX-RT30",
     "in_stock": true
   },
   {
@@ -191,7 +191,7 @@
     "price": 320.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-115",
+    "sku": "HLX-RT50",
     "in_stock": true
   },
   {
@@ -204,7 +204,7 @@
     "price": 42.0,
     "category": "hormonal",
     "category_label": "Hormonal & Sexual Health",
-    "sku": "HLX-116",
+    "sku": "HLX-MT1",
     "in_stock": true
   },
   {
@@ -217,7 +217,7 @@
     "price": 38.0,
     "category": "hormonal",
     "category_label": "Hormonal & Sexual Health",
-    "sku": "HLX-117",
+    "sku": "HLX-ML10",
     "in_stock": true
   },
   {
@@ -230,7 +230,7 @@
     "price": 60.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-118",
+    "sku": "HLX-KPV",
     "in_stock": true
   },
   {
@@ -243,7 +243,7 @@
     "price": 50.0,
     "category": "hormonal",
     "category_label": "Hormonal & Sexual Health",
-    "sku": "HLX-119",
+    "sku": "HLX-P41",
     "in_stock": true
   },
   {
@@ -256,7 +256,7 @@
     "price": 25.0,
     "category": "hormonal",
     "category_label": "Hormonal & Sexual Health",
-    "sku": "HLX-120",
+    "sku": "HLX-GND2",
     "in_stock": true
   },
   {
@@ -269,7 +269,7 @@
     "price": 20.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-121",
+    "sku": "HLX-DS2",
     "in_stock": true
   },
   {
@@ -282,7 +282,7 @@
     "price": 40.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-122",
+    "sku": "HLX-DS5",
     "in_stock": true
   },
   {
@@ -295,7 +295,7 @@
     "price": 108.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-123",
+    "sku": "HLX-DS15",
     "in_stock": true
   },
   {
@@ -308,7 +308,7 @@
     "price": 25.0,
     "category": "hormonal",
     "category_label": "Hormonal & Sexual Health",
-    "sku": "HLX-124",
+    "sku": "HLX-TRI2",
     "in_stock": true
   },
   {
@@ -321,7 +321,7 @@
     "price": 42.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-125",
+    "sku": "HLX-SK5",
     "in_stock": true
   },
   {
@@ -334,7 +334,7 @@
     "price": 70.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-126",
+    "sku": "HLX-SK10",
     "in_stock": true
   },
   {
@@ -347,7 +347,7 @@
     "price": 23.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-127",
+    "sku": "HLX-OT2",
     "in_stock": true
   },
   {
@@ -360,7 +360,7 @@
     "price": 50.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-128",
+    "sku": "HLX-OT5",
     "in_stock": true
   },
   {
@@ -373,7 +373,7 @@
     "price": 85.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-129",
+    "sku": "HLX-OT10",
     "in_stock": true
   },
   {
@@ -386,7 +386,7 @@
     "price": 32.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-130",
+    "sku": "HLX-ET10",
     "in_stock": true
   },
   {
@@ -399,7 +399,7 @@
     "price": 135.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-131",
+    "sku": "HLX-ET50",
     "in_stock": true
   },
   {
@@ -412,7 +412,7 @@
     "price": 30.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-132",
+    "sku": "HLX-BC5",
     "in_stock": true
   },
   {
@@ -425,7 +425,7 @@
     "price": 55.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-133",
+    "sku": "HLX-BC10",
     "in_stock": true
   },
   {
@@ -438,7 +438,7 @@
     "price": 90.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-134",
+    "sku": "HLX-BB10",
     "in_stock": true
   },
   {
@@ -451,7 +451,7 @@
     "price": 170.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-135",
+    "sku": "HLX-BB20",
     "in_stock": true
   },
   {
@@ -464,7 +464,7 @@
     "price": 38.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-136",
+    "sku": "HLX-BT2",
     "in_stock": true
   },
   {
@@ -477,7 +477,7 @@
     "price": 70.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-137",
+    "sku": "HLX-BT5",
     "in_stock": true
   },
   {
@@ -490,7 +490,7 @@
     "price": 125.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-138",
+    "sku": "HLX-BT10",
     "in_stock": true
   },
   {
@@ -503,7 +503,7 @@
     "price": 180.0,
     "category": "specialty",
     "category_label": "Specialty Research",
-    "sku": "HLX-139",
+    "sku": "HLX-AE1",
     "in_stock": true
   },
   {
@@ -516,7 +516,7 @@
     "price": 55.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-140",
+    "sku": "HLX-AR50",
     "in_stock": true
   },
   {
@@ -529,7 +529,7 @@
     "price": 95.0,
     "category": "specialty",
     "category_label": "Specialty Research",
-    "sku": "HLX-141",
+    "sku": "HLX-AP2",
     "in_stock": true
   },
   {
@@ -542,7 +542,7 @@
     "price": 150.0,
     "category": "specialty",
     "category_label": "Specialty Research",
-    "sku": "HLX-142",
+    "sku": "HLX-AP5",
     "in_stock": true
   },
   {
@@ -555,7 +555,7 @@
     "price": 45.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-143",
+    "sku": "HLX-XA5",
     "in_stock": true
   },
   {
@@ -568,7 +568,7 @@
     "price": 80.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-144",
+    "sku": "HLX-XA10",
     "in_stock": true
   },
   {
@@ -581,7 +581,7 @@
     "price": 30.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-145",
+    "sku": "HLX-SM2",
     "in_stock": true
   },
   {
@@ -594,7 +594,7 @@
     "price": 35.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-146",
+    "sku": "HLX-SM5",
     "in_stock": true
   },
   {
@@ -607,7 +607,7 @@
     "price": 58.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-147",
+    "sku": "HLX-SM10",
     "in_stock": true
   },
   {
@@ -620,7 +620,7 @@
     "price": 70.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-148",
+    "sku": "HLX-SM15",
     "in_stock": true
   },
   {
@@ -633,7 +633,7 @@
     "price": 95.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-149",
+    "sku": "HLX-SM20",
     "in_stock": true
   },
   {
@@ -646,7 +646,7 @@
     "price": 118.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-150",
+    "sku": "HLX-SM30",
     "in_stock": true
   },
   {
@@ -659,7 +659,7 @@
     "price": 85.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-151",
+    "sku": "HLX-2S10",
     "in_stock": true
   },
   {
@@ -672,7 +672,7 @@
     "price": 330.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-152",
+    "sku": "HLX-2S50",
     "in_stock": true
   },
   {
@@ -685,7 +685,7 @@
     "price": 23.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-153",
+    "sku": "HLX-G25",
     "in_stock": true
   },
   {
@@ -698,7 +698,7 @@
     "price": 42.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-154",
+    "sku": "HLX-G210",
     "in_stock": true
   },
   {
@@ -711,7 +711,7 @@
     "price": 61.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-155",
+    "sku": "HLX-G215",
     "in_stock": true
   },
   {
@@ -724,7 +724,7 @@
     "price": 23.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-156",
+    "sku": "HLX-G65",
     "in_stock": true
   },
   {
@@ -737,7 +737,7 @@
     "price": 42.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-157",
+    "sku": "HLX-G610",
     "in_stock": true
   },
   {
@@ -750,7 +750,7 @@
     "price": 35.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-158",
+    "sku": "HLX-CND2",
     "in_stock": true
   },
   {
@@ -763,7 +763,7 @@
     "price": 70.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-159",
+    "sku": "HLX-CND5",
     "in_stock": true
   },
   {
@@ -776,7 +776,7 @@
     "price": 140.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-160",
+    "sku": "HLX-CND10",
     "in_stock": true
   },
   {
@@ -789,7 +789,7 @@
     "price": 50.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-161",
+    "sku": "HLX-H10",
     "in_stock": true
   },
   {
@@ -802,7 +802,7 @@
     "price": 60.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-162",
+    "sku": "HLX-H12",
     "in_stock": true
   },
   {
@@ -815,7 +815,7 @@
     "price": 68.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-163",
+    "sku": "HLX-H15",
     "in_stock": true
   },
   {
@@ -828,7 +828,7 @@
     "price": 95.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-164",
+    "sku": "HLX-CP10",
     "in_stock": true
   },
   {
@@ -841,7 +841,7 @@
     "price": 80.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-165",
+    "sku": "HLX-CD2",
     "in_stock": true
   },
   {
@@ -854,7 +854,7 @@
     "price": 140.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-166",
+    "sku": "HLX-CD5",
     "in_stock": true
   },
   {
@@ -867,7 +867,7 @@
     "price": 190.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-167",
+    "sku": "HLX-CD10",
     "in_stock": true
   },
   {
@@ -880,7 +880,7 @@
     "price": 30.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-168",
+    "sku": "HLX-SMO2",
     "in_stock": true
   },
   {
@@ -893,7 +893,7 @@
     "price": 65.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-169",
+    "sku": "HLX-SMO5",
     "in_stock": true
   },
   {
@@ -906,7 +906,7 @@
     "price": 125.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-170",
+    "sku": "HLX-SMO10",
     "in_stock": true
   },
   {
@@ -919,7 +919,7 @@
     "price": 45.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-171",
+    "sku": "HLX-2AD",
     "in_stock": true
   },
   {
@@ -932,7 +932,7 @@
     "price": 75.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-172",
+    "sku": "HLX-5AD",
     "in_stock": true
   },
   {
@@ -945,7 +945,7 @@
     "price": 185.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-173",
+    "sku": "HLX-10AD",
     "in_stock": true
   },
   {
@@ -958,7 +958,7 @@
     "price": 135.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-174",
+    "sku": "HLX-F81",
     "in_stock": true
   },
   {
@@ -971,7 +971,7 @@
     "price": 135.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-175",
+    "sku": "HLX-FN1",
     "in_stock": true
   },
   {
@@ -984,7 +984,7 @@
     "price": 35.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-176",
+    "sku": "HLX-IG01",
     "in_stock": true
   },
   {
@@ -997,7 +997,7 @@
     "price": 180.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-177",
+    "sku": "HLX-IG1",
     "in_stock": true
   },
   {
@@ -1010,7 +1010,7 @@
     "price": 36.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-178",
+    "sku": "HLX-IGD",
     "in_stock": true
   },
   {
@@ -1023,7 +1023,7 @@
     "price": 45.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-179",
+    "sku": "HLX-TSM2",
     "in_stock": true
   },
   {
@@ -1036,7 +1036,7 @@
     "price": 88.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-180",
+    "sku": "HLX-TSM5",
     "in_stock": true
   },
   {
@@ -1049,7 +1049,7 @@
     "price": 160.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-181",
+    "sku": "HLX-TSM10",
     "in_stock": true
   },
   {
@@ -1062,7 +1062,7 @@
     "price": 300.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-182",
+    "sku": "HLX-TSM20",
     "in_stock": true
   },
   {
@@ -1075,7 +1075,7 @@
     "price": 20.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-183",
+    "sku": "HLX-IP2",
     "in_stock": true
   },
   {
@@ -1088,7 +1088,7 @@
     "price": 30.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-184",
+    "sku": "HLX-IP5",
     "in_stock": true
   },
   {
@@ -1101,7 +1101,7 @@
     "price": 60.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-185",
+    "sku": "HLX-IP10",
     "in_stock": true
   },
   {
@@ -1114,7 +1114,7 @@
     "price": 35.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-186",
+    "sku": "HLX-HX2",
     "in_stock": true
   },
   {
@@ -1127,7 +1127,7 @@
     "price": 75.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-187",
+    "sku": "HLX-HX5",
     "in_stock": true
   },
   {
@@ -1140,7 +1140,7 @@
     "price": 25.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-188",
+    "sku": "HLX-CU50",
     "in_stock": true
   },
   {
@@ -1153,7 +1153,7 @@
     "price": 38.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-189",
+    "sku": "HLX-CU100",
     "in_stock": true
   },
   {
@@ -1166,7 +1166,7 @@
     "price": 52.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-190",
+    "sku": "HLX-KS5",
     "in_stock": true
   },
   {
@@ -1179,7 +1179,7 @@
     "price": 82.0,
     "category": "cognitive",
     "category_label": "Cognitive & Neuro Health",
-    "sku": "HLX-191",
+    "sku": "HLX-KS10",
     "in_stock": true
   },
   {
@@ -1192,7 +1192,7 @@
     "price": 40.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-192",
+    "sku": "HLX-TY10",
     "in_stock": true
   },
   {
@@ -1205,7 +1205,7 @@
     "price": 25.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-193",
+    "sku": "HLX-TA2",
     "in_stock": true
   },
   {
@@ -1218,7 +1218,7 @@
     "price": 70.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-194",
+    "sku": "HLX-TA5",
     "in_stock": true
   },
   {
@@ -1231,7 +1231,7 @@
     "price": 150.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-195",
+    "sku": "HLX-TA10",
     "in_stock": true
   },
   {
@@ -1244,7 +1244,7 @@
     "price": 55.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-196",
+    "sku": "HLX-MS10",
     "in_stock": true
   },
   {
@@ -1257,7 +1257,7 @@
     "price": 175.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-197",
+    "sku": "HLX-MS40",
     "in_stock": true
   },
   {
@@ -1270,7 +1270,7 @@
     "price": 280.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-198",
+    "sku": "HLX-F410",
     "in_stock": true
   },
   {
@@ -1283,7 +1283,7 @@
     "price": 75.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-199",
+    "sku": "HLX-375",
     "in_stock": true
   },
   {
@@ -1296,7 +1296,7 @@
     "price": 70.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-200",
+    "sku": "HLX-GTT",
     "in_stock": true
   },
   {
@@ -1309,7 +1309,7 @@
     "price": 22.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-201",
+    "sku": "HLX-FM2",
     "in_stock": true
   },
   {
@@ -1322,7 +1322,7 @@
     "price": 50.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-202",
+    "sku": "HLX-FMP2",
     "in_stock": true
   },
   {
@@ -1335,7 +1335,7 @@
     "price": 50.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-203",
+    "sku": "HLX-5AM",
     "in_stock": true
   },
   {
@@ -1348,7 +1348,7 @@
     "price": 95.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-204",
+    "sku": "HLX-CGL5",
     "in_stock": true
   },
   {
@@ -1361,7 +1361,7 @@
     "price": 165.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-205",
+    "sku": "HLX-CGL10",
     "in_stock": true
   },
   {
@@ -1374,7 +1374,7 @@
     "price": 65.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-206",
+    "sku": "HLX-RA10",
     "in_stock": true
   },
   {
@@ -1387,7 +1387,7 @@
     "price": 38.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-207",
+    "sku": "HLX-NP810",
     "in_stock": true
   },
   {
@@ -1400,7 +1400,7 @@
     "price": 90.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-208",
+    "sku": "HLX-MDT5",
     "in_stock": true
   },
   {
@@ -1413,7 +1413,7 @@
     "price": 175.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-209",
+    "sku": "HLX-MDT10",
     "in_stock": true
   },
   {
@@ -1426,7 +1426,7 @@
     "price": 40.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-210",
+    "sku": "HLX-NAD-100",
     "in_stock": true
   },
   {
@@ -1439,7 +1439,7 @@
     "price": 70.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-211",
+    "sku": "HLX-NJ500",
     "in_stock": true
   },
   {
@@ -1452,7 +1452,7 @@
     "price": 95.0,
     "category": "hormonal",
     "category_label": "Hormonal & Sexual Health",
-    "sku": "HLX-212",
+    "sku": "HLX-PRO20",
     "in_stock": true
   },
   {
@@ -1465,7 +1465,7 @@
     "price": 165.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-213",
+    "sku": "HLX-BBG70",
     "in_stock": true
   },
   {
@@ -1478,7 +1478,7 @@
     "price": 12.0,
     "category": "supplies",
     "category_label": "Supplies",
-    "sku": "HLX-214",
+    "sku": "HLX-BA10",
     "in_stock": true
   },
   {
@@ -1491,7 +1491,7 @@
     "price": 124.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-215",
+    "sku": "HLX-G10K",
     "in_stock": true
   },
   {
@@ -1504,7 +1504,7 @@
     "price": 64.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-216",
+    "sku": "HLX-G5K",
     "in_stock": true
   },
   {
@@ -1517,7 +1517,7 @@
     "price": 40.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-217",
+    "sku": "HLX-G2K",
     "in_stock": true
   },
   {
@@ -1530,7 +1530,7 @@
     "price": 70.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-218",
+    "sku": "HLX-VIP",
     "in_stock": true
   },
   {
@@ -1543,7 +1543,7 @@
     "price": 65.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-219",
+    "sku": "HLX-SLU-PP-332",
     "in_stock": true
   },
   {
@@ -1556,7 +1556,7 @@
     "price": 200.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-220",
+    "sku": "HLX-KLOW80",
     "in_stock": true
   },
   {
@@ -1569,7 +1569,7 @@
     "price": 55.0,
     "category": "specialty",
     "category_label": "Specialty Research",
-    "sku": "HLX-221",
+    "sku": "HLX-LEMON-BOTTLE",
     "in_stock": true
   },
   {
@@ -1582,7 +1582,7 @@
     "price": 258.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-222",
+    "sku": "HLX-SUR10",
     "in_stock": true
   },
   {
@@ -1595,7 +1595,7 @@
     "price": 55.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-223",
+    "sku": "HLX-LC600",
     "in_stock": true
   },
   {
@@ -1608,7 +1608,7 @@
     "price": 65.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-224",
+    "sku": "HLX-LC1200",
     "in_stock": true
   },
   {
@@ -1621,7 +1621,7 @@
     "price": 40.0,
     "category": "specialty",
     "category_label": "Specialty Research",
-    "sku": "HLX-225",
+    "sku": "HLX-B12",
     "in_stock": true
   },
   {
@@ -1634,7 +1634,7 @@
     "price": 60.0,
     "category": "growth",
     "category_label": "Growth & GH Secretagogues",
-    "sku": "HLX-226",
+    "sku": "HLX-HM75",
     "in_stock": true
   },
   {
@@ -1647,7 +1647,7 @@
     "price": 260.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-227",
+    "sku": "HLX-HUM10",
     "in_stock": true
   },
   {
@@ -1660,7 +1660,7 @@
     "price": 60.0,
     "category": "recovery",
     "category_label": "Healing & Recovery",
-    "sku": "HLX-228",
+    "sku": "HLX-AHK",
     "in_stock": true
   },
   {
@@ -1673,7 +1673,7 @@
     "price": 95.0,
     "category": "longevity",
     "category_label": "Longevity & Anti-Aging",
-    "sku": "HLX-229",
+    "sku": "HLX-NJ1000",
     "in_stock": true
   },
   {
@@ -1686,7 +1686,7 @@
     "price": 90.0,
     "category": "metabolic",
     "category_label": "Metabolic Research",
-    "sku": "HLX-230",
+    "sku": "HLX-50AM",
     "in_stock": true
   }
 ]

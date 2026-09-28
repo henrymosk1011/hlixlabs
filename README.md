@@ -116,8 +116,8 @@ look, edit `render_art_badge()` in `scripts/photo_labels.py`; `--outdir` plus
 
 ## Before you publish anywhere public
 
-- `CONTACT_EMAIL` in `scripts/build.py` is a placeholder (`hello@hlix.io`) —
-  change it to a real address you control, then rebuild.
+- `CONTACT_EMAIL` in `scripts/build.py` is set to `contact@hlixlabs.com`;
+  change it there if that inbox ever changes, then rebuild.
 - The trust badges (HPLC Verified / Batch Tested / COA on File) are copy
   choices, not verified claims this generator makes for you — keep them only
   if they're true for your actual supply.

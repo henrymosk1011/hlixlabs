@@ -24,9 +24,9 @@ DATA = ROOT / "data" / "products.json"
 ASSET_VERSION = str(int(time.time()))
 
 SITE_NAME = "hlix"
-SITE_DOMAIN = "hlix.io"
+SITE_DOMAIN = "hlixlabs.com"
 BASE_DESCRIPTION = "hlix is a personal research catalog for peptides — dosing, specs and pricing in one clean, searchable place."
-CONTACT_EMAIL = "hello@hlix.io"
+CONTACT_EMAIL = "contact@hlixlabs.com"
 
 CATEGORY_ORDER = [
     ("metabolic", "Metabolic Research", "GLP-1 analogs, GLP2-T, GLP3-R, GLP1-S and metabolic research compounds."),
@@ -65,6 +65,11 @@ def icon(name):
 
 def money(v):
     return f"${v:,.0f}" if float(v).is_integer() else f"${v:,.2f}"
+
+
+def recon_price(base):
+    """Reconstituted-form price: the powder base price plus a flat 20% premium."""
+    return round(float(base) * 1.2, 2)
 
 
 def load_products():
@@ -493,7 +498,8 @@ def render_product_page(g, groups):
     multi = len(variants) > 1
     variant_chips = "".join(
         f'<button class="chip{" is-active" if v is d else ""}" data-variant '
-        f'data-dose="{html_escape(v["dose"])}" data-price="{v["price"]:.2f}" data-sku="{html_escape(v["sku"])}" data-img="{v["sku"].lower()}">{v["dose"]}</button>'
+        f'data-dose="{html_escape(v["dose"])}" data-price="{v["price"]:.2f}" data-price-recon="{recon_price(v["price"]):.2f}" '
+        f'data-sku="{html_escape(v["sku"])}" data-img="{v["sku"].lower()}">{v["dose"]}</button>'
         for v in variants
     )
     variant_selector = f'''
@@ -528,7 +534,7 @@ def render_product_page(g, groups):
         <h1>{g['name']}</h1>
         <div class="product-info__dose"><span data-field="dose">{d['dose']}</span> · SKU <span data-field="sku">{d['sku']}</span></div>
         <div class="product-info__price-row">
-          <span class="product-info__price" data-field="price">{money(d['price'])}</span>
+          <span class="product-info__price" data-field="price" data-price="{d['price']:.2f}" data-price-recon="{recon_price(d['price']):.2f}">{money(recon_price(d['price']))}</span>
           <span class="product-info__price-note">{price_note}</span>
         </div>
         <div class="product-info__stock">In stock — ready in inventory</div>
