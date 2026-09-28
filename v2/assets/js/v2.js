@@ -393,17 +393,30 @@
   if (lb) lb.addEventListener("click", closeLb);
 
   // ------------------------------------------------------------------
-  // variant selector (segmented control with sliding thumb)
+  // variant selectors (segmented control with sliding thumb) — vial size + form
   // ------------------------------------------------------------------
+  var stageImg = $("[data-zoom] img");
+  var stage = stageImg || $("[data-zoom] svg");
+  var imgState = {
+    sku: stageImg ? (stageImg.getAttribute("data-sku") || "") : "",
+    form: stageImg ? (stageImg.getAttribute("data-form") || "recon") : "recon"
+  };
+  function applyStageImage(dose) {
+    if (!stageImg || !imgState.sku) return;
+    var url = stageImg.getAttribute("data-base") + imgState.sku + "-" + imgState.form + ".webp";
+    var pre = new Image();
+    pre.onload = function () {
+      stageImg.src = url;
+      stageImg.alt = ($(".pdp__name") ? $(".pdp__name").textContent : "") + " " + (dose || imgState.sku) + " research vial";
+      if (!reduce) { stageImg.classList.remove("bump"); void stageImg.getBoundingClientRect(); stageImg.classList.add("bump"); }
+    };
+    pre.src = url;
+  }
+
   $$("[data-seg]").forEach(function (seg) {
-    var btns = $$("[data-variant]", seg);
+    var isForm = seg.getAttribute("data-seg") === "form";
+    var btns = $$(isForm ? "[data-form]" : "[data-variant]", seg);
     var thumb = $(".seg__thumb", seg);
-    var stageImg = $("[data-zoom] img");
-    var stage = stageImg || $("[data-zoom] svg");
-    var doseText = !stageImg && stage ? $('[data-role="dose-text"]', stage) : null;
-    var skuText = stage ? $('[data-role="sku-text"]', stage) : null;
-    var priceEl = $(".price__n");
-    var current = parseFloat(priceEl ? priceEl.getAttribute("data-price") : "0") || 0;
 
     function place(b) {
       seg.style.setProperty("--x", b.offsetLeft + "px");
@@ -416,6 +429,24 @@
     window.addEventListener("resize", function () { place(active()); });
     if (d.fonts && d.fonts.ready) d.fonts.ready.then(function () { place(active()); });
     window.addEventListener("load", function () { place(active()); });
+
+    if (isForm) {
+      btns.forEach(function (b) {
+        b.addEventListener("click", function () {
+          btns.forEach(function (x) { x.classList.remove("is-active"); x.setAttribute("aria-checked", "false"); });
+          b.classList.add("is-active"); b.setAttribute("aria-checked", "true");
+          place(b);
+          imgState.form = b.getAttribute("data-form");
+          applyStageImage();
+        });
+      });
+      return;
+    }
+
+    var doseText = !stageImg && stage ? $('[data-role="dose-text"]', stage) : null;
+    var skuText = stage ? $('[data-role="sku-text"]', stage) : null;
+    var priceEl = $(".price__n");
+    var current = parseFloat(priceEl ? priceEl.getAttribute("data-price") : "0") || 0;
 
     btns.forEach(function (b) {
       b.addEventListener("click", function () {
@@ -433,14 +464,8 @@
         }
         var imgId = b.getAttribute("data-img");
         if (stageImg && imgId) {
-          var url = stageImg.getAttribute("data-base") + imgId + ".webp";
-          var pre = new Image();
-          pre.onload = function () {
-            stageImg.src = url;
-            stageImg.alt = ($(".pdp__name") ? $(".pdp__name").textContent : "") + " " + dose + " research vial";
-            if (!reduce) { stageImg.classList.remove("bump"); void stageImg.getBoundingClientRect(); stageImg.classList.add("bump"); }
-          };
-          pre.src = url;
+          imgState.sku = imgId;
+          applyStageImage(dose);
         } else if (stage && !reduce) { stage.classList.remove("bump"); void stage.getBoundingClientRect(); stage.classList.add("bump"); }
       });
     });

@@ -245,21 +245,23 @@ VIALS = ROOT / "assets" / "img" / "vials"
 
 
 def has_photo(v):
-    return (VIALS / f"{v['sku'].lower()}.webp").exists()
+    return (VIALS / f"{v['sku'].lower()}-recon.webp").exists()
 
 
-def vial_media(v, uid, size, prefix, eager=False):
-    """Composited product photo if assets/img/vials/<sku>.webp exists, else the coded SVG vial.
+def vial_media(v, uid, size, prefix, eager=False, form="recon"):
+    """Composited product photo if assets/img/vials/<sku>-<form>.webp exists, else the coded SVG vial.
 
     size 's' = 480x600 thumbnail, 'l' = 1280x1600. prefix = relative path to the site root.
+    form 'recon' (mint pill, shows bac-water volume) or 'powder' (white pill, plain dose).
     """
     if has_photo(v):
         sku = v["sku"].lower()
-        f = f"{sku}-s.webp" if size == "s" else f"{sku}.webp"
+        f = f"{sku}-{form}-s.webp" if size == "s" else f"{sku}-{form}.webp"
         w, h = (480, 600) if size == "s" else (1280, 1600)
         load = "" if eager else ' loading="lazy"'
         alt = html_escape(f"{v['name']} {v['dose']} research vial")
-        return (f'<img src="{prefix}assets/img/vials/{f}" data-base="{prefix}assets/img/vials/" alt="{alt}" '
+        return (f'<img src="{prefix}assets/img/vials/{f}" data-base="{prefix}assets/img/vials/" '
+                f'data-sku="{sku}" data-form="{form}" alt="{alt}" '
                 f'width="{w}" height="{h}" decoding="async"{load}>')
     return render_vial(v, gradient_id_suffix=uid)
 
@@ -500,6 +502,15 @@ def render_product_page(g, groups):
           <div class="chip-row" data-variant-group>{variant_chips}</div>
         </div>''' if multi else ""
 
+    form_selector = '''
+        <div class="calc-group" style="margin-bottom:26px;">
+          <div class="calc-group__label">Form</div>
+          <div class="chip-row" data-form-group>
+            <button class="chip" data-form="powder">Powder</button>
+            <button class="chip is-active" data-form="recon">Reconstituted</button>
+          </div>
+        </div>'''
+
     price_note = "1 vial" if not multi else "per vial · sizes above"
 
     body = f'''
@@ -523,6 +534,7 @@ def render_product_page(g, groups):
         <div class="product-info__stock">In stock — ready in inventory</div>
 
         {variant_selector}
+        {form_selector}
 
         <div class="mini-trust">
           <div>{icon('flask')}HPLC Tested</div>

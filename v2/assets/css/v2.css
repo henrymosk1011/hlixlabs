@@ -465,7 +465,7 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 .price__n { font: 800 clamp(3rem, 6vw, 5.4rem)/1 var(--f-display); letter-spacing: -0.05em; color: var(--accent); }
 .price__u { color: var(--dim); font: 500 13px var(--f-mono); letter-spacing: 0.08em; }
 .field-l { display: block; margin-bottom: 12px; color: var(--dim); font: 500 11px var(--f-mono); letter-spacing: 0.14em; }
-.seg { position: relative; display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid var(--line-2); border-radius: var(--r); max-width: 100%; }
+.seg { position: relative; display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; margin-bottom: 22px; border: 1px solid var(--line-2); border-radius: var(--r); max-width: 100%; }
 .seg button { position: relative; z-index: 1; padding: 12px 18px; border-radius: 6px; color: var(--dim); font: 500 14px var(--f-mono); transition: color 0.35s; }
 .seg button:hover { color: var(--fg); }
 .seg button.is-active { color: var(--accent-ink); }

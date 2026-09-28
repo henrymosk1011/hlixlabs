@@ -89,23 +89,30 @@ version — the rest of the build pipeline doesn't change.
 
 ## Photoreal bottles (original site and v2)
 
-v2 uses real product photography: one AI-generated photo of a black-labeled
-vial (`data/photo/base-black.webp`), with a printed label composited on for
-every one of the 130 catalog variants. Regenerate after a price/name change:
+Both sites use real product photography: one AI-generated photo of a
+black-labeled vial (`data/photo/base-black.webp`), with a printed "badge"
+label composited on for every one of the 130 catalog variants, in **two
+forms** — Powder (white pill, plain dose, as-shipped) and Reconstituted
+(mint pill, suggested bac-water volume e.g. "10MG/2ML"). A toggle on every
+product page lets the visitor switch between them. Regenerate after a
+price/name change:
 
 ```bash
 python3 -m venv .venv && ./.venv/bin/pip install pillow numpy   # once
-./.venv/bin/python scripts/photo_labels.py                       # all 130 (~70s)
-./.venv/bin/python scripts/photo_labels.py --only glp1-s         # one product
+./.venv/bin/python scripts/photo_labels.py                       # all 130 x 2 forms (~4min)
+./.venv/bin/python scripts/photo_labels.py --only glp1-s         # one product, both forms
+python3 scripts/build.py
 python3 scripts/build_v2.py
 ```
 
 Each label is typeset from `data/products.json`, wrapped around the bottle's
 cylinder (so type foreshortens toward the edges) and lit using
 `data/photo/base-white.webp` — the same bottle with a white label — as a
-lighting map. Output goes to `assets/img/vials/<sku>.webp` (1280x1600) plus
-`<sku>-s.webp` (480x600). Any variant with no image falls back to the coded
-SVG vial. To change the look, edit `render_art()` in `scripts/photo_labels.py`.
+lighting map. Output goes to `assets/img/vials/<sku>-recon.webp` and
+`<sku>-powder.webp` (1280x1600), plus `-s.webp` thumbnails (480x600) of each.
+Any variant with no image falls back to the coded SVG vial. To change the
+look, edit `render_art_badge()` in `scripts/photo_labels.py`; `--outdir` plus
+`--form`/`--wordmark` renders one-off proofs without touching the live site.
 
 ## Before you publish anywhere public
 

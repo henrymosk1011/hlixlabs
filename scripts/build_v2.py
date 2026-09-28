@@ -61,21 +61,23 @@ VIALS = ROOT / "assets" / "img" / "vials"
 
 
 def has_photo(v):
-    return (VIALS / f"{v['sku'].lower()}.webp").exists()
+    return (VIALS / f"{v['sku'].lower()}-recon.webp").exists()
 
 
-def vial_media(v, uid, size, root, alt=None, eager=False):
-    """Photoreal composited bottle when assets/img/vials/<sku>.webp exists, else the coded SVG.
+def vial_media(v, uid, size, root, alt=None, eager=False, form="recon"):
+    """Photoreal composited bottle when assets/img/vials/<sku>-<form>.webp exists, else the coded SVG.
 
     size 's' = 480x600 thumbnail, 'l' = 1280x1600. root = relative path to the site root.
+    form 'recon' (mint pill, shows bac-water volume) or 'powder' (white pill, plain dose).
     """
     if has_photo(v):
         sku = v["sku"].lower()
-        f = f"{sku}-s.webp" if size == "s" else f"{sku}.webp"
+        f = f"{sku}-{form}-s.webp" if size == "s" else f"{sku}-{form}.webp"
         w, h = (480, 600) if size == "s" else (1280, 1600)
         alt = alt or f"{v['name']} {v['dose']} research vial"
         load = "" if eager else ' loading="lazy"'
-        return (f'<img src="{root}assets/img/vials/{f}" data-base="{root}assets/img/vials/" alt="{esc(alt)}" '
+        return (f'<img src="{root}assets/img/vials/{f}" data-base="{root}assets/img/vials/" '
+                f'data-sku="{sku}" data-form="{form}" alt="{esc(alt)}" '
                 f'width="{w}" height="{h}" decoding="async"{load}>')
     return render_vial(v, gradient_id_suffix=uid)
 
@@ -357,7 +359,12 @@ def page_product(g, groups):
             f'data-dose="{esc(v["dose"])}" data-price="{v["price"]:.0f}" data-sku="{esc(v["sku"])}" data-img="{v["sku"].lower()}">{esc(v["dose"])}</button>'
             for v in variants
         )
-        seg = f'<span class="field-l">vial size</span><div class="seg" data-seg role="radiogroup" aria-label="vial size"><span class="seg__thumb"></span>{btns}</div>'
+        seg = f'<span class="field-l">vial size</span><div class="seg" data-seg="size" role="radiogroup" aria-label="vial size"><span class="seg__thumb"></span>{btns}</div>'
+    form_btns = (
+        '<button role="radio" aria-checked="false" data-form="powder">powder</button>'
+        '<button role="radio" aria-checked="true" class="is-active" data-form="recon">reconstituted</button>'
+    )
+    seg += f'<span class="field-l">form</span><div class="seg" data-seg="form" role="radiogroup" aria-label="shipping form"><span class="seg__thumb"></span>{form_btns}</div>'
     related = [x for x in groups if x["category"] == g["category"] and x["slug"] != g["slug"]][:4]
     rel = ""
     if related:
