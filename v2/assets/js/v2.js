@@ -328,7 +328,10 @@
     selIdx = -1;
     if (!q) { sList.innerHTML = ""; sHint.hidden = false; return; }
     sHint.hidden = true;
-    var res = idx.filter(function (it) { return it.name.toLowerCase().indexOf(q) > -1 || it.category.toLowerCase().indexOf(q) > -1; }).slice(0, 9);
+    var res = idx.filter(function (it) {
+      if (it.name.toLowerCase().indexOf(q) > -1 || it.category.toLowerCase().indexOf(q) > -1) return true;
+      return (it.tags || []).some(function (t) { return t.indexOf(q) > -1; });
+    }).slice(0, 9);
     if (!res.length) { sList.innerHTML = '<p class="search__hint">no matches for “' + esc(q) + '”.</p>'; return; }
     sList.innerHTML = res.map(function (r, i) {
       return '<a class="sr" style="--i:' + i + '" href="' + cfg.base + "peptides/" + r.slug + '.html">' +

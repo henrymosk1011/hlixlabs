@@ -113,10 +113,10 @@ def nav(p, page):
 <div class="search" data-search role="dialog" aria-label="search">
   <button class="x" data-search-close aria-label="close search">{CLOSE}</button>
   <div class="search__in">
-    <div class="search__field">{SEARCH}<input data-search-input type="text" placeholder="search peptides" autocomplete="off" spellcheck="false"></div>
+    <div class="search__field">{SEARCH}<input data-search-input type="text" placeholder="search by name or goal, like hair or sleep" autocomplete="off" spellcheck="false"></div>
     <div data-search-hint>
-      <p class="search__hint">start typing, or try</p>
-      <div class="search__try"><button data-try="glp1-s">glp1-s</button><button data-try="bpc">bpc 157</button><button data-try="dsip">dsip</button><button data-try="recovery">recovery</button><button data-try="growth">growth</button></div>
+      <p class="search__hint">start typing a name, or search by goal</p>
+      <div class="search__try"><button data-try="hair">hair</button><button data-try="sleep">sleep</button><button data-try="fat loss">fat loss</button><button data-try="muscle growth">muscle growth</button><button data-try="recovery">recovery</button><button data-try="skin">skin</button></div>
     </div>
     <div data-search-list></div>
   </div>
@@ -350,6 +350,11 @@ def page_catalog(groups):
 def page_product(g, groups):
     d = g["default"]
     svg = vial_media(d, f"pdp-{g['slug']}", "l", "../../", eager=True)
+    tags_html = (
+        '<div class="pdp__tags">' +
+        "".join(f'<span class="tag-pill">{esc(t)}</span>' for t in g["tags"]) +
+        "</div>"
+    ) if g["tags"] else ""
     variants = g["variants"]
     multi = len(variants) > 1
     color = CATEGORY_COLORS.get(g["category"], "#33e6b0")
@@ -382,6 +387,7 @@ def page_product(g, groups):
       <div class="pdp__info">
         <p class="kicker" style="color:var(--c)" data-reveal="fade">// {esc(g['category_label'].lower())}</p>
         <h1 class="pdp__name" data-split>{esc(g['name'])}</h1>
+        {tags_html}
         <div class="price" data-reveal><span class="price__n" data-price="{d['price']:.2f}" data-price-recon="{recon_price(d['price']):.2f}">{money(recon_price(d['price']))}</span><span class="price__u">/ vial</span></div>
         <div data-reveal>{seg}</div>
         <p class="stock" data-reveal>in stock</p>

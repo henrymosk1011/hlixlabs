@@ -40,6 +40,79 @@ CATEGORY_ORDER = [
 ]
 CATEGORY_LABELS = {slug: label for slug, label, _ in CATEGORY_ORDER}
 
+# Research-area tags per compound, keyed by exact product name (as stored in
+# products.json). Used for goal-based search ("hair", "sleep", "fat loss")
+# and shown on each product page. Framed as research associations, not
+# medical claims, consistent with the RUO disclaimer carried site-wide.
+TAG_MAP = {
+    "GLP2-T": ["weight loss", "fat loss", "blood sugar", "appetite", "metabolism"],
+    "GLP3-R": ["weight loss", "fat loss", "blood sugar", "appetite", "metabolism"],
+    "GLP1-S": ["weight loss", "fat loss", "blood sugar", "appetite", "metabolism"],
+    "MT-1": ["tanning", "libido", "skin"],
+    "MT-2 (Melanotan 2 Acetate)": ["tanning", "libido", "appetite", "weight loss"],
+    "kpv": ["gut health", "inflammation", "skin", "wound healing"],
+    "PT-141": ["libido", "sexual health"],
+    "Gonadorelin Acetate": ["hormone balance", "fertility", "libido"],
+    "DSIP": ["sleep", "stress", "mood"],
+    "Triptorelin Acetate/GnRH Triptorelin": ["hormone balance", "fertility"],
+    "Selank": ["cognitive", "focus", "anxiety", "mood", "stress"],
+    "Oxytocin Acetate": ["mood", "stress", "libido"],
+    "Epithalon": ["longevity", "sleep", "anti-aging", "cellular health"],
+    "BPC 157": ["recovery", "gut health", "joint health", "wound healing", "inflammation"],
+    "BPC 5mg + TB 5mg": ["recovery", "joint health", "wound healing", "muscle growth"],
+    "BPC 10mg + TB 10mg": ["recovery", "joint health", "wound healing", "muscle growth"],
+    "TB500(Thymosin B4 Acetate)": ["recovery", "wound healing", "joint health", "muscle growth", "flexibility"],
+    "ACE-031": ["muscle growth", "strength"],
+    "AICAR": ["fat loss", "endurance", "metabolism", "energy"],
+    "Adipotide": ["fat loss", "weight loss"],
+    "Semax": ["cognitive", "focus", "memory", "mood"],
+    "SS-31": ["longevity", "energy", "cardiovascular", "cellular health"],
+    "GHRP-2 Acetate": ["muscle growth", "growth hormone", "recovery", "appetite"],
+    "GHRP-6 Acetate": ["muscle growth", "growth hormone", "recovery", "appetite"],
+    "CJC-1295 Whitout DAC": ["muscle growth", "growth hormone", "recovery", "sleep"],
+    "HGH 191AA(Somatropin)": ["muscle growth", "growth hormone", "recovery", "fat loss", "anti-aging"],
+    "CJC-1295 without DAC 5mg + IPA 5mg": ["muscle growth", "growth hormone", "recovery", "sleep"],
+    "CJC-1295 With DAC": ["muscle growth", "growth hormone", "recovery", "sleep", "anti-aging"],
+    "Sermorelin Acetate": ["growth hormone", "anti-aging", "sleep", "recovery"],
+    "AOD9604": ["fat loss", "weight loss", "metabolism"],
+    "GDF-8": ["muscle growth", "strength"],
+    "Follistatin": ["muscle growth", "strength", "fat loss"],
+    "IGF-1LR3": ["muscle growth", "recovery", "strength"],
+    "IGF-DES": ["muscle growth", "recovery", "strength"],
+    "Tesamorelin": ["fat loss", "growth hormone", "cognitive", "muscle growth"],
+    "Ipamorelin": ["growth hormone", "muscle growth", "recovery", "sleep", "anti-aging"],
+    "Hexarelin Acetate": ["growth hormone", "muscle growth", "cardiovascular", "recovery"],
+    "GHK-CU": ["skin", "hair", "nails", "anti-aging", "wound healing", "collagen"],
+    "KissPeptin-10": ["libido", "fertility", "hormone balance"],
+    "Thymalin": ["immune", "longevity", "anti-aging"],
+    "Thymosin Alpha-1": ["immune", "longevity", "recovery"],
+    "MOTS-c": ["metabolism", "energy", "longevity", "fat loss", "endurance"],
+    "FOXO4": ["longevity", "anti-aging", "cellular health"],
+    "LL37": ["immune", "wound healing", "gut health", "skin"],
+    "Glutathione": ["anti-aging", "skin", "immune", "energy"],
+    "MGF": ["muscle growth", "recovery", "strength"],
+    "PEG MGF": ["muscle growth", "recovery", "strength"],
+    "5-amino-1mq": ["fat loss", "weight loss", "metabolism", "anti-aging"],
+    "cagrilintide": ["weight loss", "fat loss", "appetite", "metabolism"],
+    "Ara-290": ["recovery", "nerve health", "inflammation", "mood"],
+    "snap-8": ["skin", "anti-aging", "wrinkles"],
+    "Mazdutide": ["weight loss", "fat loss", "blood sugar", "metabolism"],
+    "NAD": ["energy", "longevity", "anti-aging", "cellular health", "cognitive"],
+    "Alprostadil": ["libido", "sexual health", "cardiovascular"],
+    "BPC 157 10mg+GHK-CU 50mg+TB500 10mg": ["recovery", "wound healing", "skin", "joint health"],
+    "HCG": ["hormone balance", "fertility", "libido", "muscle growth"],
+    "VIP": ["immune", "gut health", "inflammation", "cognitive"],
+    "SLU-PP-332": ["fat loss", "energy", "endurance", "metabolism"],
+    "CU50mg+TB10mg+BC10mg+KPV10mg": ["skin", "recovery", "gut health", "anti-aging", "wound healing"],
+    "Lemon Bottle": ["fat loss", "body contouring", "skin"],
+    "Survodutide": ["weight loss", "fat loss", "blood sugar", "metabolism"],
+    "L-carnitine": ["fat loss", "energy", "metabolism", "endurance"],
+    "B12": ["energy", "metabolism", "cognitive", "mood"],
+    "HMG": ["fertility", "hormone balance"],
+    "HUMANIN": ["longevity", "anti-aging", "cognitive", "cellular health"],
+    "AHK-Cu": ["skin", "hair", "anti-aging", "wound healing", "collagen"],
+}
+
 ICONS = {
     "flask": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v6.5L4.5 18a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8.5V2"/><path d="M7.5 14h9"/></svg>',
     "shield": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>',
@@ -103,7 +176,7 @@ def nav_html(prefix, active):
       <nav class="nav__links">{links}</nav>
       <div class="nav__search" data-search-inline>
         {icon('search')}
-        <input type="text" placeholder="Search for peptides…" data-search-input-nav autocomplete="off" spellcheck="false">
+        <input type="text" placeholder="Search by name or goal, like hair or sleep…" data-search-input-nav autocomplete="off" spellcheck="false">
         <div class="nav__search-dropdown" data-search-dropdown></div>
       </div>
       <div class="nav__cta">
@@ -121,7 +194,7 @@ def nav_html(prefix, active):
     <div class="search-panel">
       <div class="search-panel__input-row">
         {icon('search')}
-        <input type="text" placeholder="Search peptides, categories…" data-search-input autocomplete="off" spellcheck="false">
+        <input type="text" placeholder="Search by name or goal, like hair or sleep…" data-search-input autocomplete="off" spellcheck="false">
         <button class="search-panel__close" data-search-close aria-label="Close search">{icon('close')}</button>
       </div>
       <div class="search-panel__results" data-search-results></div>
@@ -239,6 +312,7 @@ def group_products(products):
             "default": default,
             "min_price": min(prices),
             "max_price": max(prices),
+            "tags": TAG_MAP.get(name, []),
         })
     return groups
 
@@ -493,6 +567,12 @@ def render_product_page(g, groups):
     <div class="product-grid">{related_html}</div>
   </section>''' if related else ""
 
+    tags_html = (
+        '<div class="product-info__tags">' +
+        "".join(f'<span class="tag-pill">{html_escape(t)}</span>' for t in g["tags"]) +
+        "</div>"
+    ) if g["tags"] else ""
+
     variants = g["variants"]
     multi = len(variants) > 1
     variant_chips = "".join(
@@ -531,6 +611,7 @@ def render_product_page(g, groups):
       <div class="product-info">
         <span class="product-info__purity">{icon('flask')} ≥99% Purity · HPLC Verified</span>
         <h1>{g['name']}</h1>
+        {tags_html}
         <div class="product-info__dose"><span data-field="dose">{d['dose']}</span> · SKU <span data-field="sku">{d['sku']}</span></div>
         <div class="product-info__price-row">
           <span class="product-info__price" data-field="price" data-price="{d['price']:.2f}" data-price-recon="{recon_price(d['price']):.2f}">{money(recon_price(d['price']))}</span>
@@ -865,6 +946,7 @@ def render_search_index(groups):
         "category": g["category_label"],
         "priceFrom": g["min_price"],
         "multi": len(g["variants"]) > 1,
+        "tags": g["tags"],
     } for g in groups]
     js = "window.HLIX_SEARCH_INDEX = " + json.dumps(entries) + ";"
     (ROOT / "assets" / "js" / "search-index.js").write_text(js)

@@ -22,7 +22,8 @@
     var q = query.trim().toLowerCase();
     if (!q) return [];
     return window.HLIX_SEARCH_INDEX.filter(function (item) {
-      return item.name.toLowerCase().indexOf(q) > -1 || item.category.toLowerCase().indexOf(q) > -1;
+      if (item.name.toLowerCase().indexOf(q) > -1 || item.category.toLowerCase().indexOf(q) > -1) return true;
+      return (item.tags || []).some(function (t) { return t.indexOf(q) > -1; });
     }).slice(0, 8);
   }
 
@@ -48,7 +49,7 @@
     if (!overlay) return;
     overlay.classList.add("is-open");
     document.body.style.overflow = "hidden";
-    modalResults.innerHTML = resultsHtml([], "", "Start typing to search the catalog…");
+    modalResults.innerHTML = resultsHtml([], "", "Search by name or goal, like “hair” or “sleep”…");
     setTimeout(function () { modalInput.focus(); }, 10);
   }
 
@@ -70,7 +71,7 @@
       if (e.target === overlay) closeOverlay();
     });
     modalInput.addEventListener("input", function () {
-      modalResults.innerHTML = resultsHtml(matchProducts(modalInput.value), modalInput.value, "Start typing to search the catalog…");
+      modalResults.innerHTML = resultsHtml(matchProducts(modalInput.value), modalInput.value, "Search by name or goal, like “hair” or “sleep”…");
     });
   }
 
@@ -85,7 +86,7 @@
     };
     navInput.addEventListener("input", function () {
       var q = navInput.value;
-      navDropdown.innerHTML = resultsHtml(matchProducts(q), q, "Start typing to search the catalog…");
+      navDropdown.innerHTML = resultsHtml(matchProducts(q), q, "Search by name or goal, like “hair” or “sleep”…");
       navDropdown.classList.toggle("is-open", !!q.trim());
     });
     navInput.addEventListener("focus", function () {

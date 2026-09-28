@@ -468,7 +468,9 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 @keyframes bump { 40% { transform: scale(1.05) rotate(-1.5deg); } }
 .stage__hint { position: absolute; left: 18px; bottom: 16px; color: var(--faint); font: 500 11px var(--f-mono); letter-spacing: 0.1em; }
 .pdp__info { min-width: 0; padding-top: 4px; }
-.pdp__name { font: 800 clamp(3rem, 8.4vw, 8rem)/0.9 var(--f-display); letter-spacing: -0.06em; margin: 20px 0 clamp(20px, 3vh, 36px); overflow-wrap: anywhere; }
+.pdp__name { font: 800 clamp(3rem, 8.4vw, 8rem)/0.9 var(--f-display); letter-spacing: -0.06em; margin: 20px 0 18px; overflow-wrap: anywhere; }
+.pdp__tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: clamp(20px, 3vh, 36px); }
+.tag-pill { font: 500 11.5px var(--f-mono); letter-spacing: 0.04em; color: var(--dim); border: 1px solid var(--line-2); padding: 6px 12px; border-radius: 999px; text-transform: lowercase; }
 .price { display: flex; align-items: baseline; gap: 12px; margin-bottom: 30px; }
 .price__n { font: 800 clamp(3rem, 6vw, 5.4rem)/1 var(--f-display); letter-spacing: -0.05em; color: var(--accent); }
 .price__u { color: var(--dim); font: 500 13px var(--f-mono); letter-spacing: 0.08em; }
