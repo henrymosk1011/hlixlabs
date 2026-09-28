@@ -56,7 +56,7 @@
   }
 
   if (history.length === 0) {
-    addMessage("assistant", "Hey — ask me about a compound, a category, or how the catalog's priced.");
+    addMessage("assistant", "Hey, ask me about a compound, a category, or how the catalog's priced.");
   } else {
     render();
   }

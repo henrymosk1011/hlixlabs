@@ -6,7 +6,7 @@
 
   var tween = (window.HLIX2 && window.HLIX2.tween) || function (a, b, d, u, done) { u(b); if (done) done(); };
 
-  var state = { vial: 5, water: 2, dose: 0.25, freq: "daily", syringe: 1, supplyUnit: "days", planAmount: 3, planUnit: "months" };
+  var state = { vial: 5, water: 2, dose: 0.25, freq: 1, syringe: 1, supplyUnit: "days", planAmount: 3, planUnit: "months" };
   var units = { vial: "mg", water: "mL", dose: "mg", syringe: "mL" };
   var shown = { units: 0, conc: 0, vol: 0 };
 
@@ -16,7 +16,7 @@
   function put(name, text) { (outs[name] || []).forEach(function (el) { el.textContent = text; }); }
 
   function fmt(n, dec) {
-    if (!isFinite(n)) return "—";
+    if (!isFinite(n)) return "···";
     return n.toFixed(dec == null ? 2 : dec).replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
   }
 
@@ -48,6 +48,59 @@
     }
   });
 
+  // ---- frequency (presets + custom "every N days/weeks/months") ----
+  var freqPresets = root.querySelector("[data-freq-presets]");
+  var freqCustomWrap = root.querySelector("[data-freq-custom]");
+  var freqN = root.querySelector("[data-freq-n]");
+  var freqUnitRoot = root.querySelector("[data-freq-unit]");
+
+  function updateFreqFromCustom() {
+    var n = freqN ? parseFloat(freqN.value) : 1;
+    if (isNaN(n) || n <= 0) n = 1;
+    var activeUnitBtn = freqUnitRoot ? freqUnitRoot.querySelector(".opt.is-active") : null;
+    var unit = activeUnitBtn ? activeUnitBtn.getAttribute("data-val") : "days";
+    var mult = unit === "weeks" ? 7 : unit === "months" ? 30 : 1;
+    state.freq = n * mult;
+    render();
+  }
+
+  if (freqPresets) {
+    var freqBtns = $$(".opt", freqPresets);
+    freqBtns.forEach(function (b) {
+      b.addEventListener("click", function () {
+        freqBtns.forEach(function (x) { x.classList.remove("is-active"); });
+        b.classList.add("is-active");
+        var v = b.getAttribute("data-val");
+        if (v === "custom") {
+          if (freqCustomWrap) { freqCustomWrap.hidden = false; }
+          updateFreqFromCustom();
+          return;
+        }
+        if (freqCustomWrap) freqCustomWrap.hidden = true;
+        state.freq = parseFloat(v);
+        render();
+      });
+    });
+  }
+  if (freqN) freqN.addEventListener("input", updateFreqFromCustom);
+  if (freqUnitRoot) {
+    $$(".opt", freqUnitRoot).forEach(function (b) {
+      b.addEventListener("click", function () {
+        $$(".opt", freqUnitRoot).forEach(function (x) { x.classList.remove("is-active"); });
+        b.classList.add("is-active");
+        updateFreqFromCustom();
+      });
+    });
+  }
+
+  function freqLabel() {
+    var f = state.freq;
+    if (f === 1) return "injections, one a day";
+    if (f === 7) return "injections, one a week";
+    if (f === 30) return "injections, one a month";
+    return "injections, one every " + fmt(f, 0) + " days";
+  }
+
   var plan = root.querySelector("[data-plan]");
   if (plan) plan.addEventListener("input", function () {
     var v = parseFloat(plan.value);
@@ -77,10 +130,10 @@
     var se = root.querySelector('[data-echo="syringe"]');
     if (se) se.textContent = fmt(syrMl, 2) + " mL · " + fmt(maxUnits, 0) + " units";
 
-    if (drawUnits > 0) animateNumber("units", drawUnits, 1); else { shown.units = 0; put("units", "—"); }
-    if (conc > 0) animateNumber("conc", conc, 2); else { shown.conc = 0; put("conc", "—"); }
-    if (volMl > 0) animateNumber("vol", volMl, 3); else { shown.vol = 0; put("vol", "—"); }
-    put("dock", drawUnits > 0 ? fmt(drawUnits, 1) : "—");
+    if (drawUnits > 0) animateNumber("units", drawUnits, 1); else { shown.units = 0; put("units", "···"); }
+    if (conc > 0) animateNumber("conc", conc, 2); else { shown.conc = 0; put("conc", "···"); }
+    if (volMl > 0) animateNumber("vol", volMl, 3); else { shown.vol = 0; put("vol", "···"); }
+    put("dock", drawUnits > 0 ? fmt(drawUnits, 1) : "···");
 
     // syringe
     var pct = maxUnits > 0 ? Math.min(1, drawUnits / maxUnits) : 0;
@@ -100,21 +153,21 @@
 
     // supply
     var inj = dose > 0 ? Math.floor(vial / dose) : 0;
-    var days = state.freq === "daily" ? inj : inj * 7;
+    var days = inj * state.freq;
     var conv = days;
     if (state.supplyUnit === "weeks") conv = days / 7;
     if (state.supplyUnit === "months") conv = days / 30;
     if (state.supplyUnit === "years") conv = days / 365;
-    put("inj", inj > 0 ? String(inj) : "—");
-    put("freqlabel", state.freq === "daily" ? "injections, one a day" : "injections, one a week");
-    put("supply", inj > 0 ? fmt(conv, 1) : "—");
+    put("inj", inj > 0 ? String(inj) : "···");
+    put("freqlabel", freqLabel());
+    put("supply", inj > 0 ? fmt(conv, 1) : "···");
     put("supplyUnit", state.supplyUnit);
 
     // plan
     var target = state.planAmount * (state.planUnit === "weeks" ? 7 : state.planUnit === "months" ? 30 : 365);
-    var need = state.freq === "daily" ? target : target / 7;
+    var need = target / state.freq;
     var vials = vial > 0 ? Math.ceil(need * dose / vial) : 0;
-    put("vials", vials > 0 ? String(vials) : "—");
+    put("vials", vials > 0 ? String(vials) : "···");
     put("planN", fmt(state.planAmount, 2));
     put("planU", state.planUnit);
   }

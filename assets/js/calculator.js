@@ -10,7 +10,7 @@
     vial: 5,          // mg (or IU) of peptide in the vial
     water: 2,          // mL of bacteriostatic water added
     dose: 0.25,        // mg (or IU) per injection
-    frequency: "daily", // "daily" | "weekly"
+    frequency: 1, // days between injections
     syringe: 1,         // mL capacity of the syringe (100 units = 1 mL)
     customSyringe: 1,
     supplyUnit: "days",  // "days" | "weeks" | "months" | "years"
@@ -56,6 +56,50 @@
     }
   });
 
+  // ---- frequency custom interval ("every N days/weeks/months") ----
+  var freqGroup = root.querySelector('[data-calc="frequency"]');
+  var freqCustomRow = root.querySelector("[data-freq-custom]");
+  var freqN = root.querySelector("[data-freq-n]");
+  var freqUnitRoot = root.querySelector("[data-freq-unit]");
+
+  function updateFreqFromCustom() {
+    var n = freqN ? parseFloat(freqN.value) : 1;
+    if (isNaN(n) || n <= 0) n = 1;
+    var activeUnitBtn = freqUnitRoot ? freqUnitRoot.querySelector(".chip.is-active") : null;
+    var unit = activeUnitBtn ? activeUnitBtn.getAttribute("data-value") : "days";
+    var mult = unit === "weeks" ? 7 : unit === "months" ? 30 : 1;
+    state.frequency = n * mult;
+    render();
+  }
+
+  if (freqGroup) {
+    freqGroup.querySelectorAll(".chip").forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        var isCustom = chip.getAttribute("data-value") === "custom";
+        if (freqCustomRow) freqCustomRow.style.display = isCustom ? "flex" : "none";
+        if (isCustom) updateFreqFromCustom();
+      });
+    });
+  }
+  if (freqN) freqN.addEventListener("input", updateFreqFromCustom);
+  if (freqUnitRoot) {
+    freqUnitRoot.querySelectorAll(".chip").forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        freqUnitRoot.querySelectorAll(".chip").forEach(function (c) { c.classList.remove("is-active"); });
+        chip.classList.add("is-active");
+        updateFreqFromCustom();
+      });
+    });
+  }
+
+  function freqLabel() {
+    var f = state.frequency;
+    if (f === 1) return "injections / day";
+    if (f === 7) return "injections / week";
+    if (f === 30) return "injections / month";
+    return "injections / " + fmt(f, 0) + " days";
+  }
+
   // ---- plan-for stepper ----
   var planInput = root.querySelector("[data-plan-amount]");
   if (planInput) {
@@ -66,7 +110,7 @@
   }
 
   function fmt(n, decimals) {
-    if (!isFinite(n)) return "—";
+    if (!isFinite(n)) return "···";
     var f = n.toFixed(decimals == null ? 2 : decimals);
     return f.replace(/\.0+$/, "").replace(/(\.\d*?)0+$/, "$1").replace(/\.$/, "");
   }
@@ -96,9 +140,9 @@
 
     set("vialEcho", fmt(vial, 2) + " mg");
     set("waterEcho", fmt(water, 2) + " mL");
-    set("calcConcentration", concentration > 0 ? fmt(concentration, 2) : "—");
-    set("calcDrawUnits", drawUnits > 0 ? fmt(drawUnits, 1) : "—");
-    set("calcDrawVolume", drawVolumeMl > 0 ? fmt(drawVolumeMl, 3) : "—");
+    set("calcConcentration", concentration > 0 ? fmt(concentration, 2) : "···");
+    set("calcDrawUnits", drawUnits > 0 ? fmt(drawUnits, 1) : "···");
+    set("calcDrawVolume", drawVolumeMl > 0 ? fmt(drawVolumeMl, 3) : "···");
 
     var fillRect = document.getElementById("syringeFillRect");
     var plungerCap = document.getElementById("syringePlungerCap");
@@ -127,7 +171,7 @@
 
     // supply
     var injectionsPerVial = dose > 0 ? Math.floor(vial / dose) : 0;
-    var daysPerVial = state.frequency === "daily" ? injectionsPerVial : injectionsPerVial * 7;
+    var daysPerVial = injectionsPerVial * state.frequency;
 
     var supplyConverted = daysPerVial;
     var unitLabel = state.supplyUnit;
@@ -135,17 +179,17 @@
     if (unitLabel === "months") supplyConverted = daysPerVial / 30;
     if (unitLabel === "years") supplyConverted = daysPerVial / 365;
 
-    set("calcSupplyValue", injectionsPerVial > 0 ? fmt(supplyConverted, 1) : "—");
+    set("calcSupplyValue", injectionsPerVial > 0 ? fmt(supplyConverted, 1) : "···");
     set("calcSupplyUnit", unitLabel);
-    set("calcInjectionsPerVial", injectionsPerVial > 0 ? injectionsPerVial : "—");
-    set("calcFrequencyLabel", state.frequency === "daily" ? "injections / day" : "injections / week");
+    set("calcInjectionsPerVial", injectionsPerVial > 0 ? injectionsPerVial : "···");
+    set("calcFrequencyLabel", freqLabel());
 
     // plan for
     var targetDays = state.planAmount * (state.planUnit === "weeks" ? 7 : state.planUnit === "months" ? 30 : 365);
-    var injectionsNeeded = state.frequency === "daily" ? targetDays : targetDays / 7;
+    var injectionsNeeded = targetDays / state.frequency;
     var totalNeeded = injectionsNeeded * dose;
     var vialsNeeded = vial > 0 ? Math.ceil(totalNeeded / vial) : 0;
-    set("calcVialsNeeded", vialsNeeded > 0 ? vialsNeeded : "—");
+    set("calcVialsNeeded", vialsNeeded > 0 ? vialsNeeded : "···");
     set("calcPlanAmountEcho", state.planAmount);
     set("calcPlanUnitEcho", state.planUnit);
   }

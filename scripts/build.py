@@ -25,7 +25,7 @@ ASSET_VERSION = str(int(time.time()))
 
 SITE_NAME = "hlix"
 SITE_DOMAIN = "hlixlabs.com"
-BASE_DESCRIPTION = "hlix is a personal research catalog for peptides — dosing, specs and pricing in one clean, searchable place."
+BASE_DESCRIPTION = "hlix is a research peptide catalog: dosing, specs and pricing in one clean, searchable place."
 CONTACT_EMAIL = "contact@hlixlabs.com"
 
 CATEGORY_ORDER = [
@@ -156,7 +156,7 @@ def footer_html(prefix):
       <div class="footer__grid">
         <div class="footer__brand">
           <a href="{prefix}index.html" class="brand"><span class="brand__mark">h</span>hlix</a>
-          <p>A personal research catalog — every peptide I keep on hand, cataloged with dosing, specs and pricing in one place.</p>
+          <p>A research peptide catalog: every compound in stock, cataloged with dosing, specs and pricing in one place.</p>
         </div>
         <div class="footer__col">
           <h4>Catalog</h4>
@@ -176,7 +176,6 @@ def footer_html(prefix):
       </div>
       <div class="footer__legal">
         <p class="footer__ruo"><a class="v2-link" href="{prefix}v2/index.html" tabindex="-1" aria-hidden="true">©</a> 2026 hlix. For laboratory research use only. Not for human or animal consumption. Nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
-        <p>Built with a personal catalog generator.</p>
       </div>
     </div>
   </footer>'''
@@ -279,7 +278,7 @@ def render_card(g, prefix):
     photo_cls = " card__media--photo" if has_photo(d) else ""
     multi = len(g["variants"]) > 1
     price_html = f"<small>FROM</small> {money(g['min_price'])}" if multi else money(d["price"])
-    dose_line = f"{len(g['variants'])} sizes · {g['variants'][0]['dose']}–{g['variants'][-1]['dose']}" if multi else d["dose"]
+    dose_line = f"{len(g['variants'])} sizes · {g['variants'][0]['dose']} to {g['variants'][-1]['dose']}" if multi else d["dose"]
     return f'''<a class="card" href="{prefix}peptides/{g['slug']}.html" data-card-category="{g['category']}" data-card-name="{html_escape(g['name'])}">
   <div class="card__media{photo_cls}" style="--cat-color:{CATEGORY_COLORS.get(g['category'], '#33e6b0')}">
     <span class="card__badge">HPLC 99%+</span>
@@ -307,7 +306,7 @@ def trust_grid_html():
         ("flask", "HPLC Verified", "Every compound is checked against HPLC reference data before it earns a spot in the catalog."),
         ("shield", "Batch Tested", "Batch-level testing is tracked per lot so potency and purity stay consistent vial to vial."),
         ("doc", "COA On File", "A certificate of analysis is kept on file for each compound and available on request."),
-        ("usa", "USA Based", "Sourced and stored domestically — no cross-border customs surprises."),
+        ("usa", "USA Based", "Sourced and stored domestically, with no cross-border customs surprises."),
     ]
     cards = "".join(
         f'<div class="trust-card">{icon(n)}<h3>{t}</h3><p>{d}</p></div>' for n, t, d in items
@@ -362,9 +361,9 @@ def render_home(groups):
   <section class="hero">
     <div class="container hero__grid">
       <div>
-        <span class="eyebrow">PERSONAL RESEARCH CATALOG</span>
+        <span class="eyebrow">RESEARCH PEPTIDE CATALOG</span>
         <h1>RESEARCH-GRADE.<br>CATALOGED.<br><span class="accent-line">CLEARLY PRICED.</span></h1>
-        <p class="lede">hlix is where I keep every research peptide I'm running — dose, spec and price in one place, so there's never any guessing what's on hand or what it cost.</p>
+        <p class="lede">hlix catalogs every research peptide we carry: dose, spec and price in one place, so there's never any guessing what's in stock or what it costs.</p>
         <div class="hero__actions">
           <a href="catalog.html" class="btn btn--accent">View Full Catalog {icon('arrow')}</a>
           <a href="calculator.html" class="btn btn--ghost">{icon('calc')} Dosage Calculator</a>
@@ -415,7 +414,7 @@ def render_home(groups):
       <div class="cta-band cta-band--ai">
         <span class="cta-band__icon">{icon('sparkles')}</span>
         <h2>Ask the hlix AI assistant</h2>
-        <p>It knows the whole catalog — every compound, category and price — plus general research background on peptides. Look for the sparkle icon in the bottom-right corner of any page.</p>
+        <p>It knows the whole catalog (every compound, category and price) plus general research background on peptides. Look for the sparkle icon in the bottom-right corner of any page.</p>
       </div>
     </div>
   </section>
@@ -424,14 +423,14 @@ def render_home(groups):
     <div class="container">
       <div class="cta-band">
         <h2>Reconstituting a new vial?</h2>
-        <p>Run the numbers with the built-in dosage calculator — concentration, draw volume, syringe units and vial supply, all in one place.</p>
+        <p>Run the numbers with the built-in dosage calculator: concentration, draw volume, syringe units and vial supply, all in one place.</p>
         <a href="calculator.html" class="btn btn--accent">Open the Calculator {icon('arrow')}</a>
       </div>
     </div>
   </section>
 '''
     return page_shell(
-        title="hlix — Research-Grade Peptides, Cataloged",
+        title="hlix: Research-Grade Peptides, Cataloged",
         description=BASE_DESCRIPTION,
         prefix=prefix,
         active="home",
@@ -457,7 +456,7 @@ def render_catalog(products):
     <div class="container">
       <span class="eyebrow">THE CATALOG</span>
       <h1>Every compound, one list.</h1>
-      <p>{len(products)} peptides cataloged across {len({p['category'] for p in products})} categories, every available vial size on its own product page. Priced as 1 vial at the sourced pack rate — filter by category, search, or scroll the full list.</p>
+      <p>{len(products)} peptides cataloged across {len({p['category'] for p in products})} categories, every available vial size on its own product page. Priced as 1 vial at the sourced pack rate. Filter by category, search, or scroll the full list.</p>
     </div>
   </section>
   <section class="section">
@@ -537,7 +536,7 @@ def render_product_page(g, groups):
           <span class="product-info__price" data-field="price" data-price="{d['price']:.2f}" data-price-recon="{recon_price(d['price']):.2f}">{money(recon_price(d['price']))}</span>
           <span class="product-info__price-note">{price_note}</span>
         </div>
-        <div class="product-info__stock">In stock — ready in inventory</div>
+        <div class="product-info__stock">In stock and ready in inventory</div>
 
         {variant_selector}
         {form_selector}
@@ -559,7 +558,7 @@ def render_product_page(g, groups):
           </div>
           <div class="tabs__panel is-active" data-tab-panel="overview">
             <h3>Research Summary</h3>
-            <p>{g['name']} — cataloged under {g['category_label'].lower()}, available in {len(variants)} vial size{'s' if multi else ''}. Logged at ≥99% purity per the standard applied across this catalog.</p>
+            <p>{g['name']}, cataloged under {g['category_label'].lower()}, available in {len(variants)} vial size{'s' if multi else ''}. Logged at ≥99% purity per the standard applied across this catalog.</p>
             <table class="data-table">
               <tr><td>Category</td><td>{g['category_label']}</td></tr>
               <tr><td>Dose per vial</td><td data-field="dose">{d['dose']}</td></tr>
@@ -584,7 +583,7 @@ def render_product_page(g, groups):
 '''
     return page_shell(
         title=g["name"],
-        description=f"{g['name']} — {g['category_label']} research compound, ≥99% purity, HPLC verified. {len(variants)} vial size{'s' if multi else ''} available.",
+        description=f"{g['name']}: {g['category_label']} research compound, ≥99% purity, HPLC verified. {len(variants)} vial size{'s' if multi else ''} available.",
         prefix=prefix,
         active="catalog",
         body=body,
@@ -597,8 +596,8 @@ def render_product_page(g, groups):
 def render_about():
     prefix = ""
     values = [
-        ("Precision", "Every entry gets a real dose, a real price and a real category — no vague listings."),
-        ("Transparency", "Pricing here is always shown per single vial, calculated straight off the sourced pack rate."),
+        ("Precision", "Every entry gets a real dose, a real price and a real category. No vague listings."),
+        ("Transparency", "Pricing is always shown per single vial, with no bundled minimums or hidden markups."),
         ("Rigor", "≥99% purity is the floor for anything that makes it into the catalog, not the ceiling."),
     ]
     value_cards = "".join(f'<div class="value-card"><h3>{t}</h3><p>{d}</p></div>' for t, d in values)
@@ -607,17 +606,17 @@ def render_about():
   <section class="page-hero">
     <div class="container">
       <span class="eyebrow">ABOUT HLIX</span>
-      <h1>A personal catalog, built like it matters.</h1>
-      <p>hlix started as a spreadsheet and outgrew it. This is where every research peptide gets logged, priced, and organized in one clean, searchable place.</p>
+      <h1>A research catalog, built like it matters.</h1>
+      <p>hlix exists to bring order to research peptide sourcing. Every compound is logged, priced and organized to one consistent standard, so nothing about the catalog is ever a guess.</p>
     </div>
   </section>
   <section class="section">
     <div class="container">
       <div class="prose">
         <h2 class="mt-0">Why this exists</h2>
-        <p>Keeping track of research compounds across suppliers, batches and price sheets gets messy fast. hlix exists to fix that: a single, well-organized reference for what's on hand, what it costs per vial, and where it fits — metabolic, growth, recovery, cognitive, longevity or hormonal research.</p>
-        <h2>How pricing works</h2>
-        <p>Everything in the catalog is priced as a single vial at the rate the full pack was sourced for. If a 10-vial pack costs $50, that's the number you'll see listed against 1 vial here — no markup, no math required.</p>
+        <p>Keeping track of research compounds across suppliers, batches and price sheets gets messy fast. hlix exists to fix that: a single, well-organized reference for what's on hand, what it costs per vial, and where it fits: metabolic, growth, recovery, cognitive, longevity or hormonal research.</p>
+        <h2>Straightforward pricing</h2>
+        <p>Every listing in the catalog is priced per single vial, with no bundled minimums and no hidden markups. The price shown is the price paid, batch after batch.</p>
         <h2>Our standard</h2>
         <div class="value-grid">{value_cards}</div>
       </div>
@@ -634,7 +633,7 @@ def render_about():
 '''
     return page_shell(
         title="About",
-        description="About hlix — a personal research peptide catalog built for clarity and precision.",
+        description="About hlix: a research peptide catalog built for clarity and precision.",
         prefix=prefix,
         active="about",
         body=body,
@@ -650,7 +649,7 @@ def render_contact():
     <div class="container">
       <span class="eyebrow">GET IN TOUCH</span>
       <h1>Contact</h1>
-      <p>Questions about a compound, a batch, or the catalog itself — reach out below.</p>
+      <p>Questions about a compound, a batch, or the catalog itself: reach out below.</p>
     </div>
   </section>
   <section class="section">
@@ -662,7 +661,7 @@ def render_contact():
         </div>
         <div class="contact-card">
           <h3>{icon('clock')} Response Time</h3>
-          <p>Usually within 1–2 business days.</p>
+          <p>Usually within 1 to 2 business days.</p>
         </div>
         <div class="contact-card">
           <h3>{icon('pin')} Based In</h3>
@@ -684,7 +683,7 @@ def render_contact():
             <textarea id="message" name="message" rows="5" placeholder="What's on your mind?" required></textarea>
           </div>
           <button type="submit" class="btn btn--accent btn--block">Send Message</button>
-          <p class="form-note">Submitting opens your email client addressed to {CONTACT_EMAIL} — nothing is sent from this page directly.</p>
+          <p class="form-note">Submitting opens your email client addressed to {CONTACT_EMAIL}. Nothing is sent from this page directly.</p>
         </form>
       </div>
     </div>
@@ -715,7 +714,7 @@ def render_calculator():
     <div class="container">
       <span class="eyebrow">{icon('calc')} DOSAGE CALCULATOR</span>
       <h1>Reconstitution &amp; dosage calculator</h1>
-      <p>Edit any number — concentration, draw volume, syringe units and vial supply all update instantly. Everything runs in your browser; nothing is saved or sent anywhere.</p>
+      <p>Edit any number: concentration, draw volume, syringe units and vial supply all update instantly. Everything runs in your browser; nothing is saved or sent anywhere.</p>
     </div>
   </section>
   <section class="section">
@@ -726,7 +725,7 @@ def render_calculator():
           <div class="calc-group">
             <div class="calc-group__label">Peptide in vial <span class="calc-group__value" id="vialEcho">5 mg</span></div>
             <div class="chip-row" data-calc="vial">
-              {chip_row('vial', [2,5,10,15,20,30], ' mg', 5)}
+              {chip_row('vial', [2,5,10,20,30,50,100], ' mg', 5)}
               <button class="chip" data-value="custom">Custom</button>
               <input type="number" class="chip" data-custom-input style="display:none; width:90px;" placeholder="mg" min="0.1" step="0.1">
             </div>
@@ -734,7 +733,7 @@ def render_calculator():
           <div class="calc-group">
             <div class="calc-group__label">Bacteriostatic water added <span class="calc-group__value" id="waterEcho">2 mL</span></div>
             <div class="chip-row" data-calc="water">
-              {chip_row('water', [0.5,1,2,2.5,3,5], ' mL', 2)}
+              {chip_row('water', [0.5,1,2,2.5,3,5,10], ' mL', 2)}
               <button class="chip" data-value="custom">Custom</button>
               <input type="number" class="chip" data-custom-input style="display:none; width:90px;" placeholder="mL" min="0.1" step="0.1">
             </div>
@@ -747,8 +746,20 @@ def render_calculator():
               <input type="number" class="chip" data-custom-input style="display:none; width:90px;" placeholder="mg" min="0.01" step="0.01">
             </div>
             <div class="toggle-row" style="margin-top:10px;" data-calc="frequency">
-              <button class="chip is-active" data-value="daily">Daily</button>
-              <button class="chip" data-value="weekly">Weekly</button>
+              <button class="chip is-active" data-value="1">Daily</button>
+              <button class="chip" data-value="2">Every other day</button>
+              <button class="chip" data-value="7">Weekly</button>
+              <button class="chip" data-value="30">Monthly</button>
+              <button class="chip" data-value="custom">Custom</button>
+            </div>
+            <div class="toggle-row" data-freq-custom style="display:none; margin-top:10px; align-items:center; gap:8px;">
+              <span>Every</span>
+              <input type="number" class="chip" data-freq-n style="width:70px;" min="1" step="1" value="1">
+              <div class="toggle-row" data-freq-unit>
+                <button class="chip is-active" data-value="days">Days</button>
+                <button class="chip" data-value="weeks">Weeks</button>
+                <button class="chip" data-value="months">Months</button>
+              </div>
             </div>
           </div>
         </div>
@@ -761,7 +772,6 @@ def render_calculator():
               <button class="chip" data-value="0.3">0.3 mL <span style="opacity:.6">/ 30u</span></button>
               <button class="chip" data-value="0.5">0.5 mL <span style="opacity:.6">/ 50u</span></button>
               <button class="chip is-active" data-value="1">1 mL <span style="opacity:.6">/ 100u</span></button>
-              <button class="chip" data-value="1.5">1.5 mL <span style="opacity:.6">/ 150u</span></button>
               <button class="chip" data-value="2">2 mL <span style="opacity:.6">/ 200u</span></button>
               <button class="chip" data-value="custom">Custom</button>
               <input type="number" class="chip" data-custom-input style="display:none; width:90px;" placeholder="mL" min="0.1" step="0.1">
@@ -775,7 +785,7 @@ def render_calculator():
           <h2>Results</h2>
           <div class="result-big">
             <div class="result-big__value"><span id="calcDrawUnits">10</span></div>
-            <div class="result-big__unit">UNITS — DRAW TO THIS LINE</div>
+            <div class="result-big__unit">UNITS: DRAW TO THIS LINE</div>
           </div>
           <div class="result-row"><span class="result-row__label">Concentration</span><span class="result-row__value"><span id="calcConcentration">2.5</span> mg/mL</span></div>
           <div class="result-row"><span class="result-row__label">Volume</span><span class="result-row__value"><span id="calcDrawVolume">0.1</span> mL</span></div>
@@ -838,7 +848,7 @@ def render_calculator():
 '''
     return page_shell(
         title="Dosage Calculator",
-        description="Free peptide reconstitution and dosage calculator — concentration, draw volume, syringe units and vial supply.",
+        description="Free peptide reconstitution and dosage calculator: concentration, draw volume, syringe units and vial supply.",
         prefix=prefix,
         active="calculator",
         body=body,

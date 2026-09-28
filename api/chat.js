@@ -34,8 +34,8 @@ function buildCatalogSummary() {
   for (const g of groups.values()) {
     const min = Math.min(...g.prices);
     const max = Math.max(...g.prices);
-    const priceStr = min === max ? `$${min}` : `$${min}–$${max}`;
-    lines.push(`- ${g.name} (${g.category}): sizes ${g.doses.join(", ")} — ${priceStr} per vial`);
+    const priceStr = min === max ? `$${min}` : `$${min} to $${max}`;
+    lines.push(`- ${g.name} (${g.category}): sizes ${g.doses.join(", ")}, ${priceStr} per vial`);
   }
   return lines.join("\n");
 }
@@ -50,9 +50,9 @@ What you're for:
 
 Hard limits:
 - Never give personalized dosing instructions, medical advice, or tell a specific person what to take or how much. If asked, say you can't give personal medical or dosing guidance, point them to the site's dosage calculator for the math only, and suggest a licensed professional for anything medical.
-- Everything in this catalog is for laboratory research use only, not for human consumption — keep that framing when it's relevant, don't contradict or undercut it.
+- Everything in this catalog is for laboratory research use only, not for human consumption. Keep that framing when it's relevant, don't contradict or undercut it.
 - If asked something unrelated to peptides or this site, briefly redirect back to what you can help with.
-- Keep answers short — a few sentences, not essays.
+- Keep answers short: a few sentences, not essays.
 
 Current catalog (name, category, available vial sizes, price per vial):
 ${CATALOG_SUMMARY}`;
@@ -73,7 +73,7 @@ module.exports = async (req, res) => {
   record.count += 1;
   hits.set(ip, record);
   if (record.count > MAX_PER_WINDOW) {
-    res.status(429).json({ error: "Too many requests — try again in a bit." });
+    res.status(429).json({ error: "Too many requests. Try again in a bit." });
     return;
   }
 

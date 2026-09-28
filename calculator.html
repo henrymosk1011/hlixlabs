@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
 <title>Dosage Calculator · hlix</title>
-<meta name="description" content="Free peptide reconstitution and dosage calculator — concentration, draw volume, syringe units and vial supply.">
+<meta name="description" content="Free peptide reconstitution and dosage calculator: concentration, draw volume, syringe units and vial supply.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css?v=1790559351">
-<script src="assets/js/calculator.js?v=1790559351" defer></script>
+<link rel="stylesheet" href="assets/css/style.css?v=1790560716">
+<script src="assets/js/calculator.js?v=1790560716" defer></script>
 </head>
 <body>
 <script>window.HLIX_PREFIX = "";</script>
@@ -49,7 +49,7 @@
     <div class="container">
       <span class="eyebrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg> DOSAGE CALCULATOR</span>
       <h1>Reconstitution &amp; dosage calculator</h1>
-      <p>Edit any number — concentration, draw volume, syringe units and vial supply all update instantly. Everything runs in your browser; nothing is saved or sent anywhere.</p>
+      <p>Edit any number: concentration, draw volume, syringe units and vial supply all update instantly. Everything runs in your browser; nothing is saved or sent anywhere.</p>
     </div>
   </section>
   <section class="section">
@@ -60,7 +60,7 @@
           <div class="calc-group">
             <div class="calc-group__label">Peptide in vial <span class="calc-group__value" id="vialEcho">5 mg</span></div>
             <div class="chip-row" data-calc="vial">
-              <button class="chip" data-value="2">2 mg</button><button class="chip is-active" data-value="5">5 mg</button><button class="chip" data-value="10">10 mg</button><button class="chip" data-value="15">15 mg</button><button class="chip" data-value="20">20 mg</button><button class="chip" data-value="30">30 mg</button>
+              <button class="chip" data-value="2">2 mg</button><button class="chip is-active" data-value="5">5 mg</button><button class="chip" data-value="10">10 mg</button><button class="chip" data-value="20">20 mg</button><button class="chip" data-value="30">30 mg</button><button class="chip" data-value="50">50 mg</button><button class="chip" data-value="100">100 mg</button>
               <button class="chip" data-value="custom">Custom</button>
               <input type="number" class="chip" data-custom-input style="display:none; width:90px;" placeholder="mg" min="0.1" step="0.1">
             </div>
@@ -68,7 +68,7 @@
           <div class="calc-group">
             <div class="calc-group__label">Bacteriostatic water added <span class="calc-group__value" id="waterEcho">2 mL</span></div>
             <div class="chip-row" data-calc="water">
-              <button class="chip" data-value="0.5">0.5 mL</button><button class="chip" data-value="1">1 mL</button><button class="chip is-active" data-value="2">2 mL</button><button class="chip" data-value="2.5">2.5 mL</button><button class="chip" data-value="3">3 mL</button><button class="chip" data-value="5">5 mL</button>
+              <button class="chip" data-value="0.5">0.5 mL</button><button class="chip" data-value="1">1 mL</button><button class="chip is-active" data-value="2">2 mL</button><button class="chip" data-value="2.5">2.5 mL</button><button class="chip" data-value="3">3 mL</button><button class="chip" data-value="5">5 mL</button><button class="chip" data-value="10">10 mL</button>
               <button class="chip" data-value="custom">Custom</button>
               <input type="number" class="chip" data-custom-input style="display:none; width:90px;" placeholder="mL" min="0.1" step="0.1">
             </div>
@@ -81,8 +81,20 @@
               <input type="number" class="chip" data-custom-input style="display:none; width:90px;" placeholder="mg" min="0.01" step="0.01">
             </div>
             <div class="toggle-row" style="margin-top:10px;" data-calc="frequency">
-              <button class="chip is-active" data-value="daily">Daily</button>
-              <button class="chip" data-value="weekly">Weekly</button>
+              <button class="chip is-active" data-value="1">Daily</button>
+              <button class="chip" data-value="2">Every other day</button>
+              <button class="chip" data-value="7">Weekly</button>
+              <button class="chip" data-value="30">Monthly</button>
+              <button class="chip" data-value="custom">Custom</button>
+            </div>
+            <div class="toggle-row" data-freq-custom style="display:none; margin-top:10px; align-items:center; gap:8px;">
+              <span>Every</span>
+              <input type="number" class="chip" data-freq-n style="width:70px;" min="1" step="1" value="1">
+              <div class="toggle-row" data-freq-unit>
+                <button class="chip is-active" data-value="days">Days</button>
+                <button class="chip" data-value="weeks">Weeks</button>
+                <button class="chip" data-value="months">Months</button>
+              </div>
             </div>
           </div>
         </div>
@@ -95,7 +107,6 @@
               <button class="chip" data-value="0.3">0.3 mL <span style="opacity:.6">/ 30u</span></button>
               <button class="chip" data-value="0.5">0.5 mL <span style="opacity:.6">/ 50u</span></button>
               <button class="chip is-active" data-value="1">1 mL <span style="opacity:.6">/ 100u</span></button>
-              <button class="chip" data-value="1.5">1.5 mL <span style="opacity:.6">/ 150u</span></button>
               <button class="chip" data-value="2">2 mL <span style="opacity:.6">/ 200u</span></button>
               <button class="chip" data-value="custom">Custom</button>
               <input type="number" class="chip" data-custom-input style="display:none; width:90px;" placeholder="mL" min="0.1" step="0.1">
@@ -109,7 +120,7 @@
           <h2>Results</h2>
           <div class="result-big">
             <div class="result-big__value"><span id="calcDrawUnits">10</span></div>
-            <div class="result-big__unit">UNITS — DRAW TO THIS LINE</div>
+            <div class="result-big__unit">UNITS: DRAW TO THIS LINE</div>
           </div>
           <div class="result-row"><span class="result-row__label">Concentration</span><span class="result-row__value"><span id="calcConcentration">2.5</span> mg/mL</span></div>
           <div class="result-row"><span class="result-row__label">Volume</span><span class="result-row__value"><span id="calcDrawVolume">0.1</span> mL</span></div>
@@ -175,7 +186,7 @@
       <div class="footer__grid">
         <div class="footer__brand">
           <a href="index.html" class="brand"><span class="brand__mark">h</span>hlix</a>
-          <p>A personal research catalog — every peptide I keep on hand, cataloged with dosing, specs and pricing in one place.</p>
+          <p>A research peptide catalog: every compound in stock, cataloged with dosing, specs and pricing in one place.</p>
         </div>
         <div class="footer__col">
           <h4>Catalog</h4>
@@ -195,7 +206,6 @@
       </div>
       <div class="footer__legal">
         <p class="footer__ruo"><a class="v2-link" href="v2/index.html" tabindex="-1" aria-hidden="true">©</a> 2026 hlix. For laboratory research use only. Not for human or animal consumption. Nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
-        <p>Built with a personal catalog generator.</p>
       </div>
     </div>
   </footer>
@@ -203,9 +213,9 @@
     <button class="lightbox__close" data-lightbox-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     <div class="lightbox__inner" data-lightbox-inner></div>
   </div>
-<script src="assets/js/search-index.js?v=1790559351"></script>
-<script src="assets/js/search.js?v=1790559351"></script>
-<script src="assets/js/main.js?v=1790559351"></script>
-<script src="assets/js/chatbot.js?v=1790559351"></script>
+<script src="assets/js/search-index.js?v=1790560716"></script>
+<script src="assets/js/search.js?v=1790560716"></script>
+<script src="assets/js/main.js?v=1790560716"></script>
+<script src="assets/js/chatbot.js?v=1790560716"></script>
 </body>
 </html>

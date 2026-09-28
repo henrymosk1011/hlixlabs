@@ -62,7 +62,7 @@
   if (history.length) {
     history.forEach(function (m) { add(m.role, m.content); });
   } else {
-    add("assistant", "hey — ask me about a compound, a category, or how the catalog's priced.");
+    add("assistant", "hey, ask me about a compound, a category, or how the catalog's priced.");
     SUGGEST.forEach(function (s) {
       var b = d.createElement("button");
       b.type = "button"; b.textContent = s;

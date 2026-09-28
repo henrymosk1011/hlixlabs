@@ -115,7 +115,7 @@ def nav(p, page):
   <div class="search__in">
     <div class="search__field">{SEARCH}<input data-search-input type="text" placeholder="search peptides" autocomplete="off" spellcheck="false"></div>
     <div data-search-hint>
-      <p class="search__hint">start typing — or try</p>
+      <p class="search__hint">start typing, or try</p>
       <div class="search__try"><button data-try="glp1-s">glp1-s</button><button data-try="bpc">bpc 157</button><button data-try="dsip">dsip</button><button data-try="recovery">recovery</button><button data-try="growth">growth</button></div>
     </div>
     <div data-search-list></div>
@@ -129,7 +129,7 @@ def footer(p, r, groups):
     )
     return f'''<footer class="foot">
   <div class="wrap foot__top">
-    <div><p class="kicker">// hlix</p><p class="foot__lede">a personal research catalog. every peptide i keep on hand, logged with its dose, spec and price.</p></div>
+    <div><p class="kicker">// hlix</p><p class="foot__lede">a research peptide catalog. every compound in stock, logged with its dose, spec and price.</p></div>
     <div class="foot__col"><h4>catalog</h4>{cats}</div>
     <div class="foot__col"><h4>site</h4><a href="{p}about.html">about</a><a href="{p}calculator.html">calculator</a><a href="{p}contact.html">contact</a></div>
     <div class="foot__col"><h4>contact</h4><a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a><span>research use only</span></div>
@@ -239,7 +239,7 @@ def page_home(groups):
     # sample conversation built from real catalog data so the mock never lies
     sample = by_name.get("DSIP") or next(g for g in groups if len(g["variants"]) > 2)
     parts = [f"{v['dose']} ({money(v['price'])})" for v in sample["variants"]]
-    answer = f"{sample['name'].lower()} comes in {len(parts)} sizes — " + ", ".join(parts[:-1]) + f" and {parts[-1]}, priced per vial."
+    answer = f"{sample['name'].lower()} comes in {len(parts)} sizes: " + ", ".join(parts[:-1]) + f" and {parts[-1]}, priced per vial."
     question = f"what sizes does {sample['name'].lower()} come in?"
 
     total = len(groups)
@@ -251,10 +251,10 @@ def page_home(groups):
   <div class="hero__bg"><span class="blob blob--a"></span><span class="blob blob--b"></span></div>
   <div class="hero__vials" aria-hidden="true">{hero_vials}</div>
   <div class="wrap">
-    <p class="hero__label" data-reveal="fade">personal research catalog</p>
+    <p class="hero__label" data-reveal="fade">research peptide catalog</p>
     <h1 class="hero__title" data-split><span>research-grade.</span><br><span class="ol">cataloged.</span><br><span class="ac">clearly priced.</span></h1>
     <div class="hero__bar" data-reveal style="--d:6">
-      <p class="hero__sub">every research peptide i'm running — dose, spec and price in one place.</p>
+      <p class="hero__sub">every research peptide in stock: dose, spec and price in one place.</p>
       <div class="hero__cta"><a class="btn btn--solid" href="catalog.html" data-magnetic>explore the catalog {ARROW}</a><a class="btn" href="calculator.html" data-magnetic>open calculator</a></div>
     </div>
   </div>
@@ -264,7 +264,7 @@ def page_home(groups):
 {marq1}{marq2}
 
 <section class="statement">
-  <div class="wrap"><p data-scrub>every peptide i run, logged with its <span class="hl">dose</span>, its <span class="hl">spec</span> and its <span class="hl">price</span>. no guessing what's on hand. no guessing what it cost.</p></div>
+  <div class="wrap"><p data-scrub>every peptide in stock, logged with its <span class="hl">dose</span>, its <span class="hl">spec</span> and its <span class="hl">price</span>. no guessing what's on hand. no guessing what it cost.</p></div>
 </section>
 
 <div class="wrap"><div class="stats">
@@ -275,7 +275,7 @@ def page_home(groups):
 
 <section class="lineup" id="lineup" data-hscroll>
   <div class="lineup__pin">
-    <div class="wrap lineup__head"><h2 class="lineup__title" data-split>the lineup.</h2><span class="lineup__count" data-reveal="fade">{len(featured):02d} of {total} — keep scrolling</span></div>
+    <div class="wrap lineup__head"><h2 class="lineup__title" data-split>the lineup.</h2><span class="lineup__count" data-reveal="fade">{len(featured):02d} of {total}, keep scrolling</span></div>
     <div class="lineup__track" data-htrack>{lcards}
       <a class="lcard" href="catalog.html"><div class="lcard__stage" style="--c:#33e6b0"><span class="btn btn--solid">view all {total} {ARROW}</span></div><div class="lcard__meta"><h3>the full catalog</h3></div></a>
     </div>
@@ -295,7 +295,7 @@ def page_home(groups):
     <div>
       <p class="kicker" data-reveal="fade">// ai assistant</p>
       <h2 class="ai__title" data-split>ask the hlix ai <span class="sp">{SPARK}</span></h2>
-      <p class="ai__copy" data-reveal>it knows the whole catalog — every compound, size and price — plus general research background on peptides.</p>
+      <p class="ai__copy" data-reveal>it knows the whole catalog (every compound, size and price) plus general research background on peptides.</p>
       <button class="btn btn--solid" data-open-chat data-reveal data-magnetic>{SPARK} open the assistant</button>
     </div>
     <div class="mock" data-typing data-reveal="scale">
@@ -311,11 +311,11 @@ def page_home(groups):
     <p class="kicker" data-reveal="fade">// dosage calculator</p>
     <h2 class="calcband__title" data-split>know your draw.</h2>
     <div class="syr no-tr" data-syr data-syringe-scrub style="--fill:.1">{syringe_svg("tease")}</div>
-    <p data-reveal>concentration, draw-to units, syringe capacity and how many vials you'll need — instantly, right in your browser.</p>
+    <p data-reveal>concentration, draw-to units, syringe capacity and how many vials you'll need, instantly, right in your browser.</p>
     <a class="btn btn--solid" href="calculator.html" data-reveal data-magnetic>open the calculator {ARROW}</a>
   </div>
 </section>'''
-    return shell(title="hlix — research-grade, cataloged", desc=b.BASE_DESCRIPTION, page="home", body=body, groups=groups)
+    return shell(title="hlix: research-grade, cataloged", desc=b.BASE_DESCRIPTION, page="home", body=body, groups=groups)
 
 
 # -------------------------------------------------------------- catalog ---
@@ -340,7 +340,7 @@ def page_catalog(groups):
     <label class="find">{SEARCH}<input data-catalog-search type="text" placeholder="filter by name" autocomplete="off"></label>
   </div>
   <div class="pgrid">{cards}</div>
-  <p class="empty" data-empty>nothing matches that — try another name or category.</p>
+  <p class="empty" data-empty>nothing matches that. try another name or category.</p>
 </div>'''
     return shell(title="catalog", desc="the complete hlix research peptide catalog.", page="catalog", body=body, groups=groups)
 
@@ -393,7 +393,7 @@ def page_product(g, groups):
         </dl>
         <div class="ruo" data-reveal><b>research use only</b>for laboratory research use only. not intended for human or animal consumption, and not evaluated by the fda to diagnose, treat, cure or prevent any disease. nothing on this page is medical advice.</div>
         <div class="acc" data-acc data-reveal>
-          <div class="acc__i is-open"><button class="acc__h" aria-expanded="true">overview<i></i></button><div class="acc__b"><div><p>{esc(g['name'])} — cataloged under {esc(g['category_label'].lower())}, available in {len(variants)} vial size{'s' if multi else ''}. logged at ≥99% purity per the standard applied across this catalog.</p></div></div></div>
+          <div class="acc__i is-open"><button class="acc__h" aria-expanded="true">overview<i></i></button><div class="acc__b"><div><p>{esc(g['name'])}, cataloged under {esc(g['category_label'].lower())}, available in {len(variants)} vial size{'s' if multi else ''}. logged at ≥99% purity per the standard applied across this catalog.</p></div></div></div>
           <div class="acc__i"><button class="acc__h" aria-expanded="false">research use only<i></i></button><div class="acc__b"><div><p>this entry is for research and record-keeping purposes only. it is not intended for human consumption, clinical use, or as a drug, food, cosmetic or medical device, and has not been evaluated by the fda.</p></div></div></div>
           <div class="acc__i"><button class="acc__h" aria-expanded="false">certificate of analysis<i></i></button><div class="acc__b"><div><p>a certificate of analysis is kept on file for this compound and available on request via the <a href="../contact.html" style="color:var(--accent)">contact page</a>.</p></div></div></div>
         </div>
@@ -402,15 +402,15 @@ def page_product(g, groups):
   </div>
   {rel}
 </div>'''
-    return shell(title=g["name"], desc=f"{g['name']} — {g['category_label']} research compound.", page="catalog", body=body, depth=1, groups=groups)
+    return shell(title=g["name"], desc=f"{g['name']}: {g['category_label']} research compound.", page="catalog", body=body, depth=1, groups=groups)
 
 
 # ---------------------------------------------------------------- about ---
 
 def page_about(groups):
     rows = [
-        ("01", "precision", "every entry gets a real dose, a real price and a real category — no vague listings."),
-        ("02", "transparency", "pricing is always shown per single vial, straight off the sourced pack rate."),
+        ("01", "precision", "every entry gets a real dose, a real price and a real category. no vague listings."),
+        ("02", "transparency", "pricing is always shown per single vial, with no bundled minimums or hidden markups."),
         ("03", "rigor", "≥99% purity is the floor for anything that makes it into the catalog, not the ceiling."),
     ]
     prin = "".join(f'<div class="prin__r" data-reveal><span class="prin__n">{n}</span><h3>{t}</h3><p>{d}</p></div>' for n, t, d in rows)
@@ -419,11 +419,11 @@ def page_about(groups):
   <p class="kicker" data-reveal="fade">// about</p>
   <h1 class="phead__title" data-split>a catalog, built like it matters.</h1>
 </div></section>
-<section class="statement statement--wide" style="padding-top:0"><div class="wrap"><p data-scrub>hlix started as a spreadsheet and outgrew it. this is where every research peptide gets logged, priced, and organized in one clean, searchable place.</p></div></section>
+<section class="statement statement--wide" style="padding-top:0"><div class="wrap"><p data-scrub>hlix exists to bring order to research peptide sourcing. every compound is logged, priced and organized to one consistent standard, so nothing about the catalog is ever a guess.</p></div></section>
 <section class="sec" style="padding-top:0"><div class="wrap">
   <div class="split2">
-    <h2 data-split>how pricing works.</h2>
-    <p data-reveal>everything is priced as a single vial at the rate the full pack was sourced for. if a 10-vial pack costs $50, that's the number listed against 1 vial here — no markup, no math required.</p>
+    <h2 data-split>straightforward pricing.</h2>
+    <p data-reveal>every listing is priced per single vial, with no bundled minimums and no hidden markups. the price shown is the price paid, batch after batch.</p>
   </div>
 </div></section>
 <section class="sec" style="padding-top:0"><div class="wrap">
@@ -434,7 +434,7 @@ def page_about(groups):
   <h2 class="calcband__title" data-split>see the catalog.</h2>
   <a class="btn btn--solid" href="catalog.html" data-reveal data-magnetic>explore {len(groups)} compounds {ARROW}</a>
 </div></section>'''
-    return shell(title="about", desc="about hlix — a personal research peptide catalog.", page="about", body=body, groups=groups)
+    return shell(title="about", desc="about hlix: a research peptide catalog for laboratory and research use.", page="about", body=body, groups=groups)
 
 
 # -------------------------------------------------------------- contact ---
@@ -460,7 +460,7 @@ def page_contact(groups):
       <label><span>email</span><input name="email" type="email" required autocomplete="email"></label>
       <label><span>message</span><textarea name="message" rows="4" required></textarea></label>
       <div><button class="btn btn--solid" type="submit" data-magnetic>send message {ARROW}</button></div>
-      <small>submitting opens your email client addressed to {CONTACT_EMAIL} — nothing is sent from this page directly.</small>
+      <small>submitting opens your email client addressed to {CONTACT_EMAIL}. nothing is sent from this page directly.</small>
     </form>
   </div>
 </div></section>'''
@@ -483,11 +483,25 @@ def opts(group, values, unit, default, *, custom=True, unit_small=None):
 
 
 def page_calculator(groups):
-    vial = opts("vial", [2, 5, 10, 15, 20, 30], "mg", 5)
-    water = opts("water", [0.5, 1, 2, 2.5, 3, 5], "ml", 2)
+    vial = opts("vial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
+    water = opts("water", [0.5, 1, 2, 2.5, 3, 5, 10], "ml", 2)
     dose = opts("dose", [0.1, 0.25, 0.5, 1, 2, 2.5, 5, 10], "mg", 0.25)
-    freq = '<button type="button" class="opt is-active" data-val="daily">daily</button><button type="button" class="opt" data-val="weekly">weekly</button>'
-    syr = opts("syringe", [0.3, 0.5, 1, 1.5, 2], "ml", 1, custom=False, unit_small=lambda v: f"{int(v * 100)}u")
+    freq_presets = [("1", "daily"), ("2", "every other day"), ("7", "weekly"), ("30", "monthly")]
+    freq_btns = "".join(
+        f'<button type="button" class="opt{" is-active" if v == "1" else ""}" data-val="{v}">{label}</button>'
+        for v, label in freq_presets
+    )
+    freq_units = "".join(
+        f'<button type="button" class="opt{" is-active" if u == "days" else ""}" data-val="{u}">{u}</button>'
+        for u in ["days", "weeks", "months"]
+    )
+    freq = f'''{freq_btns}<button type="button" class="opt" data-val="custom">custom</button>'''
+    freq_custom = f'''<div class="freq-custom" data-freq-custom hidden>
+        <span>every</span>
+        <input type="number" min="1" step="1" value="1" data-freq-n aria-label="interval amount">
+        <div class="opts" data-freq-unit>{freq_units}</div>
+      </div>'''
+    syr = opts("syringe", [0.3, 0.5, 1, 2], "ml", 1, custom=False, unit_small=lambda v: f"{int(v * 100)}u")
     supply = "".join(
         f'<button type="button" class="opt{" is-active" if u == "days" else ""}" data-val="{u}">{u}</button>' for u in ["days", "weeks", "months", "years"]
     )
@@ -498,7 +512,6 @@ def page_calculator(groups):
 <section class="phead"><div class="wrap">
   <p class="kicker" data-reveal="fade">// dosage calculator</p>
   <h1 class="phead__title" data-split>know your draw.</h1>
-  <p class="phead__sub" data-reveal>edit any number — concentration, draw-to units, syringe capacity and vial supply all update instantly. everything runs in your browser; nothing is saved or sent anywhere.</p>
 </div></section>
 <div class="wrap">
   <div class="calc" data-calc>
@@ -506,7 +519,7 @@ def page_calculator(groups):
       <fieldset class="step" data-group="vial" data-reveal><legend><span class="step__n">01</span><span class="step__t">peptide in vial</span><b class="step__e" data-echo="vial">5 mg</b></legend><div class="opts">{vial}</div></fieldset>
       <fieldset class="step" data-group="water" data-reveal><legend><span class="step__n">02</span><span class="step__t">bacteriostatic water added</span><b class="step__e" data-echo="water">2 mL</b></legend><div class="opts">{water}</div></fieldset>
       <fieldset class="step" data-group="dose" data-reveal><legend><span class="step__n">03</span><span class="step__t">dose per injection</span><b class="step__e" data-echo="dose">0.25 mg</b></legend><div class="opts">{dose}</div></fieldset>
-      <fieldset class="step" data-group="freq" data-reveal><legend><span class="step__n">04</span><span class="step__t">how often</span></legend><div class="opts">{freq}</div></fieldset>
+      <fieldset class="step" data-reveal><legend><span class="step__n">04</span><span class="step__t">how often</span></legend><div class="opts" data-freq-presets>{freq}</div>{freq_custom}</fieldset>
       <fieldset class="step" data-group="syringe" data-reveal><legend><span class="step__n">05</span><span class="step__t">syringe size</span><b class="step__e" data-echo="syringe">1 mL · 100 units</b></legend><div class="opts">{syr}</div></fieldset>
     </div>
     <aside class="calc__out" data-reveal="fade">
@@ -518,17 +531,19 @@ def page_calculator(groups):
         <div><dt>volume</dt><dd><span data-o="vol">0.1</span> ml</dd></div>
       </dl>
       <p class="warn" data-warn hidden></p>
-      <div class="sub" data-group="supplyUnit">
-        <h3>supply</h3>
-        <div class="opts">{supply}</div>
-        <p>this vial covers about <b data-o="inj">20</b> <span data-o="freqlabel">injections, one a day</span> — roughly <b><span data-o="supply">20</span> <span data-o="supplyUnit">days</span></b>.</p>
-      </div>
-      <div class="sub">
-        <h3>plan for</h3>
-        <div class="plan"><input type="number" min="1" step="1" value="3" data-plan aria-label="amount"><div class="opts" data-group="planUnit">{planu}</div></div>
-        <p>you'll need about <b><span data-o="vials">5</span> vials</b> to cover <span data-o="planN">3</span> <span data-o="planU">months</span>.</p>
-      </div>
     </aside>
+  </div>
+  <div class="calc-extra">
+    <div class="sub" data-group="supplyUnit" data-reveal>
+      <h3>supply</h3>
+      <div class="opts">{supply}</div>
+      <p>this vial covers about <b data-o="inj">20</b> <span data-o="freqlabel">injections, one a day</span>: roughly <b><span data-o="supply">20</span> <span data-o="supplyUnit">days</span></b>.</p>
+    </div>
+    <div class="sub" data-reveal>
+      <h3>plan for</h3>
+      <div class="plan"><input type="number" min="1" step="1" value="3" data-plan aria-label="amount"><div class="opts" data-group="planUnit">{planu}</div></div>
+      <p>you'll need about <b><span data-o="vials">5</span> vials</b> to cover <span data-o="planN">3</span> <span data-o="planU">months</span>.</p>
+    </div>
   </div>
 </div>
 <div class="dock" aria-hidden="true"><span>draw to</span><span><b data-o="dock">10</b>units</span></div>'''
