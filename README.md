@@ -1,93 +1,87 @@
 # hlix
 
-A personal research-peptide catalog: one page per compound (with a
-vial-size selector when a peptide has multiple doses), a category-filtered
-and searchable catalog, an About/Contact page, a standalone
-reconstitution/dosage calculator, and an optional AI chat widget backed by
-a small serverless function. The site itself is static HTML/CSS/JS — no
-build step to view it, no shopping cart. The chat widget is the one piece
-that needs a real backend; see "Chat backend" below.
+A research peptide catalog: one page per compound (with a vial-size
+selector when a peptide has multiple doses, plus a Powder/Reconstituted
+form toggle on every one), a category-filtered and searchable catalog
+(search matches by name or by research-goal tag, e.g. "hair" or "sleep"),
+an About/Contact page, a standalone reconstitution/dosage calculator, and
+an optional AI chat widget backed by a small serverless function. The
+site itself is static HTML/CSS/JS — no build step to view it, no shopping
+cart. The chat widget is the one piece that needs a real backend; see
+"Chat backend" below.
 
 ## Structure
 
 ```
 hlix/
-├── index.html            Home
+├── index.html            Home (the main site — this is the v2 design)
 ├── catalog.html           Full, filterable catalog
 ├── about.html
 ├── contact.html
 ├── calculator.html        Reconstitution & dosage calculator
 ├── peptides/               One generated page per catalog entry
+├── v1/                     The original design, kept for reference (see below)
 ├── assets/
-│   ├── css/style.css       Whole design system
-│   ├── js/main.js          Nav, lightbox, catalog filters, product tabs
-│   └── js/calculator.js    Calculator math
+│   ├── css/style.css       v1's design system
+│   ├── css/v2.css          Main site's design system
+│   ├── js/main.js, product.js, calculator.js, search.js, chatbot.js   v1's JS
+│   ├── js/v2.js, v2-calc.js, v2-chat.js                                Main site's JS
+│   ├── js/search-index.js  Shared search index, read by both sites
+│   └── img/vials/          Shared photoreal product images
 ├── data/
 │   ├── price_list_source.xlsx   Source of truth — replace this file to update prices
+│   ├── sku_codes.json            Maps each product to its supplier Cat. No. based SKU
 │   └── products.json            Generated from the xlsx — do not hand-edit
 ├── scripts/
 │   ├── parse_pricelist.py  xlsx -> data/products.json
-│   ├── build.py             products.json -> all HTML pages + search index
-│   └── vial_svg.py          Generates the coded vial "product photo" per item
+│   ├── build.py             products.json -> v1/* (also holds shared helpers build_v2.py imports)
+│   ├── build_v2.py          products.json -> the main site at the repo root
+│   ├── photo_labels.py     products.json -> assets/img/vials/*.webp
+│   └── vial_svg.py          Coded-SVG vial fallback for any variant with no photo
 └── api/
     └── chat.js               Serverless function backing the chat widget
                                (Vercel Node function — needs ANTHROPIC_API_KEY)
 ```
 
-## v2 preview (private redesign)
+## The original design (`/v1/`)
 
-`/v2/` is a complete second design of the site — minimal, bold, all-lowercase,
-scroll-driven — built alongside the original so nothing is lost. It reuses the
-same catalog data, vial artwork, search index and `/api/chat` backend, but has
-its own markup, CSS and JS.
+`/v1/` is the original design of the site, kept for reference after the v2
+redesign was promoted to the main site. It reuses the same catalog data,
+vial artwork, search index and `/api/chat` backend, but has its own markup
+and CSS/JS (`assets/css/style.css`, `assets/js/main.js` and friends).
 
-- **How to reach it:** on the original site, the `©` in the footer is an
-  unlabeled link to `/v2/`. Or go straight to `/v2/index.html`.
-- **Hidden, not secret:** v2 pages are `noindex` and unlinked except for that
-  `©`, but anyone who guesses the URL can open them. Add auth if it ever matters.
-- **Rebuild it:** `python3 scripts/build_v2.py` (writes only inside `v2/`).
-  Run it after `parse_pricelist.py` whenever prices change, same as `build.py`.
-- **Motion off:** append `?motion=off` to any v2 URL (also respected
-  automatically for `prefers-reduced-motion`).
-- **Promoting v2:** ask Claude to swap it in as the main site; the original
-  would be kept in `/classic/`.
+- **How to reach it:** go straight to `/v1/index.html`. Nothing on the main
+  site links to it.
+- **Hidden, not secret:** `/v1/` pages are `noindex, nofollow` and unlinked,
+  but anyone who guesses the URL can open them. Add auth if it ever matters.
+- **Rebuild it:** `python3 scripts/build.py` (writes only inside `v1/`).
+  Run it after `parse_pricelist.py` whenever prices change, same as
+  `build_v2.py` for the main site.
 
 ## Updating the catalog
 
 1. Replace `data/price_list_source.xlsx` with your updated price list (same
    columns: SKU Number / Product name / Quantity / Price, quantity formatted
    like `10mg*10vials`).
-2. Regenerate:
+2. Regenerate both sites:
    ```bash
    python3 scripts/parse_pricelist.py
+   python3 scripts/build_v2.py
    python3 scripts/build.py
    ```
-3. Everything under `peptides/`, plus `index.html` and `catalog.html`, gets
-   rewritten. Nothing else touches your hand-written pages (about/contact/
-   calculator are also regenerated by `build.py`, so edit their copy inside
+3. `index.html`, `catalog.html` and everything under `peptides/` at the repo
+   root (the main site), plus the equivalents under `v1/`, all get rewritten.
+   Nothing else touches your hand-written pages (about/contact/calculator
+   are also regenerated, so edit their copy inside `scripts/build_v2.py` or
    `scripts/build.py`, not the generated `.html` files directly).
 
 Pricing rule baked into the parser: a pack listed as `10mg*10vials` at `$50`
 is shown on the site as **1 vial, 10mg, $50** — the full pack price against a
-single vial, per how you price things.
+single vial, per how you price things. That price is the Powder-form base
+price; the Reconstituted form is a flat 20% premium on top, computed by
+`recon_price()` in `scripts/build.py`.
 
-## Product images
-
-Every "photo" right now is a coded SVG vial with your label text rendered
-onto it (`scripts/vial_svg.py`), color-coded by category — there's no actual
-image generation involved, since this session doesn't have that tool.
-
-`python3 scripts/generate_image_prompts.py` writes `data/image-prompts.txt`:
-one ready-to-paste prompt per category (8 total) for a **blank** vial in that
-category's cap color. Paste each into an image generator (Midjourney, DALL·E
-via ChatGPT, Google Gemini/Imagen, Adobe Firefly) and save the result. Blank
-on purpose — AI image models render small precise label text badly, so the
-plan is: 8 real/AI photos for the glass+cap, with the existing crisp
-HTML/CSS label kept as an overlay on top, the same way it's rendered today.
-Send the resulting images back and I'll wire up the img-with-overlay
-version — the rest of the build pipeline doesn't change.
-
-## Photoreal bottles (original site and v2)
+## Photoreal bottles (both sites)
 
 Both sites use real product photography: one AI-generated photo of a
 black-labeled vial (`data/photo/base-black.webp`), with a printed "badge"

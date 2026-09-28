@@ -1,288 +1,185 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
-<title>hlix: Research-Grade Peptides, Cataloged · hlix</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050607">
+<title>hlix: research-grade, cataloged · hlix</title>
 <meta name="description" content="hlix is a research peptide catalog: dosing, specs and pricing in one clean, searchable place.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/style.css?v=1790561059">
-
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/v2.css?v=1790561938">
+<script>(function(){var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");window.HLIX2={base:""};})();</script>
 </head>
-<body>
-<script>window.HLIX_PREFIX = "";</script>
-<header class="site-header">
-    <div class="ticker"><div class="ticker__track"><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>RESEARCH USE ONLY</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v6.5L4.5 18a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8.5V2"/><path d="M7.5 14h9"/></svg>HPLC VERIFIED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>BATCH TESTED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></svg>USA BASED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>≥99% PURITY MINIMUM</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>RESEARCH USE ONLY</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v6.5L4.5 18a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8.5V2"/><path d="M7.5 14h9"/></svg>HPLC VERIFIED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg>BATCH TESTED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></svg>USA BASED</span><span class="ticker__item"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>≥99% PURITY MINIMUM</span></div></div>
-    <div class="container nav">
-      <a href="index.html" class="brand"><span class="brand__mark">h</span>hlix</a>
-      <nav class="nav__links"><a href="about.html" class="">About</a><a href="catalog.html" class="">Catalog</a><a href="calculator.html" class="">Dosage Calculator</a></nav>
-      <div class="nav__search" data-search-inline>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search by name or goal, like hair or sleep…" data-search-input-nav autocomplete="off" spellcheck="false">
-        <div class="nav__search-dropdown" data-search-dropdown></div>
-      </div>
-      <div class="nav__cta">
-        <button class="nav__search-trigger" data-search-trigger aria-label="Search products"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button>
-        <a href="contact.html" class="btn btn--accent">Contact</a>
-        <button class="nav__toggle" aria-label="Open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
-      </div>
-    </div>
-  </header>
-  <div class="mobile-menu">
-    <button class="mobile-menu__search" data-search-trigger><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg> Search products…</button>
-    <a href="about.html" class="">About</a><a href="catalog.html" class="">Catalog</a><a href="calculator.html" class="">Dosage Calculator</a><a href="contact.html" class="">Contact</a><a href="contact.html" class="btn btn--accent btn--block">Contact</a>
+<body class="" data-page="home">
+<div class="progress" aria-hidden="true"><i></i></div>
+<header class="nav" data-nav>
+  <a class="nav__brand" href="index.html" aria-label="hlix home">hlix<i></i></a>
+  <nav class="nav__links" aria-label="primary"><a href="about.html">about</a><a href="catalog.html">catalog</a><a href="calculator.html">calculator</a></nav>
+  <div class="nav__right">
+    <button class="nav__search" data-search-open aria-label="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search</span><kbd>/</kbd></button>
+    <a class="btn btn--sm" href="contact.html" data-magnetic>contact</a>
+    <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
   </div>
-  <div class="search-overlay" data-search-overlay>
-    <div class="search-panel">
-      <div class="search-panel__input-row">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
-        <input type="text" placeholder="Search by name or goal, like hair or sleep…" data-search-input autocomplete="off" spellcheck="false">
-        <button class="search-panel__close" data-search-close aria-label="Close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-      </div>
-      <div class="search-panel__results" data-search-results></div>
+</header>
+<div class="menu">
+  <nav class="menu__links">
+    <a style="--i:0" href="about.html"><span>01</span>about</a>
+    <a style="--i:1" href="catalog.html"><span>02</span>catalog</a>
+    <a style="--i:2" href="calculator.html"><span>03</span>calculator</a>
+    <a style="--i:3" href="contact.html"><span>04</span>contact</a>
+  </nav>
+  <div class="menu__foot"><button data-search-open class="link-arrow">search products <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button><span>contact@hlixlabs.com</span></div>
+</div>
+<div class="search" data-search role="dialog" aria-label="search">
+  <button class="x" data-search-close aria-label="close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  <div class="search__in">
+    <div class="search__field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input data-search-input type="text" placeholder="search by name or goal, like hair or sleep" autocomplete="off" spellcheck="false"></div>
+    <div data-search-hint>
+      <p class="search__hint">start typing a name, or search by goal</p>
+      <div class="search__try"><button data-try="hair">hair</button><button data-try="sleep">sleep</button><button data-try="fat loss">fat loss</button><button data-try="muscle growth">muscle growth</button><button data-try="recovery">recovery</button><button data-try="skin">skin</button></div>
     </div>
+    <div data-search-list></div>
   </div>
+</div>
+<main>
 
-  <section class="hero">
-    <div class="container hero__grid">
-      <div>
-        <span class="eyebrow">RESEARCH PEPTIDE CATALOG</span>
-        <h1>RESEARCH-GRADE.<br>CATALOGED.<br><span class="accent-line">CLEARLY PRICED.</span></h1>
-        <p class="lede">hlix catalogs every research peptide we carry: dose, spec and price in one place, so there's never any guessing what's in stock or what it costs.</p>
-        <div class="hero__actions">
-          <a href="catalog.html" class="btn btn--accent">View Full Catalog <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-          <a href="calculator.html" class="btn btn--ghost"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg> Dosage Calculator</a>
-        </div>
-        <div class="hero__stats">
-          <div><div class="stat__value">67</div><div class="stat__label">Compounds Logged</div></div>
-          <div><div class="stat__value">8</div><div class="stat__label">Categories</div></div>
-          <div><div class="stat__value">99%+</div><div class="stat__label">Purity Minimum</div></div>
-          <div><div class="stat__value">RUO</div><div class="stat__label">Research Use Only</div></div>
-        </div>
-      </div>
-      <div class="hero__art hero__art--photo"><div class="hero__art-glow"></div><img src="assets/img/vials/hlx-sm2-recon.webp" data-base="assets/img/vials/" data-sku="hlx-sm2" data-form="recon" alt="GLP1-S 2mg research vial" width="1280" height="1600" decoding="async"></div>
+<section class="hero" data-hero>
+  <div class="hero__bg"><span class="blob blob--a"></span><span class="blob blob--b"></span></div>
+  <div class="hero__vials" aria-hidden="true"><div class="hv hv--a hv--photo" data-parallax="-0.10" data-rot="0"><div class="hv__in"><img src="../assets/img/vials/hlx-sm2-recon.webp" data-base="../assets/img/vials/" data-sku="hlx-sm2" data-form="recon" alt="GLP1-S 2mg research vial" width="1280" height="1600" decoding="async"></div></div><div class="hv hv--b hv--photo" data-parallax="0.06" data-rot="0"><div class="hv__in"><img src="../assets/img/vials/hlx-bc5-recon.webp" data-base="../assets/img/vials/" data-sku="hlx-bc5" data-form="recon" alt="BPC 157 5mg research vial" width="1280" height="1600" decoding="async"></div></div><div class="hv hv--c hv--photo" data-parallax="0.14" data-rot="0"><div class="hv__in"><img src="../assets/img/vials/hlx-ip2-recon.webp" data-base="../assets/img/vials/" data-sku="hlx-ip2" data-form="recon" alt="Ipamorelin 2mg research vial" width="1280" height="1600" decoding="async"></div></div></div>
+  <div class="wrap">
+    <p class="hero__label" data-reveal="fade">research peptide catalog</p>
+    <h1 class="hero__title" data-split><span>research-grade.</span><br><span class="ol">cataloged.</span><br><span class="ac">clearly priced.</span></h1>
+    <div class="hero__bar" data-reveal style="--d:6">
+      <p class="hero__sub">every research peptide in stock: dose, spec and price in one place.</p>
+      <div class="hero__cta"><a class="btn btn--solid" href="catalog.html" data-magnetic>explore the catalog <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a><a class="btn" href="calculator.html" data-magnetic>open calculator</a></div>
     </div>
-  </section>
+  </div>
+  <div class="cue" aria-hidden="true">scroll</div>
+</section>
 
-  <section class="section">
-    <div class="container">
-      <div class="section__head">
-        <div><span class="section__kicker">// FEATURED</span><h2>A cross-section of the catalog</h2></div>
-        <a href="catalog.html" class="btn btn--ghost">View All <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-      <div class="product-grid">
-        <a class="card" href="peptides/glp2-t.html" data-card-category="metabolic" data-card-name="GLP2-T">
-  <div class="card__media card__media--photo" style="--cat-color:#33e6b0">
-    <span class="card__badge">HPLC 99%+</span>
-    <span class="card__stock">IN STOCK</span>
-    <img src="assets/img/vials/hlx-tr5-recon-s.webp" data-base="assets/img/vials/" data-sku="hlx-tr5" data-form="recon" alt="GLP2-T 5mg research vial" width="480" height="600" decoding="async" loading="lazy">
-  </div>
-  <div class="card__body">
-    <span class="card__cat" style="--cat-color:#33e6b0">Metabolic Research</span>
-    <h3 class="card__name">GLP2-T</h3>
-    <span class="card__dose">9 sizes · 5mg to 60mg</span>
-    <div class="card__foot">
-      <span class="card__price"><small>FROM</small> $35 <small>/ vial</small></span>
-      <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-    </div>
-  </div>
-</a><a class="card" href="peptides/ghrp-2-acetate.html" data-card-category="growth" data-card-name="GHRP-2 Acetate">
-  <div class="card__media card__media--photo" style="--cat-color:#6ea8ff">
-    <span class="card__badge">HPLC 99%+</span>
-    <span class="card__stock">IN STOCK</span>
-    <img src="assets/img/vials/hlx-g25-recon-s.webp" data-base="assets/img/vials/" data-sku="hlx-g25" data-form="recon" alt="GHRP-2 Acetate 5mg research vial" width="480" height="600" decoding="async" loading="lazy">
-  </div>
-  <div class="card__body">
-    <span class="card__cat" style="--cat-color:#6ea8ff">Growth & GH Secretagogues</span>
-    <h3 class="card__name">GHRP-2 Acetate</h3>
-    <span class="card__dose">3 sizes · 5mg to 15mg</span>
-    <div class="card__foot">
-      <span class="card__price"><small>FROM</small> $23 <small>/ vial</small></span>
-      <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-    </div>
-  </div>
-</a><a class="card" href="peptides/kpv.html" data-card-category="recovery" data-card-name="kpv">
-  <div class="card__media card__media--photo" style="--cat-color:#ff9466">
-    <span class="card__badge">HPLC 99%+</span>
-    <span class="card__stock">IN STOCK</span>
-    <img src="assets/img/vials/hlx-kpv-recon-s.webp" data-base="assets/img/vials/" data-sku="hlx-kpv" data-form="recon" alt="kpv 5mg research vial" width="480" height="600" decoding="async" loading="lazy">
-  </div>
-  <div class="card__body">
-    <span class="card__cat" style="--cat-color:#ff9466">Healing & Recovery</span>
-    <h3 class="card__name">kpv</h3>
-    <span class="card__dose">5mg</span>
-    <div class="card__foot">
-      <span class="card__price">$60 <small>/ vial</small></span>
-      <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-    </div>
-  </div>
-</a><a class="card" href="peptides/dsip.html" data-card-category="cognitive" data-card-name="DSIP">
-  <div class="card__media card__media--photo" style="--cat-color:#b48cff">
-    <span class="card__badge">HPLC 99%+</span>
-    <span class="card__stock">IN STOCK</span>
-    <img src="assets/img/vials/hlx-ds2-recon-s.webp" data-base="assets/img/vials/" data-sku="hlx-ds2" data-form="recon" alt="DSIP 2mg research vial" width="480" height="600" decoding="async" loading="lazy">
-  </div>
-  <div class="card__body">
-    <span class="card__cat" style="--cat-color:#b48cff">Cognitive & Neuro Health</span>
-    <h3 class="card__name">DSIP</h3>
-    <span class="card__dose">3 sizes · 2mg to 15mg</span>
-    <div class="card__foot">
-      <span class="card__price"><small>FROM</small> $20 <small>/ vial</small></span>
-      <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-    </div>
-  </div>
-</a><a class="card" href="peptides/epithalon.html" data-card-category="longevity" data-card-name="Epithalon">
-  <div class="card__media card__media--photo" style="--cat-color:#ffd166">
-    <span class="card__badge">HPLC 99%+</span>
-    <span class="card__stock">IN STOCK</span>
-    <img src="assets/img/vials/hlx-et10-recon-s.webp" data-base="assets/img/vials/" data-sku="hlx-et10" data-form="recon" alt="Epithalon 10mg research vial" width="480" height="600" decoding="async" loading="lazy">
-  </div>
-  <div class="card__body">
-    <span class="card__cat" style="--cat-color:#ffd166">Longevity & Anti-Aging</span>
-    <h3 class="card__name">Epithalon</h3>
-    <span class="card__dose">2 sizes · 10mg to 50mg</span>
-    <div class="card__foot">
-      <span class="card__price"><small>FROM</small> $32 <small>/ vial</small></span>
-      <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-    </div>
-  </div>
-</a><a class="card" href="peptides/mt-1.html" data-card-category="hormonal" data-card-name="MT-1">
-  <div class="card__media card__media--photo" style="--cat-color:#ff6b9d">
-    <span class="card__badge">HPLC 99%+</span>
-    <span class="card__stock">IN STOCK</span>
-    <img src="assets/img/vials/hlx-mt1-recon-s.webp" data-base="assets/img/vials/" data-sku="hlx-mt1" data-form="recon" alt="MT-1 10mg research vial" width="480" height="600" decoding="async" loading="lazy">
-  </div>
-  <div class="card__body">
-    <span class="card__cat" style="--cat-color:#ff6b9d">Hormonal & Sexual Health</span>
-    <h3 class="card__name">MT-1</h3>
-    <span class="card__dose">10mg</span>
-    <div class="card__foot">
-      <span class="card__price">$42 <small>/ vial</small></span>
-      <span class="card__arrow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
-    </div>
-  </div>
-</a>
-      </div>
-    </div>
-  </section>
+<div class="marq" data-marq="-1" aria-hidden="true"><div class="marq__track"><span class="marq__item">metabolic</span><span class="marq__item">recovery</span><span class="marq__item">growth</span><span class="marq__item">cognitive</span><span class="marq__item">longevity</span><span class="marq__item">hormonal</span><span class="marq__item">metabolic</span><span class="marq__item">recovery</span><span class="marq__item">growth</span><span class="marq__item">cognitive</span><span class="marq__item">longevity</span><span class="marq__item">hormonal</span></div></div><div class="marq" data-marq="1" aria-hidden="true"><div class="marq__track"><span class="marq__item">hormonal</span><span class="marq__item">longevity</span><span class="marq__item">cognitive</span><span class="marq__item">growth</span><span class="marq__item">recovery</span><span class="marq__item">metabolic</span><span class="marq__item">hormonal</span><span class="marq__item">longevity</span><span class="marq__item">cognitive</span><span class="marq__item">growth</span><span class="marq__item">recovery</span><span class="marq__item">metabolic</span></div></div>
 
-  <section class="section section--alt">
-    <div class="container">
-      <div class="section__head">
-        <div><span class="section__kicker">// CATEGORIES</span><h2>Browse by research category</h2></div>
-      </div>
-      <div class="cat-grid"><a class="cat-card" href="catalog.html#metabolic" style="--cat-color:#33e6b0">
-      <span class="cat-card__dot"></span>
-      <h3>Metabolic Research</h3>
-      <p>GLP-1 analogs, GLP2-T, GLP3-R, GLP1-S and metabolic research compounds.</p>
-      <span class="count">10 compounds cataloged</span>
-      <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-    </a><a class="cat-card" href="catalog.html#growth" style="--cat-color:#6ea8ff">
-      <span class="cat-card__dot"></span>
-      <h3>Growth & GH Secretagogues</h3>
-      <p>GH secretagogues, IGF-1, HGH and growth-axis research peptides.</p>
-      <span class="count">18 compounds cataloged</span>
-      <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-    </a><a class="cat-card" href="catalog.html#recovery" style="--cat-color:#ff9466">
-      <span class="cat-card__dot"></span>
-      <h3>Healing & Recovery</h3>
-      <p>BPC-157, TB-500, GHK-Cu and tissue-repair research compounds.</p>
-      <span class="count">13 compounds cataloged</span>
-      <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-    </a><a class="cat-card" href="catalog.html#cognitive" style="--cat-color:#b48cff">
-      <span class="cat-card__dot"></span>
-      <h3>Cognitive & Neuro Health</h3>
-      <p>Selank, Semax, kisspeptin and nootropic research peptides.</p>
-      <span class="count">5 compounds cataloged</span>
-      <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-    </a><a class="cat-card" href="catalog.html#longevity" style="--cat-color:#ffd166">
-      <span class="cat-card__dot"></span>
-      <h3>Longevity & Anti-Aging</h3>
-      <p>Epithalon, NAD+, SS-31 and longevity-focused research compounds.</p>
-      <span class="count">10 compounds cataloged</span>
-      <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-    </a><a class="cat-card" href="catalog.html#hormonal" style="--cat-color:#ff6b9d">
-      <span class="cat-card__dot"></span>
-      <h3>Hormonal & Sexual Health</h3>
-      <p>PT-141, gonadorelin and hormonal-axis research peptides.</p>
-      <span class="count">6 compounds cataloged</span>
-      <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
-    </a><a class="cat-card" href="catalog.html#specialty" style="--cat-color:#9aa5b1">
-      <span class="cat-card__dot"></span>
-      <h3>Specialty Research</h3>
-      <p>Specialty and niche research compounds.</p>
-      <span class="count">4 compounds cataloged</span>
-      <div class="cat-card__link">Browse <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></div>
+<section class="statement">
+  <div class="wrap"><p data-scrub>every peptide in stock, logged with its <span class="hl">dose</span>, its <span class="hl">spec</span> and its <span class="hl">price</span>. no guessing what's on hand. no guessing what it cost.</p></div>
+</section>
+
+<div class="wrap"><div class="stats">
+  <div class="stat" data-reveal><div class="stat__n"><span data-count="67">67</span></div><p class="stat__l">compounds logged</p></div>
+  <div class="stat" data-reveal style="--d:1"><div class="stat__n"><span data-count="130">130</span></div><p class="stat__l">vial sizes</p></div>
+  <div class="stat" data-reveal style="--d:2"><div class="stat__n"><span data-count="7">7</span></div><p class="stat__l">research categories</p></div>
+</div></div>
+
+<section class="lineup" id="lineup" data-hscroll>
+  <div class="lineup__pin">
+    <div class="wrap lineup__head"><h2 class="lineup__title" data-split>the lineup.</h2><span class="lineup__count" data-reveal="fade">08 of 67, keep scrolling</span></div>
+    <div class="lineup__track" data-htrack><a class="lcard" href="peptides/glp1-s.html" style="--c:#33e6b0">
+      <div class="lcard__stage"><img src="../assets/img/vials/hlx-sm2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-sm2" data-form="recon" alt="GLP1-S 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
+      <div class="lcard__meta"><span class="lcard__n">01</span><h3>GLP1-S</h3><span>from $30</span></div>
+    </a><a class="lcard" href="peptides/glp2-t.html" style="--c:#33e6b0">
+      <div class="lcard__stage"><img src="../assets/img/vials/hlx-tr5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-tr5" data-form="recon" alt="GLP2-T 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
+      <div class="lcard__meta"><span class="lcard__n">02</span><h3>GLP2-T</h3><span>from $35</span></div>
+    </a><a class="lcard" href="peptides/glp3-r.html" style="--c:#33e6b0">
+      <div class="lcard__stage"><img src="../assets/img/vials/hlx-rt5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-rt5" data-form="recon" alt="GLP3-R 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
+      <div class="lcard__meta"><span class="lcard__n">03</span><h3>GLP3-R</h3><span>from $80</span></div>
+    </a><a class="lcard" href="peptides/bpc-157.html" style="--c:#ff9466">
+      <div class="lcard__stage"><img src="../assets/img/vials/hlx-bc5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-bc5" data-form="recon" alt="BPC 157 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
+      <div class="lcard__meta"><span class="lcard__n">04</span><h3>BPC 157</h3><span>from $30</span></div>
+    </a><a class="lcard" href="peptides/semax.html" style="--c:#b48cff">
+      <div class="lcard__stage"><img src="../assets/img/vials/hlx-xa5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-xa5" data-form="recon" alt="Semax 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
+      <div class="lcard__meta"><span class="lcard__n">05</span><h3>Semax</h3><span>from $45</span></div>
+    </a><a class="lcard" href="peptides/epithalon.html" style="--c:#ffd166">
+      <div class="lcard__stage"><img src="../assets/img/vials/hlx-et10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-et10" data-form="recon" alt="Epithalon 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
+      <div class="lcard__meta"><span class="lcard__n">06</span><h3>Epithalon</h3><span>from $32</span></div>
+    </a><a class="lcard" href="peptides/ipamorelin.html" style="--c:#6ea8ff">
+      <div class="lcard__stage"><img src="../assets/img/vials/hlx-ip2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ip2" data-form="recon" alt="Ipamorelin 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
+      <div class="lcard__meta"><span class="lcard__n">07</span><h3>Ipamorelin</h3><span>from $20</span></div>
+    </a><a class="lcard" href="peptides/nad.html" style="--c:#ffd166">
+      <div class="lcard__stage"><img src="../assets/img/vials/hlx-nad-100-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-nad-100" data-form="recon" alt="NAD 100mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
+      <div class="lcard__meta"><span class="lcard__n">08</span><h3>NAD</h3><span>from $40</span></div>
+    </a>
+      <a class="lcard" href="catalog.html"><div class="lcard__stage" style="--c:#33e6b0"><span class="btn btn--solid">view all 67 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span></div><div class="lcard__meta"><h3>the full catalog</h3></div></a>
+    </div>
+    <div class="lineup__bar"><i></i></div>
+  </div>
+</section>
+
+<section class="sec" id="categories">
+  <div class="wrap">
+    <div class="sec__head"><h2 class="sec__title" data-split>browse by category.</h2></div>
+    <div class="crows"><a class="crow" href="catalog.html#metabolic" style="--c:#33e6b0;--d:0" data-reveal>
+      <span class="crow__n">01</span><span class="crow__t">Metabolic Research</span><span class="crow__c">10 compounds</span><span class="crow__a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a><a class="crow" href="catalog.html#growth" style="--c:#6ea8ff;--d:1" data-reveal>
+      <span class="crow__n">02</span><span class="crow__t">Growth &amp; GH Secretagogues</span><span class="crow__c">18 compounds</span><span class="crow__a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a><a class="crow" href="catalog.html#recovery" style="--c:#ff9466;--d:2" data-reveal>
+      <span class="crow__n">03</span><span class="crow__t">Healing &amp; Recovery</span><span class="crow__c">13 compounds</span><span class="crow__a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a><a class="crow" href="catalog.html#cognitive" style="--c:#b48cff;--d:3" data-reveal>
+      <span class="crow__n">04</span><span class="crow__t">Cognitive &amp; Neuro Health</span><span class="crow__c">5 compounds</span><span class="crow__a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a><a class="crow" href="catalog.html#longevity" style="--c:#ffd166;--d:4" data-reveal>
+      <span class="crow__n">05</span><span class="crow__t">Longevity &amp; Anti-Aging</span><span class="crow__c">10 compounds</span><span class="crow__a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a><a class="crow" href="catalog.html#hormonal" style="--c:#ff6b9d;--d:5" data-reveal>
+      <span class="crow__n">06</span><span class="crow__t">Hormonal &amp; Sexual Health</span><span class="crow__c">6 compounds</span><span class="crow__a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </a><a class="crow" href="catalog.html#specialty" style="--c:#9aa5b1;--d:6" data-reveal>
+      <span class="crow__n">07</span><span class="crow__t">Specialty Research</span><span class="crow__c">4 compounds</span><span class="crow__a"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </a></div>
-    </div>
-  </section>
-
-  <section class="section">
-    <div class="container">
-      <div class="section__head">
-        <div><span class="section__kicker">// STANDARD</span><h2>The same bar, every time</h2><p>Every compound in this catalog is held to one standard before it's logged.</p></div>
-      </div>
-      <div class="trust-grid"><div class="trust-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 2h6M10 2v6.5L4.5 18a2 2 0 0 0 1.8 3h11.4a2 2 0 0 0 1.8-3L14 8.5V2"/><path d="M7.5 14h9"/></svg><h3>HPLC Verified</h3><p>Every compound is checked against HPLC reference data before it earns a spot in the catalog.</p></div><div class="trust-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 4 5v6c0 5 3.4 8.7 8 11 4.6-2.3 8-6 8-11V5z"/><path d="m9 12 2 2 4-4"/></svg><h3>Batch Tested</h3><p>Batch-level testing is tracked per lot so potency and purity stay consistent vial to vial.</p></div><div class="trust-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6M9 9h1"/></svg><h3>COA On File</h3><p>A certificate of analysis is kept on file for each compound and available on request.</p></div><div class="trust-card"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15 15 0 0 1 0 20 15 15 0 0 1 0-20Z"/></svg><h3>USA Based</h3><p>Sourced and stored domestically, with no cross-border customs surprises.</p></div></div>
-    </div>
-  </section>
-
-  <section class="section--tight">
-    <div class="container">
-      <div class="cta-band cta-band--ai">
-        <span class="cta-band__icon"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg></span>
-        <h2>Ask the hlix AI assistant</h2>
-        <p>It knows the whole catalog (every compound, category and price) plus general research background on peptides. Look for the sparkle icon in the bottom-right corner of any page.</p>
-      </div>
-    </div>
-  </section>
-
-  <section class="section--tight">
-    <div class="container">
-      <div class="cta-band">
-        <h2>Reconstituting a new vial?</h2>
-        <p>Run the numbers with the built-in dosage calculator: concentration, draw volume, syringe units and vial supply, all in one place.</p>
-        <a href="calculator.html" class="btn btn--accent">Open the Calculator <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-      </div>
-    </div>
-  </section>
-
-<footer class="site-footer">
-    <div class="container">
-      <div class="footer__grid">
-        <div class="footer__brand">
-          <a href="index.html" class="brand"><span class="brand__mark">h</span>hlix</a>
-          <p>A research peptide catalog: every compound in stock, cataloged with dosing, specs and pricing in one place.</p>
-        </div>
-        <div class="footer__col">
-          <h4>Catalog</h4>
-          <a href="catalog.html#metabolic">Metabolic Research</a><a href="catalog.html#growth">Growth & GH Secretagogues</a><a href="catalog.html#recovery">Healing & Recovery</a><a href="catalog.html#cognitive">Cognitive & Neuro Health</a><a href="catalog.html#longevity">Longevity & Anti-Aging</a><a href="catalog.html#hormonal">Hormonal & Sexual Health</a><a href="catalog.html#specialty">Specialty Research</a>
-        </div>
-        <div class="footer__col">
-          <h4>Site</h4>
-          <a href="about.html">About</a>
-          <a href="contact.html">Contact</a>
-          <a href="calculator.html">Dosage Calculator</a>
-        </div>
-        <div class="footer__col">
-          <h4>Contact</h4>
-          <a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a>
-          <span>Research use only</span>
-        </div>
-      </div>
-      <div class="footer__legal">
-        <p class="footer__ruo"><a class="v2-link" href="v2/index.html" tabindex="-1" aria-hidden="true">©</a> 2026 hlix. For laboratory research use only. Not for human or animal consumption. Nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
-      </div>
-    </div>
-  </footer>
-<div class="lightbox" data-lightbox>
-    <button class="lightbox__close" data-lightbox-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-    <div class="lightbox__inner" data-lightbox-inner></div>
   </div>
-<script src="assets/js/search-index.js?v=1790561059"></script>
-<script src="assets/js/search.js?v=1790561059"></script>
-<script src="assets/js/main.js?v=1790561059"></script>
-<script src="assets/js/chatbot.js?v=1790561059"></script>
+</section>
+
+<section class="sec ai" id="ai">
+  <div class="wrap ai__grid">
+    <div>
+      <p class="kicker" data-reveal="fade">// ai assistant</p>
+      <h2 class="ai__title" data-split>ask the hlix ai <span class="sp"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg></span></h2>
+      <p class="ai__copy" data-reveal>it knows the whole catalog (every compound, size and price) plus general research background on peptides.</p>
+      <button class="btn btn--solid" data-open-chat data-reveal data-magnetic><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg> open the assistant</button>
+    </div>
+    <div class="mock" data-typing data-reveal="scale">
+      <div class="mock__bar"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg> hlix ai</div>
+      <div class="bub bub--u">what sizes does dsip come in?</div>
+      <div class="bub bub--a">dsip comes in 3 sizes: 2mg ($20), 5mg ($40) and 15mg ($108), priced per vial.</div>
+    </div>
+  </div>
+</section>
+
+<section class="sec calcband" id="calc">
+  <div class="wrap">
+    <p class="kicker" data-reveal="fade">// dosage calculator</p>
+    <h2 class="calcband__title" data-split>know your draw.</h2>
+    <div class="syr no-tr" data-syr data-syringe-scrub style="--fill:.1"><svg viewBox="0 0 440 100" aria-hidden="true">
+  <defs>
+    <clipPath id="tease-clip"><rect x="75" y="31" width="260" height="38" rx="6"/></clipPath>
+    <linearGradient id="tease-liq" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1fd39c"/><stop offset="1" stop-color="#33e6b0"/></linearGradient>
+  </defs>
+  <line class="needle" x1="6" y1="50" x2="50" y2="50"/>
+  <polygon class="hub" points="50,42 72,46 72,54 50,58"/>
+  <rect class="barrel" x="75" y="30" width="260" height="40" rx="8"/>
+  <g clip-path="url(#tease-clip)"><rect class="fill" x="75" y="30" width="260" height="40" fill="url(#tease-liq)"/></g>
+  <g class="ticks"><line x1="75" y1="34" x2="75" y2="66"/><line x1="88" y1="40" x2="88" y2="60"/><line x1="101" y1="40" x2="101" y2="60"/><line x1="114" y1="40" x2="114" y2="60"/><line x1="127" y1="40" x2="127" y2="60"/><line x1="140" y1="34" x2="140" y2="66"/><line x1="153" y1="40" x2="153" y2="60"/><line x1="166" y1="40" x2="166" y2="60"/><line x1="179" y1="40" x2="179" y2="60"/><line x1="192" y1="40" x2="192" y2="60"/><line x1="205" y1="34" x2="205" y2="66"/><line x1="218" y1="40" x2="218" y2="60"/><line x1="231" y1="40" x2="231" y2="60"/><line x1="244" y1="40" x2="244" y2="60"/><line x1="257" y1="40" x2="257" y2="60"/><line x1="270" y1="34" x2="270" y2="66"/><line x1="283" y1="40" x2="283" y2="60"/><line x1="296" y1="40" x2="296" y2="60"/><line x1="309" y1="40" x2="309" y2="60"/><line x1="322" y1="40" x2="322" y2="60"/><line x1="335" y1="34" x2="335" y2="66"/></g>
+  <g class="plunger"><rect class="rod" x="75" y="45" width="70" height="10" rx="3"/><rect class="flange" x="131" y="35" width="14" height="30" rx="4"/><rect class="cap" x="71" y="24" width="8" height="52" rx="3"/></g>
+  <text class="tick" x="75" y="92">0</text><text class="tick" x="140" y="92">25</text><text class="tick" x="205" y="92">50</text><text class="tick" x="270" y="92">75</text><text class="tick" x="335" y="92">100</text>
+</svg></div>
+    <p data-reveal>concentration, draw-to units, syringe capacity and how many vials you'll need, instantly, right in your browser.</p>
+    <a class="btn btn--solid" href="calculator.html" data-reveal data-magnetic>open the calculator <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</section>
+</main>
+<footer class="foot">
+  <div class="wrap foot__top">
+    <div><p class="kicker">// hlix</p><p class="foot__lede">a research peptide catalog. every compound in stock, logged with its dose, spec and price.</p></div>
+    <div class="foot__col"><h4>catalog</h4><a href="catalog.html#metabolic">Metabolic Research</a><a href="catalog.html#growth">Growth & GH Secretagogues</a><a href="catalog.html#recovery">Healing & Recovery</a><a href="catalog.html#cognitive">Cognitive & Neuro Health</a><a href="catalog.html#longevity">Longevity & Anti-Aging</a><a href="catalog.html#hormonal">Hormonal & Sexual Health</a><a href="catalog.html#specialty">Specialty Research</a></div>
+    <div class="foot__col"><h4>site</h4><a href="about.html">about</a><a href="calculator.html">calculator</a><a href="contact.html">contact</a></div>
+    <div class="foot__col"><h4>contact</h4><a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a><span>research use only</span></div>
+  </div>
+  <div class="foot__word" aria-hidden="true"><span data-parallax="-0.06">hlix</span></div>
+  <div class="wrap foot__legal">
+    <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
+  </div>
+</footer>
+<div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
+<script src="assets/js/search-index.js?v=1790561938"></script>
+<script src="assets/js/v2.js?v=1790561938"></script>
+
+<script src="assets/js/v2-chat.js?v=1790561938"></script>
 </body>
 </html>

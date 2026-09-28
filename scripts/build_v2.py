@@ -16,7 +16,7 @@ import build as b
 from vial_svg import render_vial, CATEGORY_COLORS
 
 ROOT = b.ROOT
-OUT = ROOT / "v2"
+OUT = ROOT
 VER = str(int(time.time()))
 CONTACT_EMAIL = b.CONTACT_EMAIL
 
@@ -123,7 +123,7 @@ def nav(p, page):
 </div>'''
 
 
-def footer(p, r, groups):
+def footer(p, groups):
     cats = "".join(
         f'<a href="{p}catalog.html#{s}">{l}</a>' for s, l, _ in b.CATEGORY_ORDER if s != "supplies"
     )
@@ -137,21 +137,18 @@ def footer(p, r, groups):
   <div class="foot__word" aria-hidden="true"><span data-parallax="-0.06">hlix</span></div>
   <div class="wrap foot__legal">
     <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
-    <a class="foot__orig" href="{r}index.html">original site ↗</a>
   </div>
 </footer>'''
 
 
 def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class=""):
-    p = "../" * depth          # v2 root (assets + pages)
-    r = "../" * (depth + 1)    # site root (search index, original site)
+    p = "../" * depth          # site root (assets, pages, search index)
     js = "".join(f'<script src="{p}assets/js/{s}?v={VER}" defer></script>' for s in scripts)
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#050607">
 <title>{title} · hlix</title>
 <meta name="description" content="{esc(desc)}">
@@ -159,16 +156,16 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{p}assets/css/v2.css?v={VER}">
-<script>(function(){{var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");window.HLIX2={{base:"{p}",root:"{r}"}};}})();</script>
+<script>(function(){{var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");window.HLIX2={{base:"{p}"}};}})();</script>
 </head>
 <body class="{body_class}" data-page="{page}">
 {nav(p, page)}
 <main>
 {body}
 </main>
-{footer(p, r, groups)}
+{footer(p, groups)}
 <div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close">{CLOSE}</button><div class="lb__in"></div></div>
-<script src="{r}assets/js/search-index.js?v={VER}"></script>
+<script src="{p}assets/js/search-index.js?v={VER}"></script>
 <script src="{p}assets/js/v2.js?v={VER}"></script>
 {js}
 <script src="{p}assets/js/v2-chat.js?v={VER}"></script>

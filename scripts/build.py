@@ -248,25 +248,27 @@ def footer_html(prefix):
         </div>
       </div>
       <div class="footer__legal">
-        <p class="footer__ruo"><a class="v2-link" href="{prefix}v2/index.html" tabindex="-1" aria-hidden="true">©</a> 2026 hlix. For laboratory research use only. Not for human or animal consumption. Nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
+        <p class="footer__ruo">© 2026 hlix. For laboratory research use only. Not for human or animal consumption. Nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
       </div>
     </div>
   </footer>'''
 
 
-def page_shell(*, title, description, prefix, active, body, extra_head=""):
+def page_shell(*, title, description, prefix, asset_prefix=None, active, body, extra_head=""):
+    ap = asset_prefix if asset_prefix is not None else prefix
     canonical_title = f"{title} · hlix" if title != SITE_NAME else title
     return f'''<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, shrink-to-fit=no">
+<meta name="robots" content="noindex, nofollow">
 <title>{canonical_title}</title>
 <meta name="description" content="{description}">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="{prefix}assets/css/style.css?v={ASSET_VERSION}">
+<link rel="stylesheet" href="{ap}assets/css/style.css?v={ASSET_VERSION}">
 {extra_head}
 </head>
 <body>
@@ -275,10 +277,10 @@ def page_shell(*, title, description, prefix, active, body, extra_head=""):
 {body}
 {footer_html(prefix)}
 {lightbox_html()}
-<script src="{prefix}assets/js/search-index.js?v={ASSET_VERSION}"></script>
-<script src="{prefix}assets/js/search.js?v={ASSET_VERSION}"></script>
-<script src="{prefix}assets/js/main.js?v={ASSET_VERSION}"></script>
-<script src="{prefix}assets/js/chatbot.js?v={ASSET_VERSION}"></script>
+<script src="{ap}assets/js/search-index.js?v={ASSET_VERSION}"></script>
+<script src="{ap}assets/js/search.js?v={ASSET_VERSION}"></script>
+<script src="{ap}assets/js/main.js?v={ASSET_VERSION}"></script>
+<script src="{ap}assets/js/chatbot.js?v={ASSET_VERSION}"></script>
 </body>
 </html>'''
 
@@ -346,9 +348,9 @@ def vial_media(v, uid, size, prefix, eager=False, form="recon"):
 
 
 
-def render_card(g, prefix):
+def render_card(g, prefix, asset_prefix=None):
     d = g["default"]
-    svg = vial_media(d, g["slug"], "s", prefix)
+    svg = vial_media(d, g["slug"], "s", asset_prefix if asset_prefix is not None else prefix)
     photo_cls = " card__media--photo" if has_photo(d) else ""
     multi = len(g["variants"]) > 1
     price_html = f"<small>FROM</small> {money(g['min_price'])}" if multi else money(d["price"])
@@ -396,12 +398,13 @@ def ruo_notice():
 
 def render_home(groups):
     prefix = ""
+    asset_prefix = "../"
     total = len(groups)
     categories_used = sorted({g["category"] for g in groups})
 
     hero_pick = next((g for g in groups if g["name"] == "GLP1-S"), groups[0])["default"]
     if has_photo(hero_pick):
-        hero_vial = vial_media(hero_pick, "hero", "l", prefix, eager=True)
+        hero_vial = vial_media(hero_pick, "hero", "l", asset_prefix, eager=True)
         hero_cls = " hero__art--photo"
     else:
         hero_vial = render_vial({"name": "RESEARCH PEPTIDE", "dose": "hlix", "category": "metabolic", "sku": "HLX-000", "slug": "hero"}, gradient_id_suffix="hero")
@@ -460,7 +463,7 @@ def render_home(groups):
         <a href="catalog.html" class="btn btn--ghost">View All {icon('arrow')}</a>
       </div>
       <div class="product-grid">
-        {''.join(render_card(p, prefix) for p in featured)}
+        {''.join(render_card(p, prefix, asset_prefix) for p in featured)}
       </div>
     </div>
   </section>
@@ -507,6 +510,7 @@ def render_home(groups):
         title="hlix: Research-Grade Peptides, Cataloged",
         description=BASE_DESCRIPTION,
         prefix=prefix,
+        asset_prefix=asset_prefix,
         active="home",
         body=body,
     )
@@ -516,6 +520,7 @@ def render_home(groups):
 
 def render_catalog(products):
     prefix = ""
+    asset_prefix = "../"
     chips = ['<button class="chip is-active" data-filter="all">All <span class="chip__count">' + str(len(products)) + '</span></button>']
     for slug, label, _ in CATEGORY_ORDER:
         count = sum(1 for p in products if p["category"] == slug)
@@ -523,7 +528,7 @@ def render_catalog(products):
             continue
         chips.append(f'<button class="chip" data-filter="{slug}">{label} <span class="chip__count">{count}</span></button>')
 
-    cards = "".join(render_card(p, prefix) for p in products)
+    cards = "".join(render_card(p, prefix, asset_prefix) for p in products)
 
     body = f'''
   <section class="page-hero">
@@ -545,6 +550,7 @@ def render_catalog(products):
         title="Full Catalog",
         description="The complete hlix research peptide catalog, filterable by category.",
         prefix=prefix,
+        asset_prefix=asset_prefix,
         active="catalog",
         body=body,
     )
@@ -554,11 +560,12 @@ def render_catalog(products):
 
 def render_product_page(g, groups):
     prefix = "../"
+    asset_prefix = "../../"
     d = g["default"]
-    svg = vial_media(d, g["slug"], "l", prefix, eager=True)
+    svg = vial_media(d, g["slug"], "l", asset_prefix, eager=True)
     media_cls = " product-media--photo" if has_photo(d) else ""
     related = [x for x in groups if x["category"] == g["category"] and x["slug"] != g["slug"]][:4]
-    related_html = "".join(render_card(r, prefix) for r in related)
+    related_html = "".join(render_card(r, prefix, asset_prefix) for r in related)
     related_section = f'''
   <section class="related">
     <div class="section__head">
@@ -666,9 +673,10 @@ def render_product_page(g, groups):
         title=g["name"],
         description=f"{g['name']}: {g['category_label']} research compound, ≥99% purity, HPLC verified. {len(variants)} vial size{'s' if multi else ''} available.",
         prefix=prefix,
+        asset_prefix=asset_prefix,
         active="catalog",
         body=body,
-        extra_head=f'<script src="{prefix}assets/js/product.js?v={ASSET_VERSION}" defer></script>',
+        extra_head=f'<script src="{asset_prefix}assets/js/product.js?v={ASSET_VERSION}" defer></script>',
     )
 
 
@@ -676,6 +684,7 @@ def render_product_page(g, groups):
 
 def render_about():
     prefix = ""
+    asset_prefix = "../"
     values = [
         ("Precision", "Every entry gets a real dose, a real price and a real category. No vague listings."),
         ("Transparency", "Pricing is always shown per single vial, with no bundled minimums or hidden markups."),
@@ -716,6 +725,7 @@ def render_about():
         title="About",
         description="About hlix: a research peptide catalog built for clarity and precision.",
         prefix=prefix,
+        asset_prefix=asset_prefix,
         active="about",
         body=body,
     )
@@ -725,6 +735,7 @@ def render_about():
 
 def render_contact():
     prefix = ""
+    asset_prefix = "../"
     body = f'''
   <section class="page-hero">
     <div class="container">
@@ -774,6 +785,7 @@ def render_contact():
         title="Contact",
         description="Contact hlix.",
         prefix=prefix,
+        asset_prefix=asset_prefix,
         active="contact",
         body=body,
     )
@@ -783,6 +795,7 @@ def render_contact():
 
 def render_calculator():
     prefix = ""
+    asset_prefix = "../"
     def chip_row(name, values, unit_suffix="", active_value=None):
         chips = []
         for v in values:
@@ -931,9 +944,10 @@ def render_calculator():
         title="Dosage Calculator",
         description="Free peptide reconstitution and dosage calculator: concentration, draw volume, syringe units and vial supply.",
         prefix=prefix,
+        asset_prefix=asset_prefix,
         active="calculator",
         body=body,
-        extra_head=f'<script src="{prefix}assets/js/calculator.js?v={ASSET_VERSION}" defer></script>',
+        extra_head=f'<script src="{asset_prefix}assets/js/calculator.js?v={ASSET_VERSION}" defer></script>',
     )
 
 
@@ -958,13 +972,16 @@ def main():
 
     render_search_index(groups)
 
-    (ROOT / "index.html").write_text(render_home(groups))
-    (ROOT / "catalog.html").write_text(render_catalog(groups))
-    (ROOT / "about.html").write_text(render_about())
-    (ROOT / "contact.html").write_text(render_contact())
-    (ROOT / "calculator.html").write_text(render_calculator())
+    v1_out = ROOT / "v1"
+    v1_out.mkdir(parents=True, exist_ok=True)
 
-    peptides_dir = ROOT / "peptides"
+    (v1_out / "index.html").write_text(render_home(groups))
+    (v1_out / "catalog.html").write_text(render_catalog(groups))
+    (v1_out / "about.html").write_text(render_about())
+    (v1_out / "contact.html").write_text(render_contact())
+    (v1_out / "calculator.html").write_text(render_calculator())
+
+    peptides_dir = v1_out / "peptides"
     if peptides_dir.exists():
         shutil.rmtree(peptides_dir)
     peptides_dir.mkdir()
