@@ -137,7 +137,7 @@
 
     // syringe
     var pct = maxUnits > 0 ? Math.min(1, drawUnits / maxUnits) : 0;
-    root.querySelectorAll("[data-syr]").forEach(function (s) {
+    document.querySelectorAll("[data-syr]").forEach(function (s) {
       s.style.setProperty("--fill", pct.toFixed(4));
       Array.prototype.forEach.call(s.querySelectorAll(".tick"), function (t, i) {
         t.textContent = fmt(maxUnits * i / 4, maxUnits < 40 ? 1 : 0);

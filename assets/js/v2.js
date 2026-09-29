@@ -511,26 +511,39 @@
     var qInput = $("[data-catalog-search]");
     var tagChips = $$("[data-tag-chip]");
     var tagMore = $("[data-tagfilter-more]");
-    var state = { cat: "all", q: "", tag: "" };
+    var tagClearAll = $("[data-tagfilter-clear]");
+    var state = { cat: "all", q: "", tags: [] };
     var tabBtns = $$("button[data-filter]", tabs);
 
-    var setTag = function (tag) {
-      state.tag = tag || "";
-      tagChips.forEach(function (c) { c.classList.toggle("is-active", c.getAttribute("data-tag-chip") === state.tag); });
+    var syncTagUI = function () {
+      tagChips.forEach(function (c) { c.classList.toggle("is-active", state.tags.indexOf(c.getAttribute("data-tag-chip")) > -1); });
+      if (tagClearAll) tagClearAll.hidden = state.tags.length === 0;
       var url = new URL(location.href);
-      if (state.tag) url.searchParams.set("tag", state.tag); else url.searchParams.delete("tag");
+      if (state.tags.length) url.searchParams.set("tag", state.tags.join(",")); else url.searchParams.delete("tag");
       history.replaceState(null, "", url.pathname + url.search + (state.cat !== "all" ? "#" + state.cat : ""));
+    };
+    var toggleTag = function (tag) {
+      var i = state.tags.indexOf(tag);
+      if (i > -1) state.tags.splice(i, 1); else state.tags.push(tag);
+      syncTagUI();
+    };
+    var setTags = function (tags) {
+      state.tags = tags.slice();
+      syncTagUI();
     };
     tagChips.forEach(function (chip) {
       chip.addEventListener("click", function () {
-        var tag = chip.getAttribute("data-tag-chip");
-        setTag(state.tag === tag ? "" : tag);
+        toggleTag(chip.getAttribute("data-tag-chip"));
         apply(true);
       });
     });
     if (tagMore) tagMore.addEventListener("click", function () {
       tagChips.forEach(function (c) { c.hidden = false; });
       tagMore.hidden = true;
+    });
+    if (tagClearAll) tagClearAll.addEventListener("click", function () {
+      setTags([]);
+      apply(true);
     });
 
     var moveInd = function () {
@@ -545,7 +558,7 @@
         var cardTags = (c.getAttribute("data-tags") || "").split(",");
         var show = (state.cat === "all" || c.getAttribute("data-cat") === state.cat) &&
           (!state.q || c.getAttribute("data-name").indexOf(state.q) > -1) &&
-          (!state.tag || cardTags.indexOf(state.tag) > -1);
+          (!state.tags.length || state.tags.some(function (t) { return cardTags.indexOf(t) > -1; }));
         if (show) {
           c.classList.remove("is-hidden");
           c.classList.add("in");
@@ -574,15 +587,15 @@
       state.cat = startCat;
       tabBtns.forEach(function (x) { x.classList.toggle("is-active", x.getAttribute("data-filter") === startCat); });
     }
-    var startTag = new URL(location.href).searchParams.get("tag");
-    if (startTag) {
-      startTag = startTag.toLowerCase();
-      var hiddenMatch = tagChips.some(function (c) { return c.getAttribute("data-tag-chip") === startTag && c.hidden; });
+    var startTagParam = new URL(location.href).searchParams.get("tag");
+    if (startTagParam) {
+      var startTags = startTagParam.toLowerCase().split(",").filter(Boolean);
+      var hiddenMatch = tagChips.some(function (c) { return startTags.indexOf(c.getAttribute("data-tag-chip")) > -1 && c.hidden; });
       if (hiddenMatch) {
         tagChips.forEach(function (c) { c.hidden = false; });
         if (tagMore) tagMore.hidden = true;
       }
-      setTag(startTag);
+      setTags(startTags);
     }
     moveInd();
     apply(false);

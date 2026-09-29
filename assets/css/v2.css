@@ -179,7 +179,7 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 .nav.is-hidden { transform: translateY(-101%); }
 .menu-open .nav { transform: none; }
 .nav__brand { display: inline-flex; align-items: center; gap: 6px; font: 800 27px/1 var(--f-display); letter-spacing: -0.06em; justify-self: start; }
-.nav__brand i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); animation: pulse 2.6s ease-in-out infinite; align-self: flex-start; margin-top: 2px; }
+.nav__brand i { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); animation: pulse 2.6s ease-in-out infinite; align-self: flex-start; margin-top: 8px; }
 @keyframes pulse { 50% { opacity: 0.35; transform: scale(0.8); } }
 .nav__links { display: flex; gap: clamp(22px, 3.2vw, 48px); }
 .nav__links a { position: relative; padding: 6px 0; font: 500 15px var(--f-display); color: var(--dim); transition: color 0.3s; }
@@ -488,6 +488,8 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 .tag-chip.is-active { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
 .tagfilter__more { color: var(--faint); border: 1px dashed var(--line-2); border-radius: 999px; padding: 5px 13px; font: 500 12.5px var(--f-mono); background: none; white-space: nowrap; transition: color 0.25s, border-color 0.25s; }
 .tagfilter__more:hover { color: var(--fg); border-color: var(--fg); }
+.tagfilter__clear { color: var(--accent); border: 1px solid transparent; border-radius: 999px; padding: 5px 4px; font: 500 12.5px var(--f-mono); background: none; white-space: nowrap; transition: color 0.25s; }
+.tagfilter__clear:hover { color: var(--fg); }
 @media (max-width: 640px) { .tagfilter__label { width: 100%; } }
 
 .pgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 24px); padding-bottom: clamp(80px, 14vh, 160px); }
@@ -747,6 +749,15 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
   .hv--a.hv--photo { width: 62vw; right: auto; left: 19vw; top: 1%; }
   .hv--b.hv--photo { width: 42vw; right: auto; left: -10vw; top: 10%; }
   .hv--c.hv--photo { width: 40vw; right: -9vw; top: 11%; }
+}
+
+/* background-removed cutouts (true alpha) — no blend-mode/mask trick needed,
+   just a soft contact shadow so the bottle still reads as floating */
+.hv--cut { mix-blend-mode: normal; }
+.hv--cut img,
+:root[data-theme="light"] .hv--cut img { filter: drop-shadow(0 26px 34px rgba(0, 0, 0, 0.28)); -webkit-mask-image: none; mask-image: none; }
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .hv--cut img { filter: drop-shadow(0 26px 34px rgba(0, 0, 0, 0.28)); -webkit-mask-image: none; mask-image: none; }
 }
 
 @media (max-width: 700px) { .lineup__count { display: none; } }

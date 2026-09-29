@@ -62,10 +62,20 @@ def syringe_svg(uid):
 
 
 VIALS = ROOT / "assets" / "img" / "vials"
+HERO_CUTOUTS = VIALS / "hero-cutout"
 
 
 def has_photo(v):
     return (VIALS / f"{v['sku'].lower()}-recon.webp").exists()
+
+
+def hero_cutout_path(v):
+    """Background-removed (true alpha) version of a vial photo, used only for
+    the homepage hero where the bottle floats over the page background with
+    no card behind it. Falls back to the regular studio photo (solid backdrop)
+    everywhere else, where a dark stage card sits behind the image anyway."""
+    p = HERO_CUTOUTS / f"{v['sku'].lower()}-recon-cut.webp"
+    return p if p.exists() else None
 
 
 def vial_media(v, uid, size, root, alt=None, eager=False, form="recon"):
@@ -206,8 +216,15 @@ def page_home(groups):
         hero.append(groups[len(hero)])
 
     def hv(g, cls, sp, rot, uid):
-        svg = vial_media(g["default"], f"hero-{uid}", "l", "../", eager=True)
-        photo = " hv--photo" if has_photo(g["default"]) else ""
+        cutout = hero_cutout_path(g["default"])
+        if cutout:
+            alt = f"{g['default']['name']} {g['default']['dose']} research vial"
+            svg = (f'<img src="../assets/img/vials/hero-cutout/{cutout.name}" alt="{esc(alt)}" '
+                   f'width="1280" height="1600" decoding="async">')
+            photo = " hv--photo hv--cut"
+        else:
+            svg = vial_media(g["default"], f"hero-{uid}", "l", "../", eager=True)
+            photo = " hv--photo" if has_photo(g["default"]) else ""
         return f'<div class="hv {cls}{photo}" data-parallax="{sp}" data-rot="{rot}"><div class="hv__in">{svg}</div></div>'
 
     hero_vials = hv(hero[0], "hv--a", "-0.10", "0", "a") + hv(hero[1], "hv--b", "0.06", "0", "b") + hv(hero[2], "hv--c", "0.14", "0", "c")
@@ -359,6 +376,7 @@ def page_catalog(groups):
     <span class="tagfilter__label">browse by keyword</span>
     <div class="tagfilter__list" data-tagfilter-list>{tag_chips}</div>
     {more_btn}
+    <button type="button" class="tagfilter__clear" data-tagfilter-clear hidden>clear keywords ×</button>
   </div>
   <div class="pgrid">{cards}</div>
   <p class="empty" data-empty>nothing matches that. try another name or category.</p>
