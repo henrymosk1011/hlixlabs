@@ -132,6 +132,7 @@ ICONS = {
     "calc": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg>',
     "sun": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg>',
     "moon": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>',
+    "cart": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg>',
 }
 
 
@@ -765,7 +766,7 @@ def render_contact():
         </div>
       </div>
       <div>
-        <form class="contact-card" action="mailto:{CONTACT_EMAIL}" method="post" enctype="text/plain">
+        <form class="contact-card" data-contact-form>
           <div class="form-field">
             <label for="name">Name</label>
             <input id="name" name="name" type="text" placeholder="Your name" required>
@@ -779,7 +780,7 @@ def render_contact():
             <textarea id="message" name="message" rows="5" placeholder="What's on your mind?" required></textarea>
           </div>
           <button type="submit" class="btn btn--accent btn--block">Send Message</button>
-          <p class="form-note">Submitting opens your email client addressed to {CONTACT_EMAIL}. Nothing is sent from this page directly.</p>
+          <p class="form-note" data-contact-status hidden></p>
         </form>
       </div>
     </div>

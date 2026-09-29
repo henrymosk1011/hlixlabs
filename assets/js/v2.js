@@ -654,4 +654,45 @@
       try { localStorage.setItem("hlix-theme", next); } catch (e) {}
     });
   });
+
+  // ------------------------------------------------------------------
+  // contact form — posts to /api/contact (Resend), only live once deployed
+  // ------------------------------------------------------------------
+  var cform = $("[data-contact-form]");
+  if (cform) {
+    var cstatus = $("[data-contact-status]", cform);
+    var csubmit = $('button[type="submit"]', cform);
+    cform.addEventListener("submit", function (e) {
+      e.preventDefault();
+      var name = cform.name.value.trim();
+      var email = cform.email.value.trim();
+      var message = cform.message.value.trim();
+      if (!name || !email || !message) return;
+      csubmit.disabled = true;
+      cstatus.hidden = false;
+      cstatus.classList.remove("is-error");
+      cstatus.textContent = "sending…";
+      fetch("/api/contact", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name: name, email: email, message: message }),
+      })
+        .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+        .then(function (res) {
+          if (res.ok) {
+            cstatus.textContent = "message sent — we'll get back to you within 1–2 business days.";
+            cform.reset();
+          } else {
+            cstatus.classList.add("is-error");
+            cstatus.textContent = res.data.error || "something went wrong. try again in a moment.";
+            csubmit.disabled = false;
+          }
+        })
+        .catch(function () {
+          cstatus.classList.add("is-error");
+          cstatus.textContent = "couldn't reach the server. this only works once the site is deployed.";
+          csubmit.disabled = false;
+        });
+    });
+  }
 })();

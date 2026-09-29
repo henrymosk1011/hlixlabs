@@ -163,3 +163,25 @@ Cost note: `api/chat.js` uses Claude Haiku by default (cheap) and caps each
 visitor to 30 messages/hour per IP as a basic abuse guard — see the comments
 in that file if you want to tighten it further or swap in a real rate
 limiter (Vercel KV / Upstash) once there's real traffic.
+
+## Contact form + checkout emails (Resend)
+
+The contact form (`contact.html`) and the checkout order-request flow
+(`checkout.html` → cart → `api/order.js`) both send email through
+[Resend](https://resend.com) instead of opening the visitor's own email
+client. Same Vercel Settings → Environment Variables screen as above:
+
+- `RESEND_API_KEY` — required. A real key from resend.com/api-keys.
+- `NOTIFY_EMAIL` — optional, defaults to `henrymm@gmail.com`. Where contact
+  messages and order requests land.
+- `RESEND_FROM_EMAIL` — optional, defaults to Resend's shared sandbox sender
+  (`hlix <onboarding@resend.dev>`), which works immediately with no setup
+  but looks less trustworthy to recipients and has stricter sending limits.
+  To send as `hlix <orders@hlixlabs.com>` (or similar), verify that domain
+  under resend.com/domains first, then set this variable to match — sending
+  "from" an unverified domain will fail.
+
+Checkout has no payment processor wired up on purpose: a visitor adds items
+to a `localStorage` cart, fills in a shipping form, and submitting emails
+that request to `NOTIFY_EMAIL` — the cart is not billed anywhere. Follow up
+with the customer directly to arrange payment.

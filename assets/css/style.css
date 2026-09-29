@@ -995,6 +995,7 @@ p { margin: 0; }
 }
 .form-field input:focus, .form-field textarea:focus { outline: none; border-color: var(--accent); }
 .form-note { font-size: 12px; color: var(--text-faint); margin-top: 10px; }
+.form-note.is-error { color: var(--warn); }
 
 /* ============================================================
    Calculator page

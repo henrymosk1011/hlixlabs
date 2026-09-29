@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#050607">
-<title>contact · hlix</title>
-<meta name="description" content="contact hlix.">
+<title>checkout · hlix</title>
+<meta name="description" content="review your cart and submit an order request.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="assets/css/v2.css?v=1790665191">
 <script>(function(){var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");try{var t=localStorage.getItem("hlix-theme");if(t==="light"||t==="dark")h.setAttribute("data-theme",t);}catch(e){}window.HLIX2={base:""};})();</script>
 </head>
-<body class="" data-page="contact">
+<body class="checkout-page" data-page="checkout">
 <div class="progress" aria-hidden="true"><i></i></div>
 <header class="nav" data-nav>
   <a class="nav__brand" href="index.html" aria-label="hlix home">hlix<i></i></a>
@@ -58,28 +58,52 @@
 <main>
 
 <section class="phead"><div class="wrap">
-  <p class="kicker" data-reveal="fade">// contact</p>
-  <h1 class="phead__title" data-split>say hello.</h1>
-  <a class="mail" href="mailto:contact@hlixlabs.com" data-reveal>contact@hlixlabs.com</a>
+  <p class="kicker" data-reveal="fade">// checkout</p>
+  <h1 class="phead__title" data-split>review &amp; request.</h1>
+  <p class="phead__sub" data-reveal>no payment happens here — submit your order request and we'll follow up by email with next steps.</p>
 </div></section>
-<section class="sec" style="padding-top:20px"><div class="wrap">
-  <div class="split2">
-    <div>
-      <h2 data-split>questions about a compound, a batch, or the catalog?</h2>
-      <dl class="meta3" style="grid-template-columns:1fr 1fr;margin-top:48px">
-        <div data-reveal><dt>response time</dt><dd>usually 1–2 business days</dd></div>
-        <div data-reveal style="--d:1"><dt>based in</dt><dd>united states</dd></div>
-      </dl>
-    </div>
-    <form class="cform" data-contact-form data-reveal>
-      <label><span>name</span><input name="name" type="text" required autocomplete="name"></label>
-      <label><span>email</span><input name="email" type="email" required autocomplete="email"></label>
-      <label><span>message</span><textarea name="message" rows="4" required></textarea></label>
-      <div><button class="btn btn--solid" type="submit" data-magnetic>send message <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
-      <p class="cform__status" data-contact-status hidden></p>
-    </form>
+<div class="wrap checkout" data-checkout>
+  <div class="checkout__items">
+    <div class="cart__list" data-checkout-list></div>
+    <p class="cart__empty" data-checkout-empty hidden>your cart is empty. <a href="catalog.html">browse the catalog</a>.</p>
+    <div class="checkout__subtotal" data-checkout-subtotal-row hidden><span>subtotal</span><b data-checkout-subtotal>$0</b></div>
   </div>
-</div></section>
+  <form class="checkout__form" data-checkout-form>
+    <fieldset>
+      <legend>contact</legend>
+      <label><span>full name</span><input name="name" type="text" required autocomplete="name"></label>
+      <label><span>email</span><input name="email" type="email" required autocomplete="email"></label>
+    </fieldset>
+    <fieldset>
+      <legend>shipping address</legend>
+      <label><span>address line 1</span><input name="address1" type="text" required autocomplete="address-line1"></label>
+      <label><span>address line 2 (optional)</span><input name="address2" type="text" autocomplete="address-line2"></label>
+      <div class="checkout__row">
+        <label><span>city</span><input name="city" type="text" required autocomplete="address-level2"></label>
+        <label><span>state / region</span><input name="state" type="text" required autocomplete="address-level1"></label>
+      </div>
+      <div class="checkout__row">
+        <label><span>zip / postal code</span><input name="zip" type="text" required autocomplete="postal-code"></label>
+        <label><span>country</span><input name="country" type="text" required autocomplete="country-name" value="United States"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>notes (optional)</legend>
+      <label><span>anything we should know?</span><textarea name="notes" rows="3"></textarea></label>
+    </fieldset>
+    <div><button class="btn btn--solid" type="submit" data-checkout-submit data-magnetic>submit order request <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+    <p class="cform__status" data-checkout-status hidden></p>
+    <p class="checkout__legal">submitting sends your request and cart contents to hlix by email. no payment method is collected or charged on this page. for laboratory research use only.</p>
+  </form>
+</div>
+<div class="checkout__done" data-checkout-done hidden>
+  <div class="wrap">
+    <p class="kicker" data-reveal="fade">// request received</p>
+    <h1 class="phead__title" data-split>got it.</h1>
+    <p class="phead__sub">your order request is in. we'll reply by email at <b data-checkout-done-email></b> with next steps, usually within 1–2 business days.</p>
+    <a class="btn btn--solid" href="catalog.html" data-magnetic>back to catalog <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+</div>
 </main>
 <footer class="foot">
   <div class="wrap foot__top">
@@ -97,7 +121,7 @@
 <script src="assets/js/search-index.js?v=1790665191"></script>
 <script src="assets/js/v2.js?v=1790665191"></script>
 <script src="assets/js/v2-cart.js?v=1790665191"></script>
-
+<script src="assets/js/v2-checkout.js?v=1790665191" defer></script>
 <script src="assets/js/v2-chat.js?v=1790665191"></script>
 </body>
 </html>

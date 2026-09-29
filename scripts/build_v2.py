@@ -28,6 +28,7 @@ SPARK = b.icon("sparkles")
 CLOSE = b.icon("close")
 SUN = b.icon("sun")
 MOON = b.icon("moon")
+CART = b.icon("cart")
 
 esc = b.html_escape
 money = b.money
@@ -111,6 +112,7 @@ def nav(p, page):
   <div class="nav__right">
     <button class="nav__search" data-search-open aria-label="search">{SEARCH}<span>search</span><kbd>/</kbd></button>
     <button class="nav__theme" data-theme-toggle aria-label="switch to light theme"><span class="nav__theme-sun">{SUN}</span><span class="nav__theme-moon">{MOON}</span></button>
+    <button class="nav__cart" data-cart-open aria-label="view cart">{CART}<span class="nav__cart-count" data-cart-count hidden>0</span></button>
     <a class="btn btn--sm" href="{p}contact.html" data-magnetic>contact</a>
     <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
   </div>
@@ -133,6 +135,16 @@ def nav(p, page):
       <div class="search__try"><button data-try="hair">hair</button><button data-try="sleep">sleep</button><button data-try="fat loss">fat loss</button><button data-try="muscle growth">muscle growth</button><button data-try="recovery">recovery</button><button data-try="skin">skin</button></div>
     </div>
     <div data-search-list></div>
+  </div>
+</div>
+<div class="cart" data-cart role="dialog" aria-label="cart">
+  <div class="cart__head"><h2>cart</h2><button class="x" data-cart-close aria-label="close cart">{CLOSE}</button></div>
+  <div class="cart__list" data-cart-list></div>
+  <p class="cart__empty" data-cart-empty hidden>your cart is empty.</p>
+  <div class="cart__foot" data-cart-foot hidden>
+    <div class="cart__subtotal"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
+    <a class="btn btn--solid btn--block" href="{p}checkout.html" data-magnetic>checkout {ARROW}</a>
+    <p class="cart__note">no payment is collected here — we'll follow up by email with next steps.</p>
   </div>
 </div>'''
 
@@ -181,6 +193,7 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 <div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close">{CLOSE}</button><div class="lb__in"></div></div>
 <script src="{p}assets/js/search-index.js?v={VER}"></script>
 <script src="{p}assets/js/v2.js?v={VER}"></script>
+<script src="{p}assets/js/v2-cart.js?v={VER}"></script>
 {js}
 <script src="{p}assets/js/v2-chat.js?v={VER}"></script>
 </body>
@@ -429,6 +442,15 @@ def page_product(g, groups):
         {tags_html}
         <div class="price" data-reveal><span class="price__n" data-price="{d['price']:.2f}" data-price-recon="{recon_price(d['price']):.2f}">{money(recon_price(d['price']))}</span><span class="price__u">/ vial</span></div>
         <div data-reveal>{seg}</div>
+        <div class="pdp__buy" data-reveal>
+          <div class="qty" data-qty>
+            <button type="button" data-qty-dec aria-label="decrease quantity">−</button>
+            <input type="number" min="1" step="1" value="1" data-qty-input aria-label="quantity">
+            <button type="button" data-qty-inc aria-label="increase quantity">+</button>
+          </div>
+          <button class="btn btn--solid" type="button" data-add-to-cart data-name="{esc(g['name'])}" data-slug="{g['slug']}" data-category="{esc(g['category_label'])}" data-magnetic>add to cart</button>
+        </div>
+        <p class="pdp__added" data-added hidden>added to cart — <a href="../checkout.html">checkout</a> or keep browsing.</p>
         <p class="stock" data-reveal>in stock</p>
         <dl class="specs" data-reveal>
           <div><dt>category</dt><dd>{esc(g['category_label'])}</dd></div>
@@ -500,12 +522,12 @@ def page_contact(groups):
         <div data-reveal style="--d:1"><dt>based in</dt><dd>united states</dd></div>
       </dl>
     </div>
-    <form class="cform" action="mailto:{CONTACT_EMAIL}" method="post" enctype="text/plain" data-reveal>
+    <form class="cform" data-contact-form data-reveal>
       <label><span>name</span><input name="name" type="text" required autocomplete="name"></label>
       <label><span>email</span><input name="email" type="email" required autocomplete="email"></label>
       <label><span>message</span><textarea name="message" rows="4" required></textarea></label>
       <div><button class="btn btn--solid" type="submit" data-magnetic>send message {ARROW}</button></div>
-      <small>submitting opens your email client addressed to {CONTACT_EMAIL}. nothing is sent from this page directly.</small>
+      <p class="cform__status" data-contact-status hidden></p>
     </form>
   </div>
 </div></section>'''
@@ -598,6 +620,60 @@ def page_calculator(groups):
     return shell(title="dosage calculator", desc="peptide reconstitution and dosage calculator.", page="calculator", body=body, groups=groups, scripts=("v2-calc.js",), body_class="calc-page")
 
 
+# ---------------------------------------------------------------- checkout ---
+
+def page_checkout():
+    body = f'''
+<section class="phead"><div class="wrap">
+  <p class="kicker" data-reveal="fade">// checkout</p>
+  <h1 class="phead__title" data-split>review &amp; request.</h1>
+  <p class="phead__sub" data-reveal>no payment happens here — submit your order request and we'll follow up by email with next steps.</p>
+</div></section>
+<div class="wrap checkout" data-checkout>
+  <div class="checkout__items">
+    <div class="cart__list" data-checkout-list></div>
+    <p class="cart__empty" data-checkout-empty hidden>your cart is empty. <a href="catalog.html">browse the catalog</a>.</p>
+    <div class="checkout__subtotal" data-checkout-subtotal-row hidden><span>subtotal</span><b data-checkout-subtotal>$0</b></div>
+  </div>
+  <form class="checkout__form" data-checkout-form>
+    <fieldset>
+      <legend>contact</legend>
+      <label><span>full name</span><input name="name" type="text" required autocomplete="name"></label>
+      <label><span>email</span><input name="email" type="email" required autocomplete="email"></label>
+    </fieldset>
+    <fieldset>
+      <legend>shipping address</legend>
+      <label><span>address line 1</span><input name="address1" type="text" required autocomplete="address-line1"></label>
+      <label><span>address line 2 (optional)</span><input name="address2" type="text" autocomplete="address-line2"></label>
+      <div class="checkout__row">
+        <label><span>city</span><input name="city" type="text" required autocomplete="address-level2"></label>
+        <label><span>state / region</span><input name="state" type="text" required autocomplete="address-level1"></label>
+      </div>
+      <div class="checkout__row">
+        <label><span>zip / postal code</span><input name="zip" type="text" required autocomplete="postal-code"></label>
+        <label><span>country</span><input name="country" type="text" required autocomplete="country-name" value="United States"></label>
+      </div>
+    </fieldset>
+    <fieldset>
+      <legend>notes (optional)</legend>
+      <label><span>anything we should know?</span><textarea name="notes" rows="3"></textarea></label>
+    </fieldset>
+    <div><button class="btn btn--solid" type="submit" data-checkout-submit data-magnetic>submit order request {ARROW}</button></div>
+    <p class="cform__status" data-checkout-status hidden></p>
+    <p class="checkout__legal">submitting sends your request and cart contents to hlix by email. no payment method is collected or charged on this page. for laboratory research use only.</p>
+  </form>
+</div>
+<div class="checkout__done" data-checkout-done hidden>
+  <div class="wrap">
+    <p class="kicker" data-reveal="fade">// request received</p>
+    <h1 class="phead__title" data-split>got it.</h1>
+    <p class="phead__sub">your order request is in. we'll reply by email at <b data-checkout-done-email></b> with next steps, usually within 1–2 business days.</p>
+    <a class="btn btn--solid" href="catalog.html" data-magnetic>back to catalog {ARROW}</a>
+  </div>
+</div>'''
+    return shell(title="checkout", desc="review your cart and submit an order request.", page="checkout", body=body, groups=(), scripts=("v2-checkout.js",), body_class="checkout-page")
+
+
 # ----------------------------------------------------------------- main ---
 
 def main():
@@ -614,6 +690,7 @@ def main():
     (OUT / "about.html").write_text(page_about(groups))
     (OUT / "contact.html").write_text(page_contact(groups))
     (OUT / "calculator.html").write_text(page_calculator(groups))
+    (OUT / "checkout.html").write_text(page_checkout())
     for g in groups:
         (OUT / "peptides" / f"{g['slug']}.html").write_text(page_product(g, groups))
     print(f"v2: 5 core pages + {len(groups)} product pages -> {OUT}")

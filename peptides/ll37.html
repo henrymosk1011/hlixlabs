@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="../assets/css/v2.css?v=1790660400">
+<link rel="stylesheet" href="../assets/css/v2.css?v=1790665191">
 <script>(function(){var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");try{var t=localStorage.getItem("hlix-theme");if(t==="light"||t==="dark")h.setAttribute("data-theme",t);}catch(e){}window.HLIX2={base:"../"};})();</script>
 </head>
 <body class="" data-page="catalog">
@@ -20,6 +20,7 @@
   <div class="nav__right">
     <button class="nav__search" data-search-open aria-label="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search</span><kbd>/</kbd></button>
     <button class="nav__theme" data-theme-toggle aria-label="switch to light theme"><span class="nav__theme-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="nav__theme-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span></button>
+    <button class="nav__cart" data-cart-open aria-label="view cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><span class="nav__cart-count" data-cart-count hidden>0</span></button>
     <a class="btn btn--sm" href="../contact.html" data-magnetic>contact</a>
     <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
   </div>
@@ -44,6 +45,16 @@
     <div data-search-list></div>
   </div>
 </div>
+<div class="cart" data-cart role="dialog" aria-label="cart">
+  <div class="cart__head"><h2>cart</h2><button class="x" data-cart-close aria-label="close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="cart__list" data-cart-list></div>
+  <p class="cart__empty" data-cart-empty hidden>your cart is empty.</p>
+  <div class="cart__foot" data-cart-foot hidden>
+    <div class="cart__subtotal"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
+    <a class="btn btn--solid btn--block" href="../checkout.html" data-magnetic>checkout <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <p class="cart__note">no payment is collected here — we'll follow up by email with next steps.</p>
+  </div>
+</div>
 <main>
 
 <div class="pdp" style="--c:#ff9466">
@@ -57,6 +68,15 @@
         <div class="pdp__tags"><a class="tag-pill" href="../catalog.html?tag=immune">immune</a><a class="tag-pill" href="../catalog.html?tag=wound+healing">wound healing</a><a class="tag-pill" href="../catalog.html?tag=gut+health">gut health</a><a class="tag-pill" href="../catalog.html?tag=digestion">digestion</a><a class="tag-pill" href="../catalog.html?tag=skin">skin</a></div>
         <div class="price" data-reveal><span class="price__n" data-price="75.00" data-price-recon="90.00">$90</span><span class="price__u">/ vial</span></div>
         <div data-reveal><span class="field-l">form</span><div class="seg" data-seg="form" role="radiogroup" aria-label="shipping form"><span class="seg__thumb"></span><button role="radio" aria-checked="false" data-form="powder">powder</button><button role="radio" aria-checked="true" class="is-active" data-form="recon">ready to use</button></div></div>
+        <div class="pdp__buy" data-reveal>
+          <div class="qty" data-qty>
+            <button type="button" data-qty-dec aria-label="decrease quantity">−</button>
+            <input type="number" min="1" step="1" value="1" data-qty-input aria-label="quantity">
+            <button type="button" data-qty-inc aria-label="increase quantity">+</button>
+          </div>
+          <button class="btn btn--solid" type="button" data-add-to-cart data-name="LL37" data-slug="ll37" data-category="Healing &amp; Recovery" data-magnetic>add to cart</button>
+        </div>
+        <p class="pdp__added" data-added hidden>added to cart — <a href="../checkout.html">checkout</a> or keep browsing.</p>
         <p class="stock" data-reveal>in stock</p>
         <dl class="specs" data-reveal>
           <div><dt>category</dt><dd>Healing &amp; Recovery</dd></div>
@@ -107,9 +127,10 @@
   </div>
 </footer>
 <div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
-<script src="../assets/js/search-index.js?v=1790660400"></script>
-<script src="../assets/js/v2.js?v=1790660400"></script>
+<script src="../assets/js/search-index.js?v=1790665191"></script>
+<script src="../assets/js/v2.js?v=1790665191"></script>
+<script src="../assets/js/v2-cart.js?v=1790665191"></script>
 
-<script src="../assets/js/v2-chat.js?v=1790660400"></script>
+<script src="../assets/js/v2-chat.js?v=1790665191"></script>
 </body>
 </html>
