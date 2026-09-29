@@ -509,21 +509,29 @@
     var empty = $("[data-empty]");
     var countEl = $("[data-shown]");
     var qInput = $("[data-catalog-search]");
-    var tagBanner = $("[data-tag-active]");
-    var tagBannerName = $("[data-tag-active-name]");
-    var tagClearBtn = $("[data-tag-clear]");
+    var tagChips = $$("[data-tag-chip]");
+    var tagMore = $("[data-tagfilter-more]");
     var state = { cat: "all", q: "", tag: "" };
     var tabBtns = $$("button[data-filter]", tabs);
 
     var setTag = function (tag) {
       state.tag = tag || "";
-      if (tagBanner) tagBanner.hidden = !state.tag;
-      if (tagBannerName) tagBannerName.textContent = "“" + state.tag + "”";
+      tagChips.forEach(function (c) { c.classList.toggle("is-active", c.getAttribute("data-tag-chip") === state.tag); });
       var url = new URL(location.href);
       if (state.tag) url.searchParams.set("tag", state.tag); else url.searchParams.delete("tag");
       history.replaceState(null, "", url.pathname + url.search + (state.cat !== "all" ? "#" + state.cat : ""));
     };
-    if (tagClearBtn) tagClearBtn.addEventListener("click", function () { setTag(""); apply(true); });
+    tagChips.forEach(function (chip) {
+      chip.addEventListener("click", function () {
+        var tag = chip.getAttribute("data-tag-chip");
+        setTag(state.tag === tag ? "" : tag);
+        apply(true);
+      });
+    });
+    if (tagMore) tagMore.addEventListener("click", function () {
+      tagChips.forEach(function (c) { c.hidden = false; });
+      tagMore.hidden = true;
+    });
 
     var moveInd = function () {
       var a = tabBtns.filter(function (b) { return b.classList.contains("is-active"); })[0];
@@ -567,7 +575,15 @@
       tabBtns.forEach(function (x) { x.classList.toggle("is-active", x.getAttribute("data-filter") === startCat); });
     }
     var startTag = new URL(location.href).searchParams.get("tag");
-    if (startTag) setTag(startTag.toLowerCase());
+    if (startTag) {
+      startTag = startTag.toLowerCase();
+      var hiddenMatch = tagChips.some(function (c) { return c.getAttribute("data-tag-chip") === startTag && c.hidden; });
+      if (hiddenMatch) {
+        tagChips.forEach(function (c) { c.hidden = false; });
+        if (tagMore) tagMore.hidden = true;
+      }
+      setTag(startTag);
+    }
     moveInd();
     apply(false);
     window.addEventListener("resize", moveInd);

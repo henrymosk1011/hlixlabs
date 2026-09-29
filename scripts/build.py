@@ -180,7 +180,7 @@ def nav_html(prefix, active):
       <nav class="nav__links">{links}</nav>
       <div class="nav__search" data-search-inline>
         {icon('search')}
-        <input type="text" placeholder="Search by name or goal, like hair or sleep…" data-search-input-nav autocomplete="off" spellcheck="false">
+        <input type="text" placeholder="Search by name, keyword, or topic…" data-search-input-nav autocomplete="off" spellcheck="false">
         <div class="nav__search-dropdown" data-search-dropdown></div>
       </div>
       <div class="nav__cta">
@@ -198,7 +198,7 @@ def nav_html(prefix, active):
     <div class="search-panel">
       <div class="search-panel__input-row">
         {icon('search')}
-        <input type="text" placeholder="Search by name or goal, like hair or sleep…" data-search-input autocomplete="off" spellcheck="false">
+        <input type="text" placeholder="Search by name, keyword, or topic…" data-search-input autocomplete="off" spellcheck="false">
         <button class="search-panel__close" data-search-close aria-label="Close search">{icon('close')}</button>
       </div>
       <div class="search-panel__results" data-search-results></div>

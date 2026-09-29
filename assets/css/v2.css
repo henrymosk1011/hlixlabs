@@ -480,10 +480,15 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 .find input { flex: 1; min-width: 0; background: none; border: 0; outline: 0; font: 500 14px var(--f-display); }
 .find input::placeholder { color: var(--faint); }
 @media (max-width: 800px) { .ctrl { flex-direction: column; align-items: stretch; } .find { flex: none; } .tabs { margin-bottom: 0; } }
-.tag-active { display: flex; align-items: center; gap: 10px; margin: -8px 0 24px; color: var(--dim); font: 500 13px var(--f-mono); }
-.tag-active b { color: var(--accent); font-weight: 700; }
-.tag-active button { color: var(--faint); border: 1px solid var(--line-2); border-radius: 999px; padding: 3px 10px; transition: color 0.3s, border-color 0.3s; }
-.tag-active button:hover { color: var(--fg); border-color: var(--fg); }
+.tagfilter { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 8px; margin: -8px 0 24px; }
+.tagfilter__label { color: var(--faint); font: 500 12px var(--f-mono); letter-spacing: 0.02em; white-space: nowrap; }
+.tagfilter__list { display: flex; flex-wrap: wrap; gap: 8px; }
+.tag-chip { color: var(--dim); border: 1px solid var(--line-2); border-radius: 999px; padding: 5px 13px; font: 500 12.5px var(--f-mono); background: none; white-space: nowrap; transition: color 0.25s, border-color 0.25s, background-color 0.25s; }
+.tag-chip:hover { color: var(--fg); border-color: var(--fg); }
+.tag-chip.is-active { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+.tagfilter__more { color: var(--faint); border: 1px dashed var(--line-2); border-radius: 999px; padding: 5px 13px; font: 500 12.5px var(--f-mono); background: none; white-space: nowrap; transition: color 0.25s, border-color 0.25s; }
+.tagfilter__more:hover { color: var(--fg); border-color: var(--fg); }
+@media (max-width: 640px) { .tagfilter__label { width: 100%; } }
 
 .pgrid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: clamp(12px, 1.6vw, 24px); padding-bottom: clamp(80px, 14vh, 160px); }
 @media (max-width: 1100px) { .pgrid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
@@ -508,7 +513,7 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 .crumbs { display: flex; flex-wrap: wrap; gap: 10px; padding: 18px 0 28px; color: var(--faint); font: 500 12px var(--f-mono); letter-spacing: 0.06em; }
 .crumbs a { color: var(--dim); transition: color 0.3s; }
 .crumbs a:hover { color: var(--accent); }
-.pdp__grid { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr); gap: clamp(32px, 6vw, 110px); align-items: start; padding-bottom: clamp(70px, 12vh, 140px); }
+.pdp__grid { display: grid; grid-template-columns: minmax(0, 0.82fr) minmax(0, 1.18fr); gap: clamp(28px, 4vw, 64px); align-items: start; padding-bottom: clamp(70px, 12vh, 140px); }
 .pdp__media { position: sticky; top: calc(var(--nav-h) + 20px); min-width: 0; max-width: 440px; }
 .stage {
   position: relative; aspect-ratio: 4 / 5; display: grid; place-items: center; overflow: hidden; cursor: zoom-in; border-radius: var(--r-lg);
@@ -711,7 +716,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .chat__form input:focus { border-color: var(--accent); }
 .chat__form button { width: 44px; height: 44px; border-radius: var(--r); background: var(--accent); color: var(--accent-ink); display: grid; place-items: center; }
 .chat__form button svg { width: 17px; height: 17px; }
-@media (max-width: 900px) { .calc-page .chat-fab { bottom: 176px; } }
+@media (max-width: 900px) { .calc-page .chat-fab { bottom: 132px; } }
 
 /* ------------------------------------------------------------
    photoreal bottle mode (composited product photos)

@@ -10,6 +10,7 @@ The original site is untouched apart from one unlabeled link in its footer.
 """
 import shutil
 import time
+from collections import Counter
 from pathlib import Path
 
 import build as b
@@ -116,9 +117,9 @@ def nav(p, page):
 <div class="search" data-search role="dialog" aria-label="search">
   <button class="x" data-search-close aria-label="close search">{CLOSE}</button>
   <div class="search__in">
-    <div class="search__field">{SEARCH}<input data-search-input type="text" placeholder="search by name or goal, like hair or sleep" autocomplete="off" spellcheck="false"></div>
+    <div class="search__field">{SEARCH}<input data-search-input type="text" placeholder="search by name, keyword, or topic" autocomplete="off" spellcheck="false"></div>
     <div data-search-hint>
-      <p class="search__hint">start typing a name, or search by goal</p>
+      <p class="search__hint">start typing a name, or search by keyword or topic</p>
       <div class="search__try"><button data-try="hair">hair</button><button data-try="sleep">sleep</button><button data-try="fat loss">fat loss</button><button data-try="muscle growth">muscle growth</button><button data-try="recovery">recovery</button><button data-try="skin">skin</button></div>
     </div>
     <div data-search-list></div>
@@ -327,6 +328,20 @@ def page_catalog(groups):
         f'<button data-filter="{s}">{esc(l)}<sup>{sum(1 for g in groups if g["category"] == s)}</sup></button>' for s, l in cats
     )
     cards = "".join(card(g, "", "cat") for g in groups)
+
+    tag_counts = Counter()
+    for g in groups:
+        for t in g["tags"]:
+            tag_counts[t.lower()] += 1
+    all_tags = sorted(tag_counts, key=lambda t: (-tag_counts[t], t))
+    TOP_N = 14
+    more_count = max(0, len(all_tags) - TOP_N)
+    tag_chips = "".join(
+        f'<button type="button" class="tag-chip" data-tag-chip="{esc(t)}"{" hidden" if i >= TOP_N else ""}>{esc(t)}</button>'
+        for i, t in enumerate(all_tags)
+    )
+    more_btn = f'<button type="button" class="tagfilter__more" data-tagfilter-more>+{more_count} more</button>' if more_count else ""
+
     body = f'''
 <section class="phead">
   <div class="wrap">
@@ -340,7 +355,11 @@ def page_catalog(groups):
     <div class="tabs" data-tabs>{tabs}<i class="tabs__ind"></i></div>
     <label class="find">{SEARCH}<input data-catalog-search type="text" placeholder="filter by name" autocomplete="off"></label>
   </div>
-  <p class="tag-active" data-tag-active hidden>showing peptides tagged <b data-tag-active-name></b> <button type="button" data-tag-clear>clear ×</button></p>
+  <div class="tagfilter" data-tagfilter>
+    <span class="tagfilter__label">browse by keyword</span>
+    <div class="tagfilter__list" data-tagfilter-list>{tag_chips}</div>
+    {more_btn}
+  </div>
   <div class="pgrid">{cards}</div>
   <p class="empty" data-empty>nothing matches that. try another name or category.</p>
 </div>'''
