@@ -40,10 +40,48 @@
 
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function scroll() { log.scrollTop = log.scrollHeight; }
+
+  // Small, safe markdown-lite renderer for assistant replies: escapes all
+  // HTML first (the model's own text is untrusted), then recognizes a
+  // narrow subset of markdown (bold, bullet/numbered lists, paragraphs,
+  // line breaks) so replies read like a normal formatted chat message
+  // instead of one unbroken, unwrapped block of text.
+  function renderMarkdown(raw) {
+    var lines = esc(raw).replace(/\r\n/g, "\n").split("\n");
+    var html = "", i = 0;
+    function inline(s) {
+      return s
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/(^|[\s(])\*(?!\s)(.+?)(?!\s)\*(?=[\s).,!?]|$)/g, "$1<em>$2</em>")
+        .replace(/`([^`]+?)`/g, "<code>$1</code>");
+    }
+    while (i < lines.length) {
+      var line = lines[i];
+      if (!line.trim()) { i++; continue; }
+      if (/^(-|\*)\s+/.test(line)) {
+        var items = [];
+        while (i < lines.length && /^(-|\*)\s+/.test(lines[i])) { items.push("<li>" + inline(lines[i].replace(/^(-|\*)\s+/, "")) + "</li>"); i++; }
+        html += "<ul>" + items.join("") + "</ul>";
+        continue;
+      }
+      if (/^\d+\.\s+/.test(line)) {
+        var oitems = [];
+        while (i < lines.length && /^\d+\.\s+/.test(lines[i])) { oitems.push("<li>" + inline(lines[i].replace(/^\d+\.\s+/, "")) + "</li>"); i++; }
+        html += "<ol>" + oitems.join("") + "</ol>";
+        continue;
+      }
+      var para = [line];
+      i++;
+      while (i < lines.length && lines[i].trim() && !/^(-|\*)\s+/.test(lines[i]) && !/^\d+\.\s+/.test(lines[i])) { para.push(lines[i]); i++; }
+      html += "<p>" + inline(para.join(" ")) + "</p>";
+    }
+    return html;
+  }
+
   function add(role, text) {
     var m = d.createElement("div");
     m.className = "chat__m chat__m--" + (role === "user" ? "u" : "a");
-    m.innerHTML = esc(text);
+    m.innerHTML = role === "user" ? esc(text) : renderMarkdown(text);
     log.appendChild(m); scroll();
     return m;
   }

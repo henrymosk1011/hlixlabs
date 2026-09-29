@@ -358,6 +358,9 @@
     $$("[data-search-open]").forEach(function (b) { b.addEventListener("click", openSearch); });
     $$("[data-search-close]").forEach(function (b) { b.addEventListener("click", closeSearch); });
     sInput.addEventListener("input", function () { renderSearch(sInput.value); });
+    // mobile: dismiss the keyboard as soon as the results list is touched, so the
+    // results themselves can be scrolled instead of fighting the on-screen keyboard.
+    if (sList) sList.addEventListener("touchstart", function () { sInput.blur(); }, { passive: true });
     $$("[data-try]", searchEl).forEach(function (b) {
       b.addEventListener("click", function () { sInput.value = b.getAttribute("data-try"); renderSearch(sInput.value); sInput.focus(); });
     });
@@ -402,7 +405,7 @@
   var stage = stageImg || $("[data-zoom] svg");
   var priceEl = $(".price__n");
   function moneyStr(n) {
-    return Number.isInteger(n) ? "$" + n : "$" + n.toFixed(2);
+    return "$" + Math.ceil(n - 1e-9);
   }
   var imgState = {
     sku: stageImg ? (stageImg.getAttribute("data-sku") || "") : "",
@@ -506,8 +509,21 @@
     var empty = $("[data-empty]");
     var countEl = $("[data-shown]");
     var qInput = $("[data-catalog-search]");
-    var state = { cat: "all", q: "" };
+    var tagBanner = $("[data-tag-active]");
+    var tagBannerName = $("[data-tag-active-name]");
+    var tagClearBtn = $("[data-tag-clear]");
+    var state = { cat: "all", q: "", tag: "" };
     var tabBtns = $$("button[data-filter]", tabs);
+
+    var setTag = function (tag) {
+      state.tag = tag || "";
+      if (tagBanner) tagBanner.hidden = !state.tag;
+      if (tagBannerName) tagBannerName.textContent = "“" + state.tag + "”";
+      var url = new URL(location.href);
+      if (state.tag) url.searchParams.set("tag", state.tag); else url.searchParams.delete("tag");
+      history.replaceState(null, "", url.pathname + url.search + (state.cat !== "all" ? "#" + state.cat : ""));
+    };
+    if (tagClearBtn) tagClearBtn.addEventListener("click", function () { setTag(""); apply(true); });
 
     var moveInd = function () {
       var a = tabBtns.filter(function (b) { return b.classList.contains("is-active"); })[0];
@@ -518,7 +534,10 @@
     var apply = function (animate) {
       var n = 0;
       cards.forEach(function (c) {
-        var show = (state.cat === "all" || c.getAttribute("data-cat") === state.cat) && (!state.q || c.getAttribute("data-name").indexOf(state.q) > -1);
+        var cardTags = (c.getAttribute("data-tags") || "").split(",");
+        var show = (state.cat === "all" || c.getAttribute("data-cat") === state.cat) &&
+          (!state.q || c.getAttribute("data-name").indexOf(state.q) > -1) &&
+          (!state.tag || cardTags.indexOf(state.tag) > -1);
         if (show) {
           c.classList.remove("is-hidden");
           c.classList.add("in");
@@ -536,7 +555,8 @@
         state.cat = b.getAttribute("data-filter");
         tabBtns.forEach(function (x) { x.classList.toggle("is-active", x === b); });
         moveInd();
-        history.replaceState(null, "", state.cat === "all" ? location.pathname : "#" + state.cat);
+        var url = new URL(location.href);
+        history.replaceState(null, "", url.pathname + url.search + (state.cat === "all" ? "" : "#" + state.cat));
         apply(true);
       });
     });
@@ -546,6 +566,8 @@
       state.cat = startCat;
       tabBtns.forEach(function (x) { x.classList.toggle("is-active", x.getAttribute("data-filter") === startCat); });
     }
+    var startTag = new URL(location.href).searchParams.get("tag");
+    if (startTag) setTag(startTag.toLowerCase());
     moveInd();
     apply(false);
     window.addEventListener("resize", moveInd);
@@ -584,5 +606,23 @@
   // chat triggers
   $$("[data-open-chat]").forEach(function (b) {
     b.addEventListener("click", function () { if (window.HLIX2 && window.HLIX2.openChat) window.HLIX2.openChat(); });
+  });
+
+  // ------------------------------------------------------------------
+  // dark / light theme toggle
+  // ------------------------------------------------------------------
+  function currentTheme() {
+    var h = document.documentElement;
+    return h.getAttribute("data-theme") || (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+  }
+  $$("[data-theme-toggle]").forEach(function (b) {
+    b.setAttribute("aria-label", currentTheme() === "light" ? "switch to dark theme" : "switch to light theme");
+    b.addEventListener("click", function () {
+      var h = document.documentElement;
+      var next = currentTheme() === "light" ? "dark" : "light";
+      h.setAttribute("data-theme", next);
+      b.setAttribute("aria-label", next === "light" ? "switch to dark theme" : "switch to light theme");
+      try { localStorage.setItem("hlix-theme", next); } catch (e) {}
+    });
   });
 })();

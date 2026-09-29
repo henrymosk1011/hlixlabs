@@ -8,6 +8,7 @@ Run after parse_pricelist.py whenever the price list changes:
     python3 scripts/build.py
 """
 import json
+import math
 import shutil
 import time
 from pathlib import Path
@@ -129,6 +130,8 @@ ICONS = {
     "clock": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>',
     "pin": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>',
     "calc": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg>',
+    "sun": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg>',
+    "moon": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg>',
 }
 
 
@@ -137,12 +140,13 @@ def icon(name):
 
 
 def money(v):
-    return f"${v:,.0f}" if float(v).is_integer() else f"${v:,.2f}"
+    """Every price on the site is shown as a whole dollar, rounded up (never down)."""
+    return f"${math.ceil(float(v) - 1e-9):,}"
 
 
 def recon_price(base):
-    """Reconstituted-form price: the powder base price plus a flat 20% premium."""
-    return round(float(base) * 1.2, 2)
+    """Reconstituted-form price: the powder base price plus a flat 20% premium, rounded up to a whole dollar."""
+    return math.ceil(float(base) * 1.2 - 1e-9)
 
 
 def load_products():
@@ -599,7 +603,7 @@ def render_product_page(g, groups):
           <div class="calc-group__label">Form</div>
           <div class="chip-row" data-form-group>
             <button class="chip" data-form="powder">Powder</button>
-            <button class="chip is-active" data-form="recon">Reconstituted</button>
+            <button class="chip is-active" data-form="recon">Ready to Use</button>
           </div>
         </div>'''
 
@@ -958,7 +962,7 @@ def render_search_index(groups):
         "name": g["name"],
         "slug": g["slug"],
         "category": g["category_label"],
-        "priceFrom": g["min_price"],
+        "priceFrom": math.ceil(g["min_price"] - 1e-9),
         "multi": len(g["variants"]) > 1,
         "tags": g["tags"],
     } for g in groups]

@@ -11,7 +11,7 @@
   var priceEl = page.querySelector('[data-field="price"]');
 
   function moneyFromNumber(n) {
-    return Number.isInteger(n) ? "$" + n : "$" + n.toFixed(2);
+    return "$" + Math.ceil(n - 1e-9);
   }
 
   var state = {

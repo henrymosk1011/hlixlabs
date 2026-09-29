@@ -25,6 +25,8 @@ ARROW_UR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-wi
 SEARCH = b.icon("search")
 SPARK = b.icon("sparkles")
 CLOSE = b.icon("close")
+SUN = b.icon("sun")
+MOON = b.icon("moon")
 
 esc = b.html_escape
 money = b.money
@@ -97,6 +99,7 @@ def nav(p, page):
   <nav class="nav__links" aria-label="primary">{links}</nav>
   <div class="nav__right">
     <button class="nav__search" data-search-open aria-label="search">{SEARCH}<span>search</span><kbd>/</kbd></button>
+    <button class="nav__theme" data-theme-toggle aria-label="switch to light theme"><span class="nav__theme-sun">{SUN}</span><span class="nav__theme-moon">{MOON}</span></button>
     <a class="btn btn--sm" href="{p}contact.html" data-magnetic>contact</a>
     <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
   </div>
@@ -156,7 +159,7 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="{p}assets/css/v2.css?v={VER}">
-<script>(function(){{var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");window.HLIX2={{base:"{p}"}};}})();</script>
+<script>(function(){{var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");try{{var t=localStorage.getItem("hlix-theme");if(t==="light"||t==="dark")h.setAttribute("data-theme",t);}}catch(e){{}}window.HLIX2={{base:"{p}"}};}})();</script>
 </head>
 <body class="{body_class}" data-page="{page}">
 {nav(p, page)}
@@ -182,7 +185,8 @@ def card(g, p, uid_prefix="c"):
     price = f"from {money(g['min_price'])}" if multi else money(d["price"])
     meta = f"{g['category_label']} · {len(g['variants'])} sizes" if multi else f"{g['category_label']} · {d['dose']}"
     color = CATEGORY_COLORS.get(g["category"], "#33e6b0")
-    return f'''<a class="pcard" href="{p}peptides/{g['slug']}.html" data-cat="{g['category']}" data-name="{esc(g['name'].lower())}" style="--c:{color}" data-reveal>
+    tags_attr = esc(",".join(t.lower() for t in g["tags"]))
+    return f'''<a class="pcard" href="{p}peptides/{g['slug']}.html" data-cat="{g['category']}" data-name="{esc(g['name'].lower())}" data-tags="{tags_attr}" style="--c:{color}" data-reveal>
   <div class="pcard__stage">{svg}</div>
   <div class="pcard__row"><h3>{esc(g['name'])}</h3><span class="pcard__price">{price}</span></div>
   <p class="pcard__meta">{esc(meta)}</p>
@@ -336,6 +340,7 @@ def page_catalog(groups):
     <div class="tabs" data-tabs>{tabs}<i class="tabs__ind"></i></div>
     <label class="find">{SEARCH}<input data-catalog-search type="text" placeholder="filter by name" autocomplete="off"></label>
   </div>
+  <p class="tag-active" data-tag-active hidden>showing peptides tagged <b data-tag-active-name></b> <button type="button" data-tag-clear>clear ×</button></p>
   <div class="pgrid">{cards}</div>
   <p class="empty" data-empty>nothing matches that. try another name or category.</p>
 </div>'''
@@ -349,7 +354,7 @@ def page_product(g, groups):
     svg = vial_media(d, f"pdp-{g['slug']}", "l", "../../", eager=True)
     tags_html = (
         '<div class="pdp__tags">' +
-        "".join(f'<span class="tag-pill">{esc(t)}</span>' for t in g["tags"]) +
+        "".join(f'<a class="tag-pill" href="../catalog.html?tag={esc(t.lower().replace(" ", "+"))}">{esc(t)}</a>' for t in g["tags"]) +
         "</div>"
     ) if g["tags"] else ""
     variants = g["variants"]
@@ -366,7 +371,7 @@ def page_product(g, groups):
         seg = f'<span class="field-l">vial size</span><div class="seg" data-seg="size" role="radiogroup" aria-label="vial size"><span class="seg__thumb"></span>{btns}</div>'
     form_btns = (
         '<button role="radio" aria-checked="false" data-form="powder">powder</button>'
-        '<button role="radio" aria-checked="true" class="is-active" data-form="recon">reconstituted</button>'
+        '<button role="radio" aria-checked="true" class="is-active" data-form="recon">ready to use</button>'
     )
     seg += f'<span class="field-l">form</span><div class="seg" data-seg="form" role="radiogroup" aria-label="shipping form"><span class="seg__thumb"></span>{form_btns}</div>'
     related = [x for x in groups if x["category"] == g["category"] and x["slug"] != g["slug"]][:4]
@@ -380,7 +385,7 @@ def page_product(g, groups):
   <div class="wrap">
     <nav class="crumbs" aria-label="breadcrumb"><a href="../index.html">home</a> / <a href="../catalog.html">catalog</a> / <a href="../catalog.html#{g['category']}">{esc(g['category_label'])}</a> / <span>{esc(g['name'])}</span></nav>
     <div class="pdp__grid">
-      <div class="pdp__media" data-reveal="scale"><div class="stage" data-zoom data-tilt>{svg}<span class="stage__hint">click to enlarge</span></div></div>
+      <div class="pdp__media" data-reveal="scale"><div class="stage" data-zoom>{svg}<span class="stage__hint">click to enlarge</span></div></div>
       <div class="pdp__info">
         <p class="kicker" style="color:var(--c)" data-reveal="fade">// {esc(g['category_label'].lower())}</p>
         <h1 class="pdp__name" data-split>{esc(g['name'])}</h1>
@@ -549,7 +554,10 @@ def page_calculator(groups):
     </div>
   </div>
 </div>
-<div class="dock" aria-hidden="true"><span>draw to</span><span><b data-o="dock">10</b>units</span></div>'''
+<div class="dock" data-dock aria-hidden="true">
+  <div class="dock__row"><span>draw to</span><span><b data-o="dock">10</b>units</span></div>
+  <div class="syr syr--dock" data-syr>{syringe_svg("dock")}</div>
+</div>'''
     return shell(title="dosage calculator", desc="peptide reconstitution and dosage calculator.", page="calculator", body=body, groups=groups, scripts=("v2-calc.js",), body_class="calc-page")
 
 

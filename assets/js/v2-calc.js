@@ -173,4 +173,14 @@
   }
 
   render();
+
+  // ---- mobile dock: hide once the static "draw to" card scrolls into view ----
+  var dock = document.querySelector("[data-dock]");
+  var out = root.querySelector(".calc__out");
+  if (dock && out && "IntersectionObserver" in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) { dock.classList.toggle("is-hidden", e.isIntersecting); });
+    }, { rootMargin: "0px 0px -40% 0px" });
+    io.observe(out);
+  }
 })();

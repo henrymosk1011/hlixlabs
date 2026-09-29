@@ -9,7 +9,7 @@
   var prefix = window.HLIX_PREFIX || "";
 
   function money(v) {
-    return "$" + (Number.isInteger(v) ? v : v.toFixed(2)).toString();
+    return "$" + Math.ceil(v - 1e-9);
   }
 
   function escapeHtml(s) {

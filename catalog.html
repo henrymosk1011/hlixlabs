@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/v2.css?v=1790642601">
-<script>(function(){var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");window.HLIX2={base:""};})();</script>
+<link rel="stylesheet" href="assets/css/v2.css?v=1790648442">
+<script>(function(){var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");try{var t=localStorage.getItem("hlix-theme");if(t==="light"||t==="dark")h.setAttribute("data-theme",t);}catch(e){}window.HLIX2={base:""};})();</script>
 </head>
 <body class="" data-page="catalog">
 <div class="progress" aria-hidden="true"><i></i></div>
@@ -19,6 +19,7 @@
   <nav class="nav__links" aria-label="primary"><a href="about.html">about</a><a href="catalog.html" aria-current="page">catalog</a><a href="calculator.html">calculator</a></nav>
   <div class="nav__right">
     <button class="nav__search" data-search-open aria-label="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search</span><kbd>/</kbd></button>
+    <button class="nav__theme" data-theme-toggle aria-label="switch to light theme"><span class="nav__theme-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="nav__theme-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span></button>
     <a class="btn btn--sm" href="contact.html" data-magnetic>contact</a>
     <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
   </div>
@@ -57,271 +58,272 @@
     <div class="tabs" data-tabs><button class="is-active" data-filter="all">all<sup>67</sup></button><button data-filter="metabolic">Metabolic Research<sup>10</sup></button><button data-filter="growth">Growth &amp; GH Secretagogues<sup>18</sup></button><button data-filter="recovery">Healing &amp; Recovery<sup>13</sup></button><button data-filter="cognitive">Cognitive &amp; Neuro Health<sup>5</sup></button><button data-filter="longevity">Longevity &amp; Anti-Aging<sup>10</sup></button><button data-filter="hormonal">Hormonal &amp; Sexual Health<sup>6</sup></button><button data-filter="specialty">Specialty Research<sup>4</sup></button><button data-filter="supplies">Supplies<sup>1</sup></button><i class="tabs__ind"></i></div>
     <label class="find"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input data-catalog-search type="text" placeholder="filter by name" autocomplete="off"></label>
   </div>
-  <div class="pgrid"><a class="pcard" href="peptides/glp2-t.html" data-cat="metabolic" data-name="glp2-t" style="--c:#33e6b0" data-reveal>
+  <p class="tag-active" data-tag-active hidden>showing peptides tagged <b data-tag-active-name></b> <button type="button" data-tag-clear>clear ×</button></p>
+  <div class="pgrid"><a class="pcard" href="peptides/glp2-t.html" data-cat="metabolic" data-name="glp2-t" data-tags="weight loss,fat loss,blood sugar,appetite,metabolism,liver,cardiovascular,blood pressure" style="--c:#33e6b0" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-tr5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-tr5" data-form="recon" alt="GLP2-T 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>GLP2-T</h3><span class="pcard__price">from $35</span></div>
   <p class="pcard__meta">Metabolic Research · 9 sizes</p>
-</a><a class="pcard" href="peptides/glp3-r.html" data-cat="metabolic" data-name="glp3-r" style="--c:#33e6b0" data-reveal>
+</a><a class="pcard" href="peptides/glp3-r.html" data-cat="metabolic" data-name="glp3-r" data-tags="weight loss,fat loss,blood sugar,appetite,metabolism,liver,cardiovascular,blood pressure" style="--c:#33e6b0" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-rt5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-rt5" data-form="recon" alt="GLP3-R 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>GLP3-R</h3><span class="pcard__price">from $80</span></div>
   <p class="pcard__meta">Metabolic Research · 6 sizes</p>
-</a><a class="pcard" href="peptides/mt-1.html" data-cat="hormonal" data-name="mt-1" style="--c:#ff6b9d" data-reveal>
+</a><a class="pcard" href="peptides/mt-1.html" data-cat="hormonal" data-name="mt-1" data-tags="tanning,libido,skin" style="--c:#ff6b9d" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-mt1-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-mt1" data-form="recon" alt="MT-1 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>MT-1</h3><span class="pcard__price">$42</span></div>
   <p class="pcard__meta">Hormonal &amp; Sexual Health · 10mg</p>
-</a><a class="pcard" href="peptides/mt-2-melanotan-2-acetate.html" data-cat="hormonal" data-name="mt-2 (melanotan 2 acetate)" style="--c:#ff6b9d" data-reveal>
+</a><a class="pcard" href="peptides/mt-2-melanotan-2-acetate.html" data-cat="hormonal" data-name="mt-2 (melanotan 2 acetate)" data-tags="tanning,libido,appetite,weight loss" style="--c:#ff6b9d" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ml10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ml10" data-form="recon" alt="MT-2 (Melanotan 2 Acetate) 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>MT-2 (Melanotan 2 Acetate)</h3><span class="pcard__price">$38</span></div>
   <p class="pcard__meta">Hormonal &amp; Sexual Health · 10mg</p>
-</a><a class="pcard" href="peptides/kpv.html" data-cat="recovery" data-name="kpv" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/kpv.html" data-cat="recovery" data-name="kpv" data-tags="gut health,digestion,inflammation,skin,wound healing" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-kpv-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-kpv" data-form="recon" alt="kpv 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>kpv</h3><span class="pcard__price">$60</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 5mg</p>
-</a><a class="pcard" href="peptides/pt-141.html" data-cat="hormonal" data-name="pt-141" style="--c:#ff6b9d" data-reveal>
+</a><a class="pcard" href="peptides/pt-141.html" data-cat="hormonal" data-name="pt-141" data-tags="libido,sexual health" style="--c:#ff6b9d" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-p41-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-p41" data-form="recon" alt="PT-141 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>PT-141</h3><span class="pcard__price">$50</span></div>
   <p class="pcard__meta">Hormonal &amp; Sexual Health · 10mg</p>
-</a><a class="pcard" href="peptides/gonadorelin-acetate.html" data-cat="hormonal" data-name="gonadorelin acetate" style="--c:#ff6b9d" data-reveal>
+</a><a class="pcard" href="peptides/gonadorelin-acetate.html" data-cat="hormonal" data-name="gonadorelin acetate" data-tags="hormone balance,fertility,libido,testosterone" style="--c:#ff6b9d" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-gnd2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-gnd2" data-form="recon" alt="Gonadorelin Acetate 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Gonadorelin Acetate</h3><span class="pcard__price">$25</span></div>
   <p class="pcard__meta">Hormonal &amp; Sexual Health · 2mg</p>
-</a><a class="pcard" href="peptides/dsip.html" data-cat="cognitive" data-name="dsip" style="--c:#b48cff" data-reveal>
+</a><a class="pcard" href="peptides/dsip.html" data-cat="cognitive" data-name="dsip" data-tags="sleep,stress,mood,pain,blood pressure" style="--c:#b48cff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ds2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ds2" data-form="recon" alt="DSIP 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>DSIP</h3><span class="pcard__price">from $20</span></div>
   <p class="pcard__meta">Cognitive &amp; Neuro Health · 3 sizes</p>
-</a><a class="pcard" href="peptides/triptorelin-acetategnrh-triptorelin.html" data-cat="hormonal" data-name="triptorelin acetate/gnrh triptorelin" style="--c:#ff6b9d" data-reveal>
+</a><a class="pcard" href="peptides/triptorelin-acetategnrh-triptorelin.html" data-cat="hormonal" data-name="triptorelin acetate/gnrh triptorelin" data-tags="hormone balance,fertility,prostate" style="--c:#ff6b9d" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-tri2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-tri2" data-form="recon" alt="Triptorelin Acetate/GnRH Triptorelin 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Triptorelin Acetate/GnRH Triptorelin</h3><span class="pcard__price">$25</span></div>
   <p class="pcard__meta">Hormonal &amp; Sexual Health · 2mg</p>
-</a><a class="pcard" href="peptides/selank.html" data-cat="cognitive" data-name="selank" style="--c:#b48cff" data-reveal>
+</a><a class="pcard" href="peptides/selank.html" data-cat="cognitive" data-name="selank" data-tags="cognitive,focus,anxiety,mood,stress,immune" style="--c:#b48cff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-sk5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-sk5" data-form="recon" alt="Selank 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Selank</h3><span class="pcard__price">from $42</span></div>
   <p class="pcard__meta">Cognitive &amp; Neuro Health · 2 sizes</p>
-</a><a class="pcard" href="peptides/oxytocin-acetate.html" data-cat="cognitive" data-name="oxytocin acetate" style="--c:#b48cff" data-reveal>
+</a><a class="pcard" href="peptides/oxytocin-acetate.html" data-cat="cognitive" data-name="oxytocin acetate" data-tags="mood,stress,libido,bone health,blood pressure" style="--c:#b48cff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ot2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ot2" data-form="recon" alt="Oxytocin Acetate 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Oxytocin Acetate</h3><span class="pcard__price">from $23</span></div>
   <p class="pcard__meta">Cognitive &amp; Neuro Health · 3 sizes</p>
-</a><a class="pcard" href="peptides/epithalon.html" data-cat="longevity" data-name="epithalon" style="--c:#ffd166" data-reveal>
+</a><a class="pcard" href="peptides/epithalon.html" data-cat="longevity" data-name="epithalon" data-tags="longevity,sleep,anti-aging,cellular health,immune,vision" style="--c:#ffd166" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-et10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-et10" data-form="recon" alt="Epithalon 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Epithalon</h3><span class="pcard__price">from $32</span></div>
   <p class="pcard__meta">Longevity &amp; Anti-Aging · 2 sizes</p>
-</a><a class="pcard" href="peptides/bpc-157.html" data-cat="recovery" data-name="bpc 157" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/bpc-157.html" data-cat="recovery" data-name="bpc 157" data-tags="recovery,gut health,digestion,joint health,wound healing,inflammation,liver,blood flow,bone health" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-bc5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-bc5" data-form="recon" alt="BPC 157 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>BPC 157</h3><span class="pcard__price">from $30</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 2 sizes</p>
-</a><a class="pcard" href="peptides/bpc-5mg-tb-5mg.html" data-cat="recovery" data-name="bpc 5mg + tb 5mg" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/bpc-5mg-tb-5mg.html" data-cat="recovery" data-name="bpc 5mg + tb 5mg" data-tags="recovery,joint health,wound healing,muscle growth,digestion,bone health" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-bb10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-bb10" data-form="recon" alt="BPC 5mg + TB 5mg 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>BPC 5mg + TB 5mg</h3><span class="pcard__price">$90</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 10mg</p>
-</a><a class="pcard" href="peptides/bpc-10mg-tb-10mg.html" data-cat="recovery" data-name="bpc 10mg + tb 10mg" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/bpc-10mg-tb-10mg.html" data-cat="recovery" data-name="bpc 10mg + tb 10mg" data-tags="recovery,joint health,wound healing,muscle growth,digestion,bone health" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-bb20-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-bb20" data-form="recon" alt="BPC 10mg + TB 10mg 20mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>BPC 10mg + TB 10mg</h3><span class="pcard__price">$170</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 20mg</p>
-</a><a class="pcard" href="peptides/tb500thymosin-b4-acetate.html" data-cat="recovery" data-name="tb500(thymosin b4 acetate)" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/tb500thymosin-b4-acetate.html" data-cat="recovery" data-name="tb500(thymosin b4 acetate)" data-tags="recovery,wound healing,joint health,muscle growth,flexibility" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-bt2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-bt2" data-form="recon" alt="TB500(Thymosin B4 Acetate) 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>TB500(Thymosin B4 Acetate)</h3><span class="pcard__price">from $38</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 3 sizes</p>
-</a><a class="pcard" href="peptides/ace-031.html" data-cat="specialty" data-name="ace-031" style="--c:#9aa5b1" data-reveal>
+</a><a class="pcard" href="peptides/ace-031.html" data-cat="specialty" data-name="ace-031" data-tags="muscle growth,strength" style="--c:#9aa5b1" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ae1-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ae1" data-form="recon" alt="ACE-031 1mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>ACE-031</h3><span class="pcard__price">$180</span></div>
   <p class="pcard__meta">Specialty Research · 1mg</p>
-</a><a class="pcard" href="peptides/aicar.html" data-cat="metabolic" data-name="aicar" style="--c:#33e6b0" data-reveal>
+</a><a class="pcard" href="peptides/aicar.html" data-cat="metabolic" data-name="aicar" data-tags="fat loss,endurance,metabolism,energy,heart" style="--c:#33e6b0" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ar50-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ar50" data-form="recon" alt="AICAR 50mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>AICAR</h3><span class="pcard__price">$55</span></div>
   <p class="pcard__meta">Metabolic Research · 50mg</p>
-</a><a class="pcard" href="peptides/adipotide.html" data-cat="specialty" data-name="adipotide" style="--c:#9aa5b1" data-reveal>
+</a><a class="pcard" href="peptides/adipotide.html" data-cat="specialty" data-name="adipotide" data-tags="fat loss,weight loss" style="--c:#9aa5b1" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ap2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ap2" data-form="recon" alt="Adipotide 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Adipotide</h3><span class="pcard__price">from $95</span></div>
   <p class="pcard__meta">Specialty Research · 2 sizes</p>
-</a><a class="pcard" href="peptides/semax.html" data-cat="cognitive" data-name="semax" style="--c:#b48cff" data-reveal>
+</a><a class="pcard" href="peptides/semax.html" data-cat="cognitive" data-name="semax" data-tags="cognitive,focus,memory,mood,brain health" style="--c:#b48cff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-xa5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-xa5" data-form="recon" alt="Semax 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Semax</h3><span class="pcard__price">from $45</span></div>
   <p class="pcard__meta">Cognitive &amp; Neuro Health · 2 sizes</p>
-</a><a class="pcard" href="peptides/glp1-s.html" data-cat="metabolic" data-name="glp1-s" style="--c:#33e6b0" data-reveal>
+</a><a class="pcard" href="peptides/glp1-s.html" data-cat="metabolic" data-name="glp1-s" data-tags="weight loss,fat loss,blood sugar,appetite,metabolism,liver,cardiovascular,blood pressure" style="--c:#33e6b0" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-sm2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-sm2" data-form="recon" alt="GLP1-S 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>GLP1-S</h3><span class="pcard__price">from $30</span></div>
   <p class="pcard__meta">Metabolic Research · 6 sizes</p>
-</a><a class="pcard" href="peptides/ss-31.html" data-cat="longevity" data-name="ss-31" style="--c:#ffd166" data-reveal>
+</a><a class="pcard" href="peptides/ss-31.html" data-cat="longevity" data-name="ss-31" data-tags="longevity,energy,cardiovascular,heart,kidney,cellular health" style="--c:#ffd166" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-2s10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-2s10" data-form="recon" alt="SS-31 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>SS-31</h3><span class="pcard__price">from $85</span></div>
   <p class="pcard__meta">Longevity &amp; Anti-Aging · 2 sizes</p>
-</a><a class="pcard" href="peptides/ghrp-2-acetate.html" data-cat="growth" data-name="ghrp-2 acetate" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/ghrp-2-acetate.html" data-cat="growth" data-name="ghrp-2 acetate" data-tags="muscle growth,growth hormone,recovery,appetite,sleep,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-g25-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-g25" data-form="recon" alt="GHRP-2 Acetate 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>GHRP-2 Acetate</h3><span class="pcard__price">from $23</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 3 sizes</p>
-</a><a class="pcard" href="peptides/ghrp-6-acetate.html" data-cat="growth" data-name="ghrp-6 acetate" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/ghrp-6-acetate.html" data-cat="growth" data-name="ghrp-6 acetate" data-tags="muscle growth,growth hormone,recovery,appetite,sleep,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-g65-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-g65" data-form="recon" alt="GHRP-6 Acetate 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>GHRP-6 Acetate</h3><span class="pcard__price">from $23</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 2 sizes</p>
-</a><a class="pcard" href="peptides/cjc-1295-whitout-dac.html" data-cat="growth" data-name="cjc-1295 whitout dac" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/cjc-1295-whitout-dac.html" data-cat="growth" data-name="cjc-1295 whitout dac" data-tags="muscle growth,growth hormone,recovery,sleep,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-cnd2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-cnd2" data-form="recon" alt="CJC-1295 Whitout DAC 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>CJC-1295 Whitout DAC</h3><span class="pcard__price">from $35</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 3 sizes</p>
-</a><a class="pcard" href="peptides/hgh-191aasomatropin.html" data-cat="growth" data-name="hgh 191aa(somatropin)" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/hgh-191aasomatropin.html" data-cat="growth" data-name="hgh 191aa(somatropin)" data-tags="muscle growth,growth hormone,recovery,fat loss,anti-aging,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-h10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-h10" data-form="recon" alt="HGH 191AA(Somatropin) 10iu research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>HGH 191AA(Somatropin)</h3><span class="pcard__price">from $50</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 3 sizes</p>
-</a><a class="pcard" href="peptides/cjc-1295-without-dac-5mg-ipa-5mg.html" data-cat="growth" data-name="cjc-1295 without dac 5mg + ipa 5mg" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/cjc-1295-without-dac-5mg-ipa-5mg.html" data-cat="growth" data-name="cjc-1295 without dac 5mg + ipa 5mg" data-tags="muscle growth,growth hormone,recovery,sleep,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-cp10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-cp10" data-form="recon" alt="CJC-1295 without DAC 5mg + IPA 5mg 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>CJC-1295 without DAC 5mg + IPA 5mg</h3><span class="pcard__price">$95</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 10mg</p>
-</a><a class="pcard" href="peptides/cjc-1295-with-dac.html" data-cat="growth" data-name="cjc-1295 with dac" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/cjc-1295-with-dac.html" data-cat="growth" data-name="cjc-1295 with dac" data-tags="muscle growth,growth hormone,recovery,sleep,anti-aging,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-cd2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-cd2" data-form="recon" alt="CJC-1295 With DAC 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>CJC-1295 With DAC</h3><span class="pcard__price">from $80</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 3 sizes</p>
-</a><a class="pcard" href="peptides/sermorelin-acetate.html" data-cat="growth" data-name="sermorelin acetate" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/sermorelin-acetate.html" data-cat="growth" data-name="sermorelin acetate" data-tags="growth hormone,anti-aging,sleep,recovery,fat loss,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-smo2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-smo2" data-form="recon" alt="Sermorelin Acetate 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Sermorelin Acetate</h3><span class="pcard__price">from $30</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 3 sizes</p>
-</a><a class="pcard" href="peptides/aod9604.html" data-cat="metabolic" data-name="aod9604" style="--c:#33e6b0" data-reveal>
+</a><a class="pcard" href="peptides/aod9604.html" data-cat="metabolic" data-name="aod9604" data-tags="fat loss,weight loss,metabolism" style="--c:#33e6b0" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-2ad-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-2ad" data-form="recon" alt="AOD9604 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>AOD9604</h3><span class="pcard__price">from $45</span></div>
   <p class="pcard__meta">Metabolic Research · 3 sizes</p>
-</a><a class="pcard" href="peptides/gdf-8.html" data-cat="growth" data-name="gdf-8" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/gdf-8.html" data-cat="growth" data-name="gdf-8" data-tags="muscle growth,strength" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-f81-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-f81" data-form="recon" alt="GDF-8 1mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>GDF-8</h3><span class="pcard__price">$135</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 1mg</p>
-</a><a class="pcard" href="peptides/follistatin.html" data-cat="growth" data-name="follistatin" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/follistatin.html" data-cat="growth" data-name="follistatin" data-tags="muscle growth,strength,fat loss" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-fn1-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-fn1" data-form="recon" alt="Follistatin 1mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Follistatin</h3><span class="pcard__price">$135</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 1mg</p>
-</a><a class="pcard" href="peptides/igf-1lr3.html" data-cat="growth" data-name="igf-1lr3" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/igf-1lr3.html" data-cat="growth" data-name="igf-1lr3" data-tags="muscle growth,recovery,strength,brain health,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ig01-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ig01" data-form="recon" alt="IGF-1LR3 0.1mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>IGF-1LR3</h3><span class="pcard__price">from $35</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 2 sizes</p>
-</a><a class="pcard" href="peptides/igf-des.html" data-cat="growth" data-name="igf-des" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/igf-des.html" data-cat="growth" data-name="igf-des" data-tags="muscle growth,recovery,strength,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-igd-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-igd" data-form="recon" alt="IGF-DES 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>IGF-DES</h3><span class="pcard__price">$36</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 2mg</p>
-</a><a class="pcard" href="peptides/tesamorelin.html" data-cat="growth" data-name="tesamorelin" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/tesamorelin.html" data-cat="growth" data-name="tesamorelin" data-tags="fat loss,growth hormone,cognitive,muscle growth,liver,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-tsm2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-tsm2" data-form="recon" alt="Tesamorelin 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Tesamorelin</h3><span class="pcard__price">from $45</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 4 sizes</p>
-</a><a class="pcard" href="peptides/ipamorelin.html" data-cat="growth" data-name="ipamorelin" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/ipamorelin.html" data-cat="growth" data-name="ipamorelin" data-tags="growth hormone,muscle growth,recovery,sleep,anti-aging,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ip2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ip2" data-form="recon" alt="Ipamorelin 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Ipamorelin</h3><span class="pcard__price">from $20</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 3 sizes</p>
-</a><a class="pcard" href="peptides/hexarelin-acetate.html" data-cat="growth" data-name="hexarelin acetate" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/hexarelin-acetate.html" data-cat="growth" data-name="hexarelin acetate" data-tags="growth hormone,muscle growth,cardiovascular,heart,recovery,bone health" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-hx2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-hx2" data-form="recon" alt="Hexarelin Acetate 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Hexarelin Acetate</h3><span class="pcard__price">from $35</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 2 sizes</p>
-</a><a class="pcard" href="peptides/ghk-cu.html" data-cat="recovery" data-name="ghk-cu" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/ghk-cu.html" data-cat="recovery" data-name="ghk-cu" data-tags="skin,hair,nails,anti-aging,wound healing,collagen,liver,immune" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-cu50-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-cu50" data-form="recon" alt="GHK-CU 50mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>GHK-CU</h3><span class="pcard__price">from $25</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 2 sizes</p>
-</a><a class="pcard" href="peptides/kisspeptin-10.html" data-cat="cognitive" data-name="kisspeptin-10" style="--c:#b48cff" data-reveal>
+</a><a class="pcard" href="peptides/kisspeptin-10.html" data-cat="cognitive" data-name="kisspeptin-10" data-tags="libido,fertility,hormone balance" style="--c:#b48cff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ks5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ks5" data-form="recon" alt="KissPeptin-10 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>KissPeptin-10</h3><span class="pcard__price">from $52</span></div>
   <p class="pcard__meta">Cognitive &amp; Neuro Health · 2 sizes</p>
-</a><a class="pcard" href="peptides/thymalin.html" data-cat="longevity" data-name="thymalin" style="--c:#ffd166" data-reveal>
+</a><a class="pcard" href="peptides/thymalin.html" data-cat="longevity" data-name="thymalin" data-tags="immune,longevity,anti-aging" style="--c:#ffd166" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ty10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ty10" data-form="recon" alt="Thymalin 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Thymalin</h3><span class="pcard__price">$40</span></div>
   <p class="pcard__meta">Longevity &amp; Anti-Aging · 10mg</p>
-</a><a class="pcard" href="peptides/thymosin-alpha-1.html" data-cat="longevity" data-name="thymosin alpha-1" style="--c:#ffd166" data-reveal>
+</a><a class="pcard" href="peptides/thymosin-alpha-1.html" data-cat="longevity" data-name="thymosin alpha-1" data-tags="immune,longevity,recovery,liver" style="--c:#ffd166" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ta2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ta2" data-form="recon" alt="Thymosin Alpha-1 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Thymosin Alpha-1</h3><span class="pcard__price">from $25</span></div>
   <p class="pcard__meta">Longevity &amp; Anti-Aging · 3 sizes</p>
-</a><a class="pcard" href="peptides/mots-c.html" data-cat="longevity" data-name="mots-c" style="--c:#ffd166" data-reveal>
+</a><a class="pcard" href="peptides/mots-c.html" data-cat="longevity" data-name="mots-c" data-tags="metabolism,energy,longevity,fat loss,endurance,heart,insulin sensitivity,bone health" style="--c:#ffd166" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ms10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ms10" data-form="recon" alt="MOTS-c 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>MOTS-c</h3><span class="pcard__price">from $55</span></div>
   <p class="pcard__meta">Longevity &amp; Anti-Aging · 2 sizes</p>
-</a><a class="pcard" href="peptides/foxo4.html" data-cat="longevity" data-name="foxo4" style="--c:#ffd166" data-reveal>
+</a><a class="pcard" href="peptides/foxo4.html" data-cat="longevity" data-name="foxo4" data-tags="longevity,anti-aging,cellular health" style="--c:#ffd166" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-f410-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-f410" data-form="recon" alt="FOXO4 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>FOXO4</h3><span class="pcard__price">$280</span></div>
   <p class="pcard__meta">Longevity &amp; Anti-Aging · 10mg</p>
-</a><a class="pcard" href="peptides/ll37.html" data-cat="recovery" data-name="ll37" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/ll37.html" data-cat="recovery" data-name="ll37" data-tags="immune,wound healing,gut health,digestion,skin" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-375-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-375" data-form="recon" alt="LL37 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>LL37</h3><span class="pcard__price">$75</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 5mg</p>
-</a><a class="pcard" href="peptides/glutathione.html" data-cat="longevity" data-name="glutathione" style="--c:#ffd166" data-reveal>
+</a><a class="pcard" href="peptides/glutathione.html" data-cat="longevity" data-name="glutathione" data-tags="anti-aging,skin,immune,energy,liver,detox" style="--c:#ffd166" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-gtt-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-gtt" data-form="recon" alt="Glutathione 1500mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Glutathione</h3><span class="pcard__price">$70</span></div>
   <p class="pcard__meta">Longevity &amp; Anti-Aging · 1500mg</p>
-</a><a class="pcard" href="peptides/mgf.html" data-cat="growth" data-name="mgf" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/mgf.html" data-cat="growth" data-name="mgf" data-tags="muscle growth,recovery,strength" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-fm2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-fm2" data-form="recon" alt="MGF 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>MGF</h3><span class="pcard__price">$22</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 2mg</p>
-</a><a class="pcard" href="peptides/peg-mgf.html" data-cat="growth" data-name="peg mgf" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/peg-mgf.html" data-cat="growth" data-name="peg mgf" data-tags="muscle growth,recovery,strength" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-fmp2-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-fmp2" data-form="recon" alt="PEG MGF 2mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>PEG MGF</h3><span class="pcard__price">$50</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 2mg</p>
-</a><a class="pcard" href="peptides/5-amino-1mq.html" data-cat="metabolic" data-name="5-amino-1mq" style="--c:#33e6b0" data-reveal>
+</a><a class="pcard" href="peptides/5-amino-1mq.html" data-cat="metabolic" data-name="5-amino-1mq" data-tags="fat loss,weight loss,metabolism,anti-aging" style="--c:#33e6b0" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-5am-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-5am" data-form="recon" alt="5-amino-1mq 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>5-amino-1mq</h3><span class="pcard__price">from $50</span></div>
   <p class="pcard__meta">Metabolic Research · 2 sizes</p>
-</a><a class="pcard" href="peptides/cagrilintide.html" data-cat="metabolic" data-name="cagrilintide" style="--c:#33e6b0" data-reveal>
+</a><a class="pcard" href="peptides/cagrilintide.html" data-cat="metabolic" data-name="cagrilintide" data-tags="weight loss,fat loss,appetite,metabolism" style="--c:#33e6b0" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-cgl5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-cgl5" data-form="recon" alt="cagrilintide 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>cagrilintide</h3><span class="pcard__price">from $95</span></div>
   <p class="pcard__meta">Metabolic Research · 2 sizes</p>
-</a><a class="pcard" href="peptides/ara-290.html" data-cat="recovery" data-name="ara-290" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/ara-290.html" data-cat="recovery" data-name="ara-290" data-tags="recovery,nerve health,inflammation,mood,kidney" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ra10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ra10" data-form="recon" alt="Ara-290 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Ara-290</h3><span class="pcard__price">$65</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 10mg</p>
-</a><a class="pcard" href="peptides/snap-8.html" data-cat="recovery" data-name="snap-8" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/snap-8.html" data-cat="recovery" data-name="snap-8" data-tags="skin,anti-aging,wrinkles" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-np810-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-np810" data-form="recon" alt="snap-8 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>snap-8</h3><span class="pcard__price">$38</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 10mg</p>
-</a><a class="pcard" href="peptides/mazdutide.html" data-cat="metabolic" data-name="mazdutide" style="--c:#33e6b0" data-reveal>
+</a><a class="pcard" href="peptides/mazdutide.html" data-cat="metabolic" data-name="mazdutide" data-tags="weight loss,fat loss,blood sugar,metabolism,liver,heart,blood pressure" style="--c:#33e6b0" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-mdt5-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-mdt5" data-form="recon" alt="Mazdutide 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Mazdutide</h3><span class="pcard__price">from $90</span></div>
   <p class="pcard__meta">Metabolic Research · 2 sizes</p>
-</a><a class="pcard" href="peptides/nad.html" data-cat="longevity" data-name="nad" style="--c:#ffd166" data-reveal>
+</a><a class="pcard" href="peptides/nad.html" data-cat="longevity" data-name="nad" data-tags="energy,longevity,anti-aging,cellular health,cognitive,liver" style="--c:#ffd166" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-nad-100-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-nad-100" data-form="recon" alt="NAD 100mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>NAD</h3><span class="pcard__price">from $40</span></div>
   <p class="pcard__meta">Longevity &amp; Anti-Aging · 3 sizes</p>
-</a><a class="pcard" href="peptides/alprostadil.html" data-cat="hormonal" data-name="alprostadil" style="--c:#ff6b9d" data-reveal>
+</a><a class="pcard" href="peptides/alprostadil.html" data-cat="hormonal" data-name="alprostadil" data-tags="libido,sexual health,cardiovascular,blood flow,blood pressure" style="--c:#ff6b9d" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-pro20-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-pro20" data-form="recon" alt="Alprostadil 20mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Alprostadil</h3><span class="pcard__price">$95</span></div>
   <p class="pcard__meta">Hormonal &amp; Sexual Health · 20mg</p>
-</a><a class="pcard" href="peptides/bpc-157-10mgghk-cu-50mgtb500-10mg.html" data-cat="recovery" data-name="bpc 157 10mg+ghk-cu 50mg+tb500 10mg" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/bpc-157-10mgghk-cu-50mgtb500-10mg.html" data-cat="recovery" data-name="bpc 157 10mg+ghk-cu 50mg+tb500 10mg" data-tags="recovery,wound healing,skin,joint health,digestion,bone health" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-bbg70-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-bbg70" data-form="recon" alt="BPC 157 10mg+GHK-CU 50mg+TB500 10mg 70mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>BPC 157 10mg+GHK-CU 50mg+TB500 10mg</h3><span class="pcard__price">$165</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 70mg</p>
-</a><a class="pcard" href="peptides/bacwater.html" data-cat="supplies" data-name="bac.water" style="--c:#8f98a3" data-reveal>
+</a><a class="pcard" href="peptides/bacwater.html" data-cat="supplies" data-name="bac.water" data-tags="" style="--c:#8f98a3" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ba10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ba10" data-form="recon" alt="bac.water 10ml research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>bac.water</h3><span class="pcard__price">$12</span></div>
   <p class="pcard__meta">Supplies · 10ml</p>
-</a><a class="pcard" href="peptides/hcg.html" data-cat="growth" data-name="hcg" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/hcg.html" data-cat="growth" data-name="hcg" data-tags="hormone balance,fertility,libido,muscle growth,testosterone" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-g2k-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-g2k" data-form="recon" alt="HCG 2000iu research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>HCG</h3><span class="pcard__price">from $40</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 3 sizes</p>
-</a><a class="pcard" href="peptides/vip.html" data-cat="recovery" data-name="vip" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/vip.html" data-cat="recovery" data-name="vip" data-tags="immune,gut health,digestion,inflammation,cognitive,lungs,blood pressure" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-vip-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-vip" data-form="recon" alt="VIP 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>VIP</h3><span class="pcard__price">$70</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 10mg</p>
-</a><a class="pcard" href="peptides/slu-pp-332.html" data-cat="metabolic" data-name="slu-pp-332" style="--c:#33e6b0" data-reveal>
+</a><a class="pcard" href="peptides/slu-pp-332.html" data-cat="metabolic" data-name="slu-pp-332" data-tags="fat loss,energy,endurance,metabolism,heart" style="--c:#33e6b0" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-slu-pp-332-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-slu-pp-332" data-form="recon" alt="SLU-PP-332 5mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>SLU-PP-332</h3><span class="pcard__price">$65</span></div>
   <p class="pcard__meta">Metabolic Research · 5mg</p>
-</a><a class="pcard" href="peptides/cu50mgtb10mgbc10mgkpv10mg.html" data-cat="recovery" data-name="cu50mg+tb10mg+bc10mg+kpv10mg" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/cu50mgtb10mgbc10mgkpv10mg.html" data-cat="recovery" data-name="cu50mg+tb10mg+bc10mg+kpv10mg" data-tags="skin,recovery,gut health,digestion,anti-aging,wound healing" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-klow80-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-klow80" data-form="recon" alt="CU50mg+TB10mg+BC10mg+KPV10mg 80mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>CU50mg+TB10mg+BC10mg+KPV10mg</h3><span class="pcard__price">$200</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 80mg</p>
-</a><a class="pcard" href="peptides/lemon-bottle.html" data-cat="specialty" data-name="lemon bottle" style="--c:#9aa5b1" data-reveal>
+</a><a class="pcard" href="peptides/lemon-bottle.html" data-cat="specialty" data-name="lemon bottle" data-tags="fat loss,body contouring,skin" style="--c:#9aa5b1" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-lemon-bottle-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-lemon-bottle" data-form="recon" alt="Lemon Bottle 10ml research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Lemon Bottle</h3><span class="pcard__price">$55</span></div>
   <p class="pcard__meta">Specialty Research · 10ml</p>
-</a><a class="pcard" href="peptides/survodutide.html" data-cat="metabolic" data-name="survodutide" style="--c:#33e6b0" data-reveal>
+</a><a class="pcard" href="peptides/survodutide.html" data-cat="metabolic" data-name="survodutide" data-tags="weight loss,fat loss,blood sugar,metabolism,liver,heart,blood pressure" style="--c:#33e6b0" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-sur10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-sur10" data-form="recon" alt="Survodutide 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>Survodutide</h3><span class="pcard__price">$258</span></div>
   <p class="pcard__meta">Metabolic Research · 10mg</p>
-</a><a class="pcard" href="peptides/l-carnitine.html" data-cat="longevity" data-name="l-carnitine" style="--c:#ffd166" data-reveal>
+</a><a class="pcard" href="peptides/l-carnitine.html" data-cat="longevity" data-name="l-carnitine" data-tags="fat loss,energy,metabolism,endurance,heart,brain health,blood pressure" style="--c:#ffd166" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-lc600-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-lc600" data-form="recon" alt="L-carnitine 600mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>L-carnitine</h3><span class="pcard__price">from $55</span></div>
   <p class="pcard__meta">Longevity &amp; Anti-Aging · 2 sizes</p>
-</a><a class="pcard" href="peptides/b12.html" data-cat="specialty" data-name="b12" style="--c:#9aa5b1" data-reveal>
+</a><a class="pcard" href="peptides/b12.html" data-cat="specialty" data-name="b12" data-tags="energy,metabolism,cognitive,mood,nerve health,blood health" style="--c:#9aa5b1" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-b12-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-b12" data-form="recon" alt="B12 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>B12</h3><span class="pcard__price">$40</span></div>
   <p class="pcard__meta">Specialty Research · 10mg</p>
-</a><a class="pcard" href="peptides/hmg.html" data-cat="growth" data-name="hmg" style="--c:#6ea8ff" data-reveal>
+</a><a class="pcard" href="peptides/hmg.html" data-cat="growth" data-name="hmg" data-tags="fertility,hormone balance" style="--c:#6ea8ff" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-hm75-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-hm75" data-form="recon" alt="HMG 75iu research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>HMG</h3><span class="pcard__price">$60</span></div>
   <p class="pcard__meta">Growth &amp; GH Secretagogues · 75iu</p>
-</a><a class="pcard" href="peptides/humanin.html" data-cat="longevity" data-name="humanin" style="--c:#ffd166" data-reveal>
+</a><a class="pcard" href="peptides/humanin.html" data-cat="longevity" data-name="humanin" data-tags="longevity,anti-aging,cognitive,cellular health,heart,blood sugar" style="--c:#ffd166" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-hum10-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-hum10" data-form="recon" alt="HUMANIN 10mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>HUMANIN</h3><span class="pcard__price">$260</span></div>
   <p class="pcard__meta">Longevity &amp; Anti-Aging · 10mg</p>
-</a><a class="pcard" href="peptides/ahk-cu.html" data-cat="recovery" data-name="ahk-cu" style="--c:#ff9466" data-reveal>
+</a><a class="pcard" href="peptides/ahk-cu.html" data-cat="recovery" data-name="ahk-cu" data-tags="skin,hair,anti-aging,wound healing,collagen,liver,immune" style="--c:#ff9466" data-reveal>
   <div class="pcard__stage"><img src="../assets/img/vials/hlx-ahk-recon-s.webp" data-base="../assets/img/vials/" data-sku="hlx-ahk" data-form="recon" alt="AHK-Cu 100mg research vial" width="480" height="600" decoding="async" loading="lazy"></div>
   <div class="pcard__row"><h3>AHK-Cu</h3><span class="pcard__price">$60</span></div>
   <p class="pcard__meta">Healing &amp; Recovery · 100mg</p>
@@ -342,9 +344,9 @@
   </div>
 </footer>
 <div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
-<script src="assets/js/search-index.js?v=1790642601"></script>
-<script src="assets/js/v2.js?v=1790642601"></script>
+<script src="assets/js/search-index.js?v=1790648442"></script>
+<script src="assets/js/v2.js?v=1790648442"></script>
 
-<script src="assets/js/v2-chat.js?v=1790642601"></script>
+<script src="assets/js/v2-chat.js?v=1790648442"></script>
 </body>
 </html>
