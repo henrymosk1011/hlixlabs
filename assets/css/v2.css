@@ -764,23 +764,18 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
   /* top is a fixed offset from --nav-h, not a %, on purpose: percentages
      here resolve against the hero's height, which is partly vh-based —
      and mobile Chrome and Safari disagree on what vh means (each treats
-     the collapsing/expanding address bar differently), so the same % put
-     the vials at different actual pixel depths in each browser. One of
-     them cleared the nav; the other didn't. A calc() off --nav-h (a
-     plain px value) can't be affected by that, so both browsers match. */
+     the collapsing/expanding address bar differently), so the same %
+     (and, it turns out, the same max-height media query too — same
+     root cause) put the vials at different actual pixel depths in each
+     browser. A calc() off --nav-h (a plain px value) can't be affected
+     by that, so both browsers land in the same place. Deliberately not
+     shrinking these for short viewports anymore, even though that can
+     reintroduce a little hero-label overlap on old, tiny phones — a
+     max-height query here is exactly the kind of condition that reads
+     differently per-browser, which is what broke this the first time. */
   .hv--a.hv--photo { width: 62vw; right: auto; left: 19vw; top: calc(var(--nav-h) + 28px); }
   .hv--b.hv--photo { width: 42vw; right: auto; left: -10vw; top: calc(var(--nav-h) + 85px); }
   .hv--c.hv--photo { width: 40vw; right: -9vw; top: calc(var(--nav-h) + 91px); }
-}
-@media (max-width: 900px) and (max-height: 700px) {
-  /* Short phones (iPhone SE-class): the hero's own vial-safe zone shrinks
-     along with the viewport, so the full-size vials above no longer
-     leave room before the hero label text. Scale them down specifically
-     here rather than compromising the normal case for a rarer screen
-     size; top stays nav-h-based for the same cross-browser reason. */
-  .hv--a.hv--photo { width: 46vw; top: calc(var(--nav-h) + 31px); }
-  .hv--b.hv--photo { width: 32vw; top: calc(var(--nav-h) + 68px); }
-  .hv--c.hv--photo { width: 30vw; top: calc(var(--nav-h) + 71px); }
 }
 
 /* background-removed cutouts (true alpha) — no blend-mode/mask trick needed,
