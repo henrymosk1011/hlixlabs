@@ -562,7 +562,14 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .acc__b p { padding-bottom: 22px; color: var(--dim); max-width: 56ch; }
 .related { border-top: 1px solid var(--line); padding: clamp(60px, 10vh, 120px) 0 clamp(80px, 14vh, 160px); }
 .related .pgrid { padding-bottom: 0; }
-@media (max-width: 900px) { .pdp__grid { grid-template-columns: 1fr; } .pdp__media { position: static; max-width: 340px; margin: 0 auto; } }
+@media (max-width: 900px) {
+  .pdp__grid { grid-template-columns: 1fr; }
+  /* width:100% is load-bearing, not decorative: an auto margin on a grid
+     item disables the default stretch sizing, and .stage's only child is
+     position:absolute (so it contributes no intrinsic width) — without an
+     explicit width the item collapses to ~0 and the vial photo vanishes. */
+  .pdp__media { position: static; width: 100%; max-width: 340px; margin: 0 auto; }
+}
 
 /* ------------------------------------------------------------
    lightbox + search overlay
