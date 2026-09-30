@@ -41,6 +41,12 @@
    ============================================================ */
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; overflow-x: hidden; width: 100%; }
+/* iOS/Android auto-zoom on input focus only kicks in under 16px — this
+   overrides every field's own font-size on mobile so focusing one never
+   zooms the page, without touching how any of them look on desktop. */
+@media (max-width: 900px) {
+  input, textarea, select { font-size: 16px !important; }
+}
 body {
   margin: 0;
   background: var(--bg);
