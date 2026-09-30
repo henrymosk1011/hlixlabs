@@ -761,14 +761,24 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .hv--b.hv--photo { width: clamp(200px, 22vw, 370px); right: 29%; top: 21%; }
 .hv--c.hv--photo { width: clamp(190px, 21vw, 350px); right: -2%; top: 23%; }
 @media (max-width: 900px) {
-  /* Sized and positioned to clear two things at once: the fixed nav
-     (~72px, doesn't scale with viewport) at the top, and the hero label
-     text at the bottom. The hero's own vial-safe zone shrinks on short
-     phones (it's driven by vh), so the vials have to be small enough to
-     leave a real gap on both ends there too, not just on tall screens. */
-  .hv--a.hv--photo { width: 46vw; right: auto; left: 19vw; top: 12%; }
-  .hv--b.hv--photo { width: 32vw; right: auto; left: -10vw; top: 18%; }
-  .hv--c.hv--photo { width: 30vw; right: -9vw; top: 19%; }
+  /* Original size/spacing, just moved down enough to clear the fixed nav
+     (~72px, doesn't scale with viewport) — the vials used to sit almost
+     flush with the hero's top edge, which was fine back when a mask
+     faded out each bottle's cap, but is a real overlap now that the
+     background-removed cutouts render the full bottle. */
+  .hv--a.hv--photo { width: 62vw; right: auto; left: 19vw; top: 11%; }
+  .hv--b.hv--photo { width: 42vw; right: auto; left: -10vw; top: 18%; }
+  .hv--c.hv--photo { width: 40vw; right: -9vw; top: 19%; }
+}
+@media (max-width: 900px) and (max-height: 700px) {
+  /* Short phones (iPhone SE-class): the hero's own vial-safe zone is
+     vh-driven and shrinks along with the viewport, so the full-size
+     vials above no longer leave room before the hero label text. Scale
+     them down specifically here rather than compromising the normal
+     case above for a comparatively rare screen size. */
+  .hv--a.hv--photo { width: 46vw; top: 12%; }
+  .hv--b.hv--photo { width: 32vw; top: 18%; }
+  .hv--c.hv--photo { width: 30vw; top: 19%; }
 }
 
 /* background-removed cutouts (true alpha) — no blend-mode/mask trick needed,
