@@ -761,9 +761,14 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .hv--b.hv--photo { width: clamp(200px, 22vw, 370px); right: 29%; top: 21%; }
 .hv--c.hv--photo { width: clamp(190px, 21vw, 350px); right: -2%; top: 23%; }
 @media (max-width: 900px) {
-  .hv--a.hv--photo { width: 62vw; right: auto; left: 19vw; top: 1%; }
-  .hv--b.hv--photo { width: 42vw; right: auto; left: -10vw; top: 10%; }
-  .hv--c.hv--photo { width: 40vw; right: -9vw; top: 11%; }
+  /* Sized and positioned to clear two things at once: the fixed nav
+     (~72px, doesn't scale with viewport) at the top, and the hero label
+     text at the bottom. The hero's own vial-safe zone shrinks on short
+     phones (it's driven by vh), so the vials have to be small enough to
+     leave a real gap on both ends there too, not just on tall screens. */
+  .hv--a.hv--photo { width: 46vw; right: auto; left: 19vw; top: 12%; }
+  .hv--b.hv--photo { width: 32vw; right: auto; left: -10vw; top: 18%; }
+  .hv--c.hv--photo { width: 30vw; right: -9vw; top: 19%; }
 }
 
 /* background-removed cutouts (true alpha) — no blend-mode/mask trick needed,
