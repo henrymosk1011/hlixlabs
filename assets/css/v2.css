@@ -138,7 +138,7 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 @keyframes wi-fallback { to { transform: none; } }
 @keyframes reveal-fallback { to { opacity: 1; transform: none; } }
 
-.w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.16em; margin-bottom: -0.16em; }
+.w { display: inline-block; overflow: hidden; vertical-align: top; padding-bottom: 0.16em; margin-bottom: -0.16em; padding-right: 0.08em; margin-right: -0.08em; }
 .wi { display: inline-block; }
 .js [data-split] .wi {
   transform: translate3d(0, 108%, 0);
