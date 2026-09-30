@@ -41,6 +41,30 @@
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
   function scroll() { log.scrollTop = log.scrollHeight; }
 
+  // Auto-link any peptide name the assistant mentions to its product page.
+  // Built once from window.HLIX_SEARCH_INDEX (already loaded site-wide for
+  // the nav search), so this has no server round-trip and can't go stale.
+  var linkPeptideNames = (function () {
+    var items = window.HLIX_SEARCH_INDEX || [];
+    if (!items.length) return null;
+    var base = (window.HLIX2 && window.HLIX2.base) || "";
+    var bySlug = {};
+    var names = [];
+    items.forEach(function (it) {
+      bySlug[it.name.toLowerCase()] = it.slug;
+      names.push(it.name);
+    });
+    names.sort(function (a, b) { return b.length - a.length; });
+    var pattern = names.map(function (n) { return n.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); }).join("|");
+    var re = new RegExp("(?<![a-z0-9])(" + pattern + ")(?![a-z0-9])", "gi");
+    return function (s) {
+      return s.replace(re, function (match) {
+        var slug = bySlug[match.toLowerCase()];
+        return slug ? '<a href="' + base + "peptides/" + slug + '.html">' + match + "</a>" : match;
+      });
+    };
+  })();
+
   // Small, safe markdown-lite renderer for assistant replies: escapes all
   // HTML first (the model's own text is untrusted), then recognizes a
   // narrow subset of markdown (bold, bullet/numbered lists, paragraphs,
@@ -50,6 +74,7 @@
     var lines = esc(raw).replace(/\r\n/g, "\n").split("\n");
     var html = "", i = 0;
     function inline(s) {
+      if (linkPeptideNames) s = linkPeptideNames(s);
       return s
         .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
         .replace(/(^|[\s(])\*(?!\s)(.+?)(?!\s)\*(?=[\s).,!?]|$)/g, "$1<em>$2</em>")

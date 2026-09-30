@@ -720,6 +720,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .chat__m li:last-child { margin-bottom: 0; }
 .chat__m strong { font-weight: 700; color: var(--fg); }
 .chat__m code { font: 500 0.9em var(--f-mono); background: var(--line); padding: 1px 5px; border-radius: 4px; }
+.chat__m a { color: var(--accent); text-decoration: underline; text-underline-offset: 2px; }
 .chat__dots { display: inline-flex; gap: 4px; padding: 4px 0; }
 .chat__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--dim); animation: dot 1s ease-in-out infinite; }
 .chat__dots i:nth-child(2) { animation-delay: 0.15s; }
