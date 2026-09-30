@@ -273,7 +273,7 @@ html.no-motion::view-transition-group(*), html.no-motion::view-transition-old(*)
 .blob--b { width: 36vw; height: 36vw; right: -8vw; bottom: -10vw; background: #2a6bff; opacity: 0.16; animation: drift 22s ease-in-out -8s infinite alternate; }
 @keyframes drift { to { transform: translate(6vw, 5vw) scale(1.15); } }
 .hero__vials { position: absolute; inset: 0; z-index: -1; pointer-events: none; }
-.hv { position: absolute; will-change: transform; }
+.hv { position: absolute; }
 .hv__in {
   --k: 1;
   animation: float 7s ease-in-out infinite;
@@ -773,10 +773,11 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .nav__cart-count { position: absolute; top: -6px; right: -6px; min-width: 18px; height: 18px; padding: 0 4px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font: 700 10.5px var(--f-mono); display: grid; place-items: center; }
 .nav__cart-count[hidden] { display: none; }
 
-.cart { position: fixed; top: 0; right: 0; bottom: 0; z-index: 210; width: min(420px, 100vw); display: flex; flex-direction: column; border-left: 1px solid var(--line-2); background: rgba(var(--bg-2-rgb), 0.98); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: -40px 0 100px rgba(0, 0, 0, 0.5); transform: translateX(100%); transition: transform 0.45s var(--ease); }
-.cart-open .cart { transform: none; }
+.cart { position: fixed; top: 0; right: 0; bottom: 0; z-index: 210; width: min(420px, 100vw); display: flex; flex-direction: column; border-left: 1px solid var(--line-2); background: rgba(var(--bg-2-rgb), 0.98); -webkit-backdrop-filter: blur(20px); backdrop-filter: blur(20px); box-shadow: -40px 0 100px rgba(0, 0, 0, 0.5); transform: translateX(100%); opacity: 0; pointer-events: none; transition: transform 0.45s var(--ease), opacity 0.45s var(--ease); }
+.cart-open .cart { transform: none; opacity: 1; pointer-events: auto; }
 .cart__head { display: flex; justify-content: space-between; align-items: center; padding: 20px; border-bottom: 1px solid var(--line); }
 .cart__head h2 { font: 800 20px var(--f-display); letter-spacing: -0.03em; margin: 0; }
+.cart__head .x { position: static; width: 40px; height: 40px; }
 .cart__list { flex: 1; overflow-y: auto; padding: 8px 20px; display: flex; flex-direction: column; gap: 4px; }
 .cart__item { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--line); }
 .cart__item-info { display: flex; flex-direction: column; gap: 4px; }

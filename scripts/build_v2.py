@@ -91,9 +91,10 @@ def vial_media(v, uid, size, root, alt=None, eager=False, form="recon"):
         w, h = (480, 600) if size == "s" else (1280, 1600)
         alt = alt or f"{v['name']} {v['dose']} research vial"
         load = "" if eager else ' loading="lazy"'
+        decoding = "sync" if eager else "async"
         return (f'<img src="{root}assets/img/vials/{f}" data-base="{root}assets/img/vials/" '
                 f'data-sku="{sku}" data-form="{form}" alt="{esc(alt)}" '
-                f'width="{w}" height="{h}" decoding="async"{load}>')
+                f'width="{w}" height="{h}" decoding="{decoding}"{load}>')
     return render_vial(v, gradient_id_suffix=uid)
 
 
@@ -233,7 +234,7 @@ def page_home(groups):
         if cutout:
             alt = f"{g['default']['name']} {g['default']['dose']} research vial"
             svg = (f'<img src="../assets/img/vials/hero-cutout/{cutout.name}" alt="{esc(alt)}" '
-                   f'width="1280" height="1600" decoding="async">')
+                   f'width="1280" height="1600">')
             photo = " hv--photo hv--cut"
         else:
             svg = vial_media(g["default"], f"hero-{uid}", "l", "../", eager=True)

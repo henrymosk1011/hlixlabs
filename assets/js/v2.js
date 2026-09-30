@@ -695,4 +695,28 @@
         });
     });
   }
+
+  // ------------------------------------------------------------------
+  // hero vials: on some mobile browsers the absolutely-positioned,
+  // negative-z-index vial images decode without ever getting painted —
+  // a compositing race, not a load failure (the <img> reports
+  // complete/loaded, but nothing appears until something else forces a
+  // reflow). A plain display:none/restore toggle fixes it, but only once
+  // the compositor has actually settled in, which is later than "image
+  // loaded" — so this fires it a couple of times, a beat after load.
+  // ------------------------------------------------------------------
+  var heroVials = $(".hero__vials");
+  if (heroVials) {
+    var nudge = function () {
+      requestAnimationFrame(function () {
+        requestAnimationFrame(function () {
+          heroVials.style.display = "none";
+          void heroVials.offsetHeight;
+          heroVials.style.display = "";
+        });
+      });
+    };
+    setTimeout(nudge, 400);
+    window.addEventListener("load", function () { setTimeout(nudge, 100); });
+  }
 })();
