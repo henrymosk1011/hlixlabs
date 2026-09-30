@@ -546,9 +546,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .seg button { position: relative; z-index: 1; padding: 12px 18px; border-radius: 6px; color: var(--dim); font: 500 14px var(--f-mono); transition: color 0.35s; }
 .seg button:hover { color: var(--fg); }
 .seg button.is-active { color: var(--accent-ink); }
-.seg__thumb { position: absolute; z-index: 0; top: 0; left: 0; height: 0; width: var(--w, 0); transform: translate(var(--x, 0), var(--y, 0)); height: var(--h, 0); border-radius: 6px; background: var(--accent); transition: transform 0.55s var(--ease), width 0.55s var(--ease), height 0.55s var(--ease), background-color 0.35s; }
-.seg.is-powder .seg__thumb { background: #fff; }
-.seg.is-powder button.is-active { color: #0a0a0a; }
+.seg__thumb { position: absolute; z-index: 0; top: 0; left: 0; height: 0; width: var(--w, 0); transform: translate(var(--x, 0), var(--y, 0)); height: var(--h, 0); border-radius: 6px; background: var(--accent); transition: transform 0.55s var(--ease), width 0.55s var(--ease), height 0.55s var(--ease); }
 .stock { display: flex; align-items: center; gap: 10px; margin: 26px 0 8px; color: var(--accent); font: 500 12px var(--f-mono); letter-spacing: 0.08em; }
 .stock::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); }
 .specs { margin: 32px 0; border-top: 1px solid var(--line); }

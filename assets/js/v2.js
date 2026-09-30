@@ -444,9 +444,7 @@
       seg.style.setProperty("--h", b.offsetHeight + "px");
     }
     function active() { return btns.filter(function (b) { return b.classList.contains("is-active"); })[0] || btns[0]; }
-    function tone(b) { if (isForm) seg.classList.toggle("is-powder", b.getAttribute("data-form") === "powder"); }
     place(active());
-    tone(active());
     window.addEventListener("resize", function () { place(active()); });
     if (d.fonts && d.fonts.ready) d.fonts.ready.then(function () { place(active()); });
     window.addEventListener("load", function () { place(active()); });
@@ -457,7 +455,6 @@
           btns.forEach(function (x) { x.classList.remove("is-active"); x.setAttribute("aria-checked", "false"); });
           b.classList.add("is-active"); b.setAttribute("aria-checked", "true");
           place(b);
-          tone(b);
           imgState.form = b.getAttribute("data-form");
           applyStageImage();
           applyPrice();
