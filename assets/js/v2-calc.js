@@ -183,4 +183,15 @@
     }, { rootMargin: "0px 0px -40% 0px" });
     io.observe(out);
   }
+
+  // ---- tidecalc.com redirects here with ?from=tidecalc: offer a way back to its original calculator ----
+  var kicker = document.querySelector(".phead .kicker");
+  if (kicker && /[?&]from=tidecalc(&|$)/.test(location.search)) {
+    var v1 = document.createElement("a");
+    v1.className = "v1-link";
+    v1.href = "https://tidecalc.com/v1/";
+    v1.textContent = "v1";
+    v1.setAttribute("aria-label", "open the original tidecalc calculator");
+    kicker.appendChild(v1);
+  }
 })();

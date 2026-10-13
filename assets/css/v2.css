@@ -682,6 +682,8 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .plan input { width: 84px; padding: 10px 12px; background: none; border: 1px solid var(--line-2); border-radius: var(--r); outline: 0; font: 500 14px var(--f-mono); }
 .plan input:focus { border-color: var(--accent); }
 .dock { display: none; }
+.v1-link { display: inline-block; margin-left: 14px; padding: 5px 10px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--dim); font: 500 11px/1 var(--f-mono); letter-spacing: 0.08em; vertical-align: 1px; transition: color 0.3s, border-color 0.3s; }
+.v1-link:hover { color: var(--accent); border-color: var(--accent); }
 @media (max-width: 900px) {
   .calc { grid-template-columns: 1fr; }
   .calc__out { position: static; }
