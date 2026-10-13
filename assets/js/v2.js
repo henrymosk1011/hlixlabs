@@ -642,7 +642,8 @@
   // ------------------------------------------------------------------
   function currentTheme() {
     var h = document.documentElement;
-    return h.getAttribute("data-theme") || (window.matchMedia && matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark");
+    // no saved choice -> dark, regardless of the OS setting
+    return h.getAttribute("data-theme") || "dark";
   }
   $$("[data-theme-toggle]").forEach(function (b) {
     b.setAttribute("aria-label", currentTheme() === "light" ? "switch to dark theme" : "switch to light theme");
