@@ -134,8 +134,11 @@
       var skuOut = $("[data-sku-out]");
       var doseOut = $("[data-dose-out]");
       var qty = Math.max(1, parseInt(qtyInput.value, 10) || 1);
+      var sku = skuOut ? skuOut.textContent.trim() : addBtn.getAttribute("data-slug");
+      var live = window.HLIXPrices ? window.HLIXPrices.unit(sku, form) : null;
+      if (live !== null) unitPrice = live;
       addItem({
-        sku: skuOut ? skuOut.textContent.trim() : addBtn.getAttribute("data-slug"),
+        sku: sku,
         name: addBtn.getAttribute("data-name"),
         category: addBtn.getAttribute("data-category"),
         slug: addBtn.getAttribute("data-slug"),
@@ -149,6 +152,16 @@
       qtyInput.value = 1;
     });
   }
+
+  // live prices (v2-prices.js): bring lines added at an older price up to date
+  d.addEventListener("hlix:prices", function () {
+    var cart = getCart(), changed = false;
+    cart.forEach(function (it) {
+      var unit = window.HLIXPrices.unit(it.sku, it.form);
+      if (unit !== null && unit !== it.unitPrice) { it.unitPrice = unit; changed = true; }
+    });
+    if (changed) saveCart(cart);
+  });
 
   renderBadge(getCart());
   renderDrawer(getCart());

@@ -965,6 +965,7 @@ def render_search_index(groups):
         "category": g["category_label"],
         "priceFrom": math.ceil(g["min_price"] - 1e-9),
         "multi": len(g["variants"]) > 1,
+        "skus": [v["sku"] for v in g["variants"]],
         "tags": g["tags"],
     } for g in groups]
     js = "window.HLIX_SEARCH_INDEX = " + json.dumps(entries) + ";"

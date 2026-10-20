@@ -193,6 +193,7 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 {footer(p, groups)}
 <div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close">{CLOSE}</button><div class="lb__in"></div></div>
 <script src="{p}assets/js/search-index.js?v={VER}"></script>
+<script src="{p}assets/js/v2-prices.js?v={VER}"></script>
 <script src="{p}assets/js/v2.js?v={VER}"></script>
 <script src="{p}assets/js/v2-cart.js?v={VER}"></script>
 {js}
@@ -202,6 +203,12 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 
 
 # ---------------------------------------------------------------- cards ---
+
+def live_price_attrs(g):
+    """Marks a "from $X" / "$X" price so assets/js/v2-prices.js can swap in the live (admin) price."""
+    skus = ",".join(v["sku"] for v in g["variants"])
+    return f' data-live-price="{esc(skus)}"' + (" data-live-from" if len(g["variants"]) > 1 else "")
+
 
 def card(g, p, uid_prefix="c"):
     d = g["default"]
@@ -213,7 +220,7 @@ def card(g, p, uid_prefix="c"):
     tags_attr = esc(",".join(t.lower() for t in g["tags"]))
     return f'''<a class="pcard" href="{p}peptides/{g['slug']}.html" data-cat="{g['category']}" data-name="{esc(g['name'].lower())}" data-tags="{tags_attr}" style="--c:{color}" data-reveal>
   <div class="pcard__stage">{svg}</div>
-  <div class="pcard__row"><h3>{esc(g['name'])}</h3><span class="pcard__price">{price}</span></div>
+  <div class="pcard__row"><h3>{esc(g['name'])}</h3><span class="pcard__price"{live_price_attrs(g)}>{price}</span></div>
   <p class="pcard__meta">{esc(meta)}</p>
 </a>'''
 
@@ -252,7 +259,7 @@ def page_home(groups):
         color = CATEGORY_COLORS.get(g["category"], "#33e6b0")
         lcards += f'''<a class="lcard" href="peptides/{g['slug']}.html" style="--c:{color}">
       <div class="lcard__stage">{svg}</div>
-      <div class="lcard__meta"><span class="lcard__n">{i + 1:02d}</span><h3>{esc(g['name'])}</h3><span>{price}</span></div>
+      <div class="lcard__meta"><span class="lcard__n">{i + 1:02d}</span><h3>{esc(g['name'])}</h3><span{live_price_attrs(g)}>{price}</span></div>
     </a>'''
 
     words = ["metabolic", "recovery", "growth", "cognitive", "longevity", "hormonal"]
@@ -271,8 +278,8 @@ def page_home(groups):
 
     # sample conversation built from real catalog data so the mock never lies
     sample = by_name.get("DSIP") or next(g for g in groups if len(g["variants"]) > 2)
-    parts = [f"{v['dose']} ({money(v['price'])})" for v in sample["variants"]]
-    answer = f"{sample['name'].lower()} comes in {len(parts)} sizes: " + ", ".join(parts[:-1]) + f" and {parts[-1]}, priced per vial."
+    parts = [f'{esc(v["dose"])} (<span data-live-price="{esc(v["sku"])}">{money(v["price"])}</span>)' for v in sample["variants"]]
+    answer = f"{esc(sample['name'].lower())} comes in {len(parts)} sizes: " + ", ".join(parts[:-1]) + f" and {parts[-1]}, priced per vial."
     question = f"what sizes does {sample['name'].lower()} come in?"
 
     total = len(groups)
@@ -334,7 +341,7 @@ def page_home(groups):
     <div class="mock" data-typing data-reveal="scale">
       <div class="mock__bar">{SPARK} hlix ai</div>
       <div class="bub bub--u">{esc(question)}</div>
-      <div class="bub bub--a">{esc(answer)}</div>
+      <div class="bub bub--a">{answer}</div>
     </div>
   </div>
 </section>

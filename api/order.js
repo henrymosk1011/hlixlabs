@@ -9,6 +9,8 @@
 // "from" address — must be on a domain verified in Resend, otherwise leave
 // it on the resend.dev sandbox sender below).
 
+const { getPrices, unitPrice } = require("./_lib/prices");
+
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || "henrymm@gmail.com";
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "hlix <onboarding@resend.dev>";
 
@@ -80,13 +82,22 @@ module.exports = async (req, res) => {
       form: str(it && it.form, 20),
       sku: str(it && it.sku, MAX_LEN),
       qty: Math.max(1, Math.min(999, parseInt(it && it.qty, 10) || 0)),
-      unitPrice: Math.max(0, Number(it && it.unitPrice) || 0),
     }))
     .filter((it) => it.name && it.qty > 0);
   if (!items.length) {
     res.status(400).json({ error: "Your cart is empty." });
     return;
   }
+
+  // Price every line from the current catalog (the admin's prices), never
+  // from what the browser sent: a cart can be days old, and the request can
+  // be edited.
+  const { prices } = await getPrices();
+  if (items.some((it) => !prices.has(it.sku))) {
+    res.status(400).json({ error: "Something in your cart is no longer in the catalog. Remove it and try again." });
+    return;
+  }
+  for (const it of items) it.unitPrice = unitPrice(prices.get(it.sku), it.form);
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {

@@ -25,16 +25,21 @@
     return;
   }
 
-  list.innerHTML = cart.map(function (it) {
-    return (
-      '<div class="cart__item">' +
-        '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : "powder") + ' · qty ' + it.qty + '</span></div>' +
-        '<b class="cart__item-price">' + moneyStr(it.unitPrice * it.qty) + '</b>' +
-      '</div>'
-    );
-  }).join("");
-  if (subRow) subRow.hidden = false;
-  if (subEl) subEl.textContent = moneyStr(window.HLIXCart.subtotal());
+  function renderSummary() {
+    list.innerHTML = window.HLIXCart.get().map(function (it) {
+      return (
+        '<div class="cart__item">' +
+          '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : "powder") + ' · qty ' + it.qty + '</span></div>' +
+          '<b class="cart__item-price">' + moneyStr(it.unitPrice * it.qty) + '</b>' +
+        '</div>'
+      );
+    }).join("");
+    if (subRow) subRow.hidden = false;
+    if (subEl) subEl.textContent = moneyStr(window.HLIXCart.subtotal());
+  }
+  renderSummary();
+  // v2-cart.js re-prices the cart on this same event first (it listens earlier)
+  d.addEventListener("hlix:prices", renderSummary);
 
   var status = $("[data-checkout-status]");
   var submitBtn = $("[data-checkout-submit]");
@@ -64,7 +69,7 @@
     fetch("/api/order", {
       method: "POST",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ customer: customer, items: cart, subtotal: window.HLIXCart.subtotal() }),
+      body: JSON.stringify({ customer: customer, items: window.HLIXCart.get(), subtotal: window.HLIXCart.subtotal() }),
     })
       .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
       .then(function (res) {

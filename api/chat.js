@@ -7,6 +7,7 @@
 // deployment's project settings — never commit a real key to this repo.
 
 const catalog = require("../data/products.json");
+const { getPrices } = require("./_lib/prices");
 
 const MODEL = "claude-haiku-4-5-20251001";
 const MAX_HISTORY_MESSAGES = 12;
@@ -20,7 +21,9 @@ const hits = new Map();
 const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_WINDOW = 30;
 
-function buildCatalogSummary() {
+// Prices are the live ones from the admin (falling back to the built-in
+// ones), so the assistant quotes what the product pages show.
+function buildCatalogSummary(prices) {
   const groups = new Map();
   for (const p of catalog) {
     if (!groups.has(p.name)) {
@@ -28,7 +31,7 @@ function buildCatalogSummary() {
     }
     const g = groups.get(p.name);
     g.doses.push(p.dose);
-    g.prices.push(p.price);
+    g.prices.push(prices.get(p.sku) ?? p.price);
   }
   const lines = [];
   for (const g of groups.values()) {
@@ -40,9 +43,7 @@ function buildCatalogSummary() {
   return lines.join("\n");
 }
 
-const CATALOG_SUMMARY = buildCatalogSummary();
-
-const SYSTEM_PROMPT = `You are the hlix site assistant, embedded on hlixlabs.com, a research-peptide catalog for laboratory and research use.
+const systemPrompt = (catalogSummary) => `You are the hlix site assistant, embedded on hlixlabs.com, a research-peptide catalog for laboratory and research use.
 
 What you're for:
 - General, factual research-level background on peptides: what they are, what they're studied for, how they're typically categorized, and how they're commonly handled in research protocols (typical administration timing, storage, reconstitution conventions, stability, common research designs). Answer these directly and informatively, the way a knowledgeable research-chemical reference would. Educational tone, not promotional, not medical.
@@ -66,7 +67,7 @@ The line you're drawing is "general research information" vs. "individualized me
   - Never open with "Great question," "Sure," or similar throat-clearing, and never restate the question back before answering.
 
 Current catalog (name, category, available vial sizes, price per vial):
-${CATALOG_SUMMARY}`;
+${catalogSummary}`;
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {
@@ -108,6 +109,7 @@ module.exports = async (req, res) => {
   messages.push({ role: "user", content: message });
 
   try {
+    const { prices } = await getPrices();
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -118,7 +120,7 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         model: MODEL,
         max_tokens: 500,
-        system: SYSTEM_PROMPT,
+        system: systemPrompt(buildCatalogSummary(prices)),
         messages,
       }),
     });

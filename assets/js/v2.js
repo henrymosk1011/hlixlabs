@@ -488,6 +488,16 @@
     });
   });
 
+  // live prices (v2-prices.js): re-price whichever size is selected
+  d.addEventListener("hlix:prices", function () {
+    var skuOut = $("[data-sku-out]");
+    var p = skuOut && window.HLIXPrices.get(skuOut.textContent.trim());
+    if (!p || (p.powder === imgState.priceBase && p.recon === imgState.priceRecon)) return;
+    imgState.priceBase = p.powder;
+    imgState.priceRecon = p.recon;
+    applyPrice();
+  });
+
   // ------------------------------------------------------------------
   // accordion
   // ------------------------------------------------------------------
@@ -610,7 +620,7 @@
   $$("[data-typing]").forEach(function (box) {
     var bubs = $$(".bub", box);
     if (reduce || !("IntersectionObserver" in window)) return;
-    bubs.forEach(function (b) { b.setAttribute("data-full", b.textContent); b.textContent = ""; b.hidden = true; });
+    bubs.forEach(function (b) { b.hidden = true; });
     var started = false;
     var tio = new IntersectionObserver(function (entries) {
       if (!entries[0].isIntersecting || started) return;
@@ -618,7 +628,8 @@
       var i = 0;
       (function next() {
         if (i >= bubs.length) return;
-        var b = bubs[i++], text = b.getAttribute("data-full"), n = 0;
+        // read the text only now, so prices v2-prices.js updated meanwhile are current
+        var b = bubs[i++], text = b.textContent, n = 0;
         b.hidden = false; b.classList.add("is-typing");
         var speed = b.classList.contains("bub--u") ? 34 : 16;
         (function type() {

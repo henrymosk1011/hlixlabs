@@ -25,22 +25,25 @@ hlix/
 │   ├── css/style.css       v1's design system
 │   ├── css/v2.css          Main site's design system
 │   ├── js/main.js, product.js, calculator.js, search.js, chatbot.js   v1's JS
-│   ├── js/v2.js, v2-calc.js, v2-chat.js                                Main site's JS
+│   ├── js/v2.js, v2-calc.js, v2-chat.js, v2-prices.js                  Main site's JS
 │   ├── js/search-index.js  Shared search index, read by both sites
 │   └── img/vials/          Shared photoreal product images
 ├── data/
-│   ├── price_list_source.xlsx   Source of truth — replace this file to update prices
+│   ├── price_list_source.xlsx   Source of the product list (prices are set in the admin, see "Prices")
 │   ├── sku_codes.json            Maps each product to its supplier Cat. No. based SKU
 │   └── products.json            Generated from the xlsx — do not hand-edit
 ├── scripts/
 │   ├── parse_pricelist.py  xlsx -> data/products.json
+│   ├── pull_prices.py      admin's current prices -> data/products.json
 │   ├── build.py             products.json -> v1/* (also holds shared helpers build_v2.py imports)
 │   ├── build_v2.py          products.json -> the main site at the repo root
 │   ├── photo_labels.py     products.json -> assets/img/vials/*.webp
 │   └── vial_svg.py          Coded-SVG vial fallback for any variant with no photo
 └── api/
-    └── chat.js               Serverless function backing the chat widget
-                               (Vercel Node function — needs ANTHROPIC_API_KEY)
+    ├── chat.js               Serverless function backing the chat widget
+    │                          (Vercel Node function — needs ANTHROPIC_API_KEY)
+    ├── prices.js             Live prices from the admin, for the pages and cart
+    └── _lib/prices.js        Shared price lookup (prices.js, order.js, chat.js)
 ```
 
 ## The original design (`/v1/`)
@@ -66,6 +69,7 @@ and CSS/JS (`assets/css/style.css`, `assets/js/main.js` and friends).
 2. Regenerate both sites:
    ```bash
    python3 scripts/parse_pricelist.py
+   python3 scripts/pull_prices.py     # keep the admin's prices (see "Prices")
    python3 scripts/build_v2.py
    python3 scripts/build.py
    ```
@@ -79,7 +83,37 @@ Pricing rule baked into the parser: a pack listed as `10mg*10vials` at `$50`
 is shown on the site as **1 vial, 10mg, $50** — the full pack price against a
 single vial, per how you price things. That price is the Powder-form base
 price; the Reconstituted form is a flat 20% premium on top, computed by
-`recon_price()` in `scripts/build.py`.
+`recon_price()` in `scripts/build.py` (and `reconPrice()` in
+`api/_lib/prices.js` for live prices; keep the two in step).
+
+## Prices (live from the admin)
+
+Prices are set in the hlix admin: admin.hlixlabs.com → **Inventory**, click a
+product's price to change it. The site shows the new price within about a
+minute, with no rebuild and no deploy:
+
+- `api/prices.js` serves the current price of every SKU, read from the
+  admin's Supabase database through `public.storefront_prices()`, which
+  returns SKU + price and nothing else (the public key can't read any table).
+  Vercel's edge caches the answer for 15 seconds.
+- `assets/js/v2-prices.js` swaps those prices into every page: product pages
+  (every size, both forms), catalog and home cards, search, the cart and
+  checkout.
+- `api/order.js` prices each order line itself from the same source, so a
+  cart saved before a price change, or an edited request, can't change what
+  the order email says.
+- `api/chat.js` gives the assistant the same prices.
+
+The admin price is the Powder price; Reconstituted is +20% as above. A $0
+price in the admin is ignored (the site keeps its built-in price), and
+products that exist only in the admin never appear here.
+
+The prices baked into the pages (from `data/products.json`) are only the
+fallback: what shows for a split second before the live prices load, and what
+the site uses if the database can't be reached. To bake the admin's current
+prices in, run `python3 scripts/pull_prices.py`, then rebuild. The database
+URL and public key default to the hlix project; set `SUPABASE_URL` /
+`SUPABASE_PUBLISHABLE_KEY` in Vercel only if that ever changes.
 
 ## Photoreal bottles (both sites)
 
