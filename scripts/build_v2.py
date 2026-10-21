@@ -622,7 +622,7 @@ def page_calculator(groups):
   </div>
 </div>
 <div class="dock" data-dock aria-hidden="true">
-  <div class="dock__row"><span>draw to</span><span><b data-o="dock">10</b>units</span></div>
+  <div class="dock__row"><span>draw to</span><span class="dock__val"><b data-o="dock">10</b>units</span></div>
   <div class="syr syr--dock" data-syr>{syringe_svg("dock")}</div>
 </div>'''
     return shell(title="dosage calculator", desc="peptide reconstitution and dosage calculator.", page="calculator", body=body, groups=groups, scripts=("v2-calc.js",), body_class="calc-page")
