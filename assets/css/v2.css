@@ -677,6 +677,8 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
   .dock b { color: var(--accent); font: 800 26px/1 var(--f-display); letter-spacing: -0.05em; margin-right: 6px; }
   .syr--dock { max-width: 220px; margin: 0 auto; }
 }
+/* slimmer vial "custom" so it shares the 30/50/100 mg row on phones instead of wrapping to a third */
+@media (max-width: 640px) { [data-group="vial"] .opt[data-val="custom"] { padding-inline: 8px; font-size: 12px; } }
 
 /* ------------------------------------------------------------
    chat widget

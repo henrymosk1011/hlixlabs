@@ -560,7 +560,7 @@ def opts(group, values, unit, default, *, custom=True, unit_small=None):
 def page_calculator(groups):
     vial = opts("vial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
     water = opts("water", [0.5, 1, 2, 2.5, 3, 5, 10], "ml", 2)
-    dose = opts("dose", [0.1, 0.25, 0.5, 1, 2, 2.5, 5, 10], "mg", 0.25)
+    dose = opts("dose", [0.25, 0.5, 1, 2, 2.5, 3, 4, 5, 10], "mg", 0.25)
     freq_presets = [("1", "daily"), ("2", "every other day"), ("7", "weekly"), ("30", "monthly")]
     freq_btns = "".join(
         f'<button type="button" class="opt{" is-active" if v == "1" else ""}" data-val="{v}">{label}</button>'
