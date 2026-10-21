@@ -187,6 +187,11 @@ def footer(p, groups):
 </footer>'''
 
 
+FONTS = '''<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">'''
+
+
 def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class=""):
     p = "../" * depth          # site root (assets, pages, search index)
     js = "".join(f'<script src="{p}assets/js/{s}?v={VER}" defer></script>' for s in scripts)
@@ -198,9 +203,7 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 <meta name="theme-color" content="#050607">
 <title>{title} · hlix</title>
 <meta name="description" content="{esc(desc)}">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+{FONTS}
 <link rel="stylesheet" href="{p}assets/css/v2.css?v={VER}">
 <script>(function(){{var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");try{{var t=localStorage.getItem("hlix-theme");if(t==="light"||t==="dark")h.setAttribute("data-theme",t);}}catch(e){{}}window.HLIX2={{base:"{p}"}};}})();</script>
 </head>
@@ -576,34 +579,11 @@ def opts(group, values, unit, default, *, custom=True, unit_small=None):
     return out
 
 
-def page_calculator(groups):
-    vial = opts("vial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
-    water = opts("water", [0.5, 1, 2, 2.5, 3, 5, 10], "ml", 2)
-    dose = opts("dose", [0.25, 0.5, 1, 2, 2.5, 3, 4, 5, 10], "mg", 0.25)
-    freq_presets = [("1", "daily"), ("2", "every other day"), ("7", "weekly"), ("30", "monthly")]
-    freq_btns = "".join(
-        f'<button type="button" class="opt{" is-active" if v == "1" else ""}" data-val="{v}">{label}</button>'
-        for v, label in freq_presets
-    )
-    freq_units = "".join(
-        f'<button type="button" class="opt{" is-active" if u == "days" else ""}" data-val="{u}">{u}</button>'
-        for u in ["days", "weeks", "months"]
-    )
-    freq = f'''{freq_btns}<button type="button" class="opt" data-val="custom">custom</button>'''
-    freq_custom = f'''<div class="freq-custom" data-freq-custom hidden>
-        <span>every</span>
-        <input type="number" min="1" step="1" value="1" data-freq-n aria-label="interval amount">
-        <div class="opts" data-freq-unit>{freq_units}</div>
-      </div>'''
-    syr = opts("syringe", [0.3, 0.5, 1, 2], "ml", 1, custom=False, unit_small=lambda v: f"{int(v * 100)}u")
-    supply = "".join(
-        f'<button type="button" class="opt{" is-active" if u == "days" else ""}" data-val="{u}">{u}</button>' for u in ["days", "weeks", "months", "years"]
-    )
-    planu = "".join(
-        f'<button type="button" class="opt{" is-active" if u == "months" else ""}" data-val="{u}">{u}</button>' for u in ["weeks", "months", "years"]
-    )
-    # dose planner (v2-planner.js): vial tabs (each with its own name, size and schedule), a month calendar,
-    # and a day editor the JS slots under the tapped week
+def planner_section(embed=False):
+    """The dose planner (v2-planner.js): vial tabs (each with its own name, size and schedule), a month
+    calendar, and a day editor the JS slots under the tapped week. The calculator page shows it under the
+    calculator; planner-embed.html shows it on its own (embed=True: no heading, and the plan comes from the
+    page framing it), which is how the admin dashboard's Calendar page runs this exact planner."""
     pvial = opts("pvial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
     pdose = opts("pdose", [0.25, 0.5, 1, 2, 2.5, 5, 10], "mg", None) + '<button type="button" class="opt" data-val="0">none</button>'
     prep = "".join(
@@ -621,12 +601,13 @@ def page_calculator(groups):
         f'<p class="pl-t__v"><b data-pl-v>5</b><small>mg</small></p><p class="pl-t__u" data-pl-u>nothing used</p></div>'
         for k in ("day", "week", "month")
     )
-    planner = f'''<section class="planner" data-planner>
-    <div class="planner__head">
+    head = "" if embed else '''<div class="planner__head">
       <div><p class="kicker" data-reveal="fade">// dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
       <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. the calendar drains as the vial does, so you can see what's left on any day, week or month.</p>
     </div>
-    <fieldset class="step pl-vials" data-reveal>
+    '''
+    return f'''<section class="planner" data-planner{" data-embed" if embed else ""}>
+    {head}<fieldset class="step pl-vials" data-reveal>
       <legend><span class="step__t">your vials</span><b class="step__e" data-pl-echo>5 mg</b></legend>
       <div class="pl-tabs" data-pl-tabs></div>
       <div class="pl-set">
@@ -666,6 +647,35 @@ def page_calculator(groups):
       </aside>
     </div>
   </section>'''
+
+
+def page_calculator(groups):
+    vial = opts("vial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
+    water = opts("water", [0.5, 1, 2, 2.5, 3, 5, 10], "ml", 2)
+    dose = opts("dose", [0.25, 0.5, 1, 2, 2.5, 3, 4, 5, 10], "mg", 0.25)
+    freq_presets = [("1", "daily"), ("2", "every other day"), ("7", "weekly"), ("30", "monthly")]
+    freq_btns = "".join(
+        f'<button type="button" class="opt{" is-active" if v == "1" else ""}" data-val="{v}">{label}</button>'
+        for v, label in freq_presets
+    )
+    freq_units = "".join(
+        f'<button type="button" class="opt{" is-active" if u == "days" else ""}" data-val="{u}">{u}</button>'
+        for u in ["days", "weeks", "months"]
+    )
+    freq = f'''{freq_btns}<button type="button" class="opt" data-val="custom">custom</button>'''
+    freq_custom = f'''<div class="freq-custom" data-freq-custom hidden>
+        <span>every</span>
+        <input type="number" min="1" step="1" value="1" data-freq-n aria-label="interval amount">
+        <div class="opts" data-freq-unit>{freq_units}</div>
+      </div>'''
+    syr = opts("syringe", [0.3, 0.5, 1, 2], "ml", 1, custom=False, unit_small=lambda v: f"{int(v * 100)}u")
+    supply = "".join(
+        f'<button type="button" class="opt{" is-active" if u == "days" else ""}" data-val="{u}">{u}</button>' for u in ["days", "weeks", "months", "years"]
+    )
+    planu = "".join(
+        f'<button type="button" class="opt{" is-active" if u == "months" else ""}" data-val="{u}">{u}</button>' for u in ["weeks", "months", "years"]
+    )
+    planner = planner_section()
     body = f'''
 <section class="phead"><div class="wrap">
   <p class="kicker" data-reveal="fade">// dosage calculator</p>
@@ -710,6 +720,31 @@ def page_calculator(groups):
   <div class="syr syr--dock" data-syr>{syringe_svg("dock")}</div>
 </div>'''
     return shell(title="dosage calculator", desc="peptide reconstitution and dosage calculator.", page="calculator", body=body, groups=groups, scripts=("v2-calc.js", "v2-planner.js"), body_class="calc-page")
+
+
+def page_planner_embed():
+    """The dose planner alone, for the admin dashboard's Calendar page (admin.hlixlabs.com) to show in a
+    frame; vercel.json lets only the admin frame it. Always dark like the admin, with no nav, footer, cart or
+    chat. It keeps no plan of its own: the admin sends the plan in and saves every change (v2-planner.js)."""
+    return f'''<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="dark">
+<meta name="robots" content="noindex, nofollow">
+<title>dose planner · hlix</title>
+{FONTS}
+<link rel="stylesheet" href="assets/css/v2.css?v={VER}">
+<script>(function(){{var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");window.HLIX2={{base:""}};}})();</script>
+</head>
+<body class="planner-embed" data-page="planner">
+{planner_section(embed=True)}
+<script src="assets/js/search-index.js?v={VER}"></script>
+<script src="assets/js/v2.js?v={VER}"></script>
+<script src="assets/js/v2-planner.js?v={VER}" defer></script>
+</body>
+</html>'''
 
 
 # ---------------------------------------------------------------- checkout ---
@@ -782,6 +817,7 @@ def main():
     (OUT / "about.html").write_text(page_about(groups))
     (OUT / "contact.html").write_text(page_contact(groups))
     (OUT / "calculator.html").write_text(page_calculator(groups))
+    (OUT / "planner-embed.html").write_text(page_planner_embed())
     (OUT / "checkout.html").write_text(page_checkout())
     for g in groups:
         (OUT / "peptides" / f"{g['slug']}.html").write_text(page_product(g, groups))

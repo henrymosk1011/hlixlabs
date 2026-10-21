@@ -1,5 +1,6 @@
 // hlix v2 — dose planner: a month calendar that tracks what's left in each of up to six vials
-// (pure client-side; the plan is kept in this browser's localStorage)
+// (pure client-side; the plan is kept in this browser's localStorage, or, on planner-embed.html inside the
+// admin dashboard's Calendar page, by the admin; see "embedded" at the bottom)
 (function () {
   "use strict";
   var root = document.querySelector("[data-planner]");
@@ -8,6 +9,7 @@
   var H = window.HLIX2 || {};
   var tween = H.tween || function (a, b, d, u, done) { u(b); if (done) done(); };
   var calc = H.calc || {};
+  var embed = root.hasAttribute("data-embed");
   var STORE = "hlix-plan";
   var EPS = 1e-9;
   var MAX_REPEAT = 400; // safety cap on how many doses one repeat can lay down
@@ -118,22 +120,35 @@
     v.rule = { from: keys[s], dose: dose, every: every };
   }
 
-  try {
-    var saved = JSON.parse(localStorage.getItem(STORE) || "null");
-    if (saved && Array.isArray(saved.vials)) {
-      saved.vials.slice(0, MAX_VIALS).forEach(function (v) {
-        if (!v || !(+v.size > 0)) return;
-        var nv = addVialObj({ id: String(v.id || ""), name: String(v.name || "").slice(0, 28), size: +v.size, color: v.color, doses: cleanDoses(v.doses), rule: cleanRule(v.rule) });
-        if (!(saved.v >= 3) && !nv.rule) inferRule(nv);
-      });
-      state.active = saved.active;
-    } else if (saved && +saved.vial > 0) { // the very first format: one vial, { vial, doses }
-      inferRule(addVialObj({ name: "vial 1", size: +saved.vial, doses: cleanDoses(saved.doses) }));
-    }
-  } catch (e) {}
-  if (!state.vials.length) addVialObj({ name: "vial 1", size: calc.vial > 0 ? calc.vial : 5 });
-  if (!V()) state.active = state.vials[0].id;
-  function save() { try { localStorage.setItem(STORE, JSON.stringify({ v: 3, active: state.active, vials: state.vials })); } catch (e) {} }
+  // a saved plan (any format this planner ever wrote) -> state
+  function load(saved) {
+    state.vials = [];
+    state.active = null;
+    try {
+      if (saved && Array.isArray(saved.vials)) {
+        saved.vials.slice(0, MAX_VIALS).forEach(function (v) {
+          if (!v || !(+v.size > 0)) return;
+          var nv = addVialObj({ id: String(v.id || ""), name: String(v.name || "").slice(0, 28), size: +v.size, color: v.color, doses: cleanDoses(v.doses), rule: cleanRule(v.rule) });
+          if (!(saved.v >= 3) && !nv.rule) inferRule(nv);
+        });
+        state.active = saved.active;
+      } else if (saved && +saved.vial > 0) { // the very first format: one vial, { vial, doses }
+        inferRule(addVialObj({ name: "vial 1", size: +saved.vial, doses: cleanDoses(saved.doses) }));
+      }
+    } catch (e) {}
+    if (!state.vials.length) addVialObj({ name: "vial 1", size: calc.vial > 0 ? calc.vial : 5 });
+    if (!V()) state.active = state.vials[0].id;
+  }
+  function save() {
+    var plan = { v: 3, active: state.active, vials: state.vials };
+    if (embed) { tell("save", { plan: plan }); return; }
+    try { localStorage.setItem(STORE, JSON.stringify(plan)); } catch (e) {}
+  }
+  if (!embed) {
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) {}
+    load(saved);
+  }
 
   var view = new Date(today.getFullYear(), today.getMonth(), 1); // month on screen
   var focus = todayKey;  // the day the "left in vial" panel describes
@@ -697,8 +712,48 @@
     syncEditor(); // water may have changed the editor's "draw N units"
   });
 
-  build(0);
-  syncVial();
-  paint();
-  summarize();
+  function start() {
+    build(0);
+    syncVial();
+    paint();
+    summarize();
+  }
+  if (!embed) { start(); return; }
+
+  // ---- embedded (planner-embed.html, framed by the admin dashboard's Calendar page) ----
+  // the admin holds the plan: it sends it in ("load", and again whenever it's saved on another device) and
+  // saves every change this sends back ("save"). nothing is read from or kept in this browser. the page's
+  // height goes up too, so the admin can size the frame to fit. only the admin may frame this page
+  // (vercel.json), and replies only ever go to the window that sent the plan, at its origin.
+  if (window.parent === window) { location.replace("calculator.html"); return; }
+  var host = null, started = false;
+  function tell(type, data) {
+    if (!host) return;
+    var m = data || {};
+    m.type = "hlix-plan:" + type;
+    window.parent.postMessage(m, host);
+  }
+  function sendHeight() { tell("height", { h: Math.ceil(document.body.getBoundingClientRect().height) }); }
+  window.addEventListener("message", function (e) {
+    var m = e.data;
+    if (e.source !== window.parent || !m || m.type !== "hlix-plan:load") return;
+    host = e.origin;
+    load(m.plan);
+    if (!started) {
+      started = true;
+      start();
+    } else { // saved on another device: show it as is
+      closeEditor();
+      disarm();
+      disarmRemove();
+      vialCustom = false;
+      shown = {};
+      syncVial();
+      paint();
+      summarize();
+    }
+    sendHeight();
+  });
+  if ("ResizeObserver" in window) new ResizeObserver(sendHeight).observe(document.body);
+  window.parent.postMessage({ type: "hlix-plan:ready" }, "*"); // carries nothing; the plan comes back from the admin
 })();

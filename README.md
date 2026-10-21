@@ -19,6 +19,7 @@ hlix/
 ├── about.html
 ├── contact.html
 ├── calculator.html        Reconstitution & dosage calculator
+├── planner-embed.html     The calculator's dose planner on its own, for the admin (see below)
 ├── peptides/               One generated page per catalog entry
 ├── v1/                     The original design, kept for reference (see below)
 ├── assets/
@@ -45,6 +46,26 @@ hlix/
     ├── prices.js             Live prices from the admin, for the pages and cart
     └── _lib/prices.js        Shared price lookup (prices.js, order.js, chat.js)
 ```
+
+## Dose planner in the admin (`planner-embed.html`)
+
+The admin dashboard's **Calendar** page (admin.hlixlabs.com) is this site's dose
+planner: it shows `planner-embed.html` in a frame. That page is the planner on
+its own (no nav, footer, cart or chat, always dark), generated from the same
+`planner_section()` in `scripts/build_v2.py` as the calculator page and run by
+the same `assets/js/v2-planner.js` and `assets/css/v2.css`. So there's only one
+planner: change it here, rebuild and deploy, and the calculator page and the
+admin's Calendar both get the change. The admin repo has no copy to update.
+
+Only the plan is different. On the calculator page it lives in the visitor's
+browser (localStorage). On `planner-embed.html` the planner reads and keeps
+nothing in the browser: the admin sends the plan in and saves every change the
+planner sends back (`postMessage`; see "embedded" at the bottom of
+`v2-planner.js`), so your admin plan and site visitors' plans never mix.
+
+`vercel.json` keeps every page unframeable except `planner-embed.html`, which
+only admin.hlixlabs.com (and the admin's local demo on `localhost:5175`) may
+frame. Opened directly, it just forwards to the calculator.
 
 ## The original design (`/v1/`)
 
@@ -75,9 +96,10 @@ and CSS/JS (`assets/css/style.css`, `assets/js/main.js` and friends).
    ```
 3. `index.html`, `catalog.html` and everything under `peptides/` at the repo
    root (the main site), plus the equivalents under `v1/`, all get rewritten.
-   Nothing else touches your hand-written pages (about/contact/calculator
-   are also regenerated, so edit their copy inside `scripts/build_v2.py` or
-   `scripts/build.py`, not the generated `.html` files directly).
+   Nothing else touches your hand-written pages (about/contact/calculator/
+   planner-embed are also regenerated, so edit their copy inside
+   `scripts/build_v2.py` or `scripts/build.py`, not the generated `.html` files
+   directly).
 
 Pricing rule baked into the parser: a pack listed as `10mg*10vials` at `$50`
 is shown on the site as **1 vial, 10mg, $50** — the full pack price against a

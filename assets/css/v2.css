@@ -896,6 +896,13 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
   .pl-rows dd { font-size: 13px; }
 }
 
+/* the planner alone (planner-embed.html), framed by the admin's Calendar page: the frame is sized to
+   fit and the admin's background shows through, so no page spacing, grain or minimum height. the few
+   px of padding keep hover lifts and swatch rings from being clipped at the frame's edge */
+.planner-embed { min-height: 0; background: transparent; }
+.planner-embed::after { content: none; }
+.planner-embed .planner { margin: 0; padding: 4px; border: 0; }
+
 /* ------------------------------------------------------------
    chat widget
    ------------------------------------------------------------ */
