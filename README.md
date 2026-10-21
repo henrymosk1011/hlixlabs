@@ -25,7 +25,7 @@ hlix/
 │   ├── css/style.css       v1's design system
 │   ├── css/v2.css          Main site's design system
 │   ├── js/main.js, product.js, calculator.js, search.js, chatbot.js   v1's JS
-│   ├── js/v2.js, v2-calc.js, v2-chat.js, v2-prices.js                  Main site's JS
+│   ├── js/v2.js, v2-calc.js, v2-planner.js, v2-chat.js, v2-prices.js   Main site's JS (v2-planner.js: the calculator's dose planner calendar)
 │   ├── js/search-index.js  Shared search index, read by both sites
 │   └── img/vials/          Shared photoreal product images
 ├── data/

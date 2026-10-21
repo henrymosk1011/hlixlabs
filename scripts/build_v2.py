@@ -63,12 +63,12 @@ def syringe_svg(uid):
 
 def mini_vial_svg(uid):
     """Small upright vial for the dose planner; the liquid's height follows the
-    --lvl custom property (0–1) set on any ancestor."""
+    --lvl custom property (0–1) and its color --vc, both set on any ancestor."""
     ticks = "".join(f'<line x1="{29 if y == 50 else 31}" y1="{y}" x2="35" y2="{y}"/>' for y in (34, 50, 66))
     return f'''<svg viewBox="0 0 40 84" aria-hidden="true">
   <defs>
     <clipPath id="mv-{uid}-clip"><rect x="5.5" y="18.5" width="29" height="63" rx="6.5"/></clipPath>
-    <linearGradient id="mv-{uid}-liq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#33e6b0"/><stop offset="1" stop-color="#1fd39c"/></linearGradient>
+    <linearGradient id="mv-{uid}-liq" x1="0" y1="0" x2="0" y2="1"><stop class="mv__s1" offset="0"/><stop class="mv__s2" offset="1"/></linearGradient>
   </defs>
   <rect class="mv__cap" x="10.5" y="2.5" width="19" height="10" rx="2.5"/>
   <rect class="mv__neck" x="13.5" y="12.5" width="13" height="6" rx="1"/>
@@ -602,7 +602,8 @@ def page_calculator(groups):
     planu = "".join(
         f'<button type="button" class="opt{" is-active" if u == "months" else ""}" data-val="{u}">{u}</button>' for u in ["weeks", "months", "years"]
     )
-    # dose planner (v2-planner.js): its own vial size, a month calendar, and a day editor the JS slots under the tapped week
+    # dose planner (v2-planner.js): vial tabs (each with its own name, size and schedule), a month calendar,
+    # and a day editor the JS slots under the tapped week
     pvial = opts("pvial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
     pdose = opts("pdose", [0.25, 0.5, 1, 2, 2.5, 5, 10], "mg", None) + '<button type="button" class="opt" data-val="0">none</button>'
     prep = "".join(
@@ -619,9 +620,18 @@ def page_calculator(groups):
     planner = f'''<section class="planner" data-planner>
     <div class="planner__head">
       <div><p class="kicker" data-reveal="fade">// dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
-      <p class="planner__lede" data-reveal>tap any day to log a dose. the calendar drains as the vial does, so you can see what's left on any day, week or month.</p>
+      <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. the calendar drains as the vial does, so you can see what's left on any day, week or month.</p>
     </div>
-    <fieldset class="step pl-vial" data-reveal><legend><span class="step__t">vial size</span><b class="step__e" data-pl-echo>5 mg</b></legend><div class="opts" data-pl-vial>{pvial}</div></fieldset>
+    <fieldset class="step pl-vials" data-reveal>
+      <legend><span class="step__t">your vials</span><b class="step__e" data-pl-echo>5 mg</b></legend>
+      <div class="pl-tabs" data-pl-tabs></div>
+      <div class="pl-set">
+        <label class="pl-name"><span class="pl-k">name</span><input type="text" data-pl-name maxlength="28" placeholder="e.g. bpc-157" list="pl-names" autocomplete="off" spellcheck="false"></label>
+        <div class="pl-size"><span class="pl-k">size</span><div class="opts" data-pl-vial>{pvial}</div></div>
+        <button type="button" class="pl-remove" data-pl-remove hidden>remove vial</button>
+      </div>
+      <datalist id="pl-names"></datalist>
+    </fieldset>
     <div class="planner__body">
       <div class="cal" data-cal data-reveal>
         <div class="cal__head">
@@ -633,19 +643,21 @@ def page_calculator(groups):
         <div class="cal__foot"><span data-cal-sum>&nbsp;</span><button type="button" class="cal__clear" data-cal-clear hidden>clear plan</button></div>
         <div class="cal__ed" data-cal-ed hidden><div class="cal__ed-in"><div class="cal__ed-box" role="group" aria-label="dose for this day">
           <div class="ed__head"><b data-ed-date></b><span class="ed__meta" data-ed-meta></span><button type="button" class="ed__x" data-ed-close aria-label="close">{CLOSE}</button></div>
+          <div class="ed__row" data-ed-vial-row hidden><span class="ed__k">vial</span><div class="opts" data-ed-vials></div></div>
           <div class="ed__row"><span class="ed__k">dose</span><div class="opts" data-ed-dose>{pdose}</div></div>
           <div class="ed__row"><span class="ed__k">repeat</span><div class="opts" data-ed-rep>{prep}</div></div>
           <p class="ed__hint" data-ed-hint hidden></p>
         </div></div></div>
       </div>
       <aside class="pl-out" data-reveal="fade">
-        <div class="pl-out__head"><p class="out__k">left in vial</p><b data-pl-size>5 mg vial</b></div>
+        <div class="pl-out__head"><p class="out__k">left in vial</p><b data-pl-size>vial 1 · 5 mg</b></div>
         <div class="pl-tiles">{tiles}</div>
         <dl class="rows pl-rows">
           <div><dt data-pl-out-k>runs dry</dt><dd data-pl-out>—</dd></div>
           <div><dt>planned</dt><dd data-pl-plan>no doses yet</dd></div>
         </dl>
         <p class="warn" data-pl-warn hidden></p>
+        <div class="pl-all" data-pl-all hidden><p class="out__k">all vials · <span data-pl-all-day></span></p><div data-pl-all-list></div></div>
       </aside>
     </div>
   </section>'''
