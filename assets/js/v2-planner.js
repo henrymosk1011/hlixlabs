@@ -10,10 +10,11 @@
   var calc = H.calc || {};
   var STORE = "hlix-plan";
   var EPS = 1e-9;
-  var MAX_REPEAT = 400; // safety cap on how many doses one "repeat" can lay down
-  var MAX_VIALS = 6;    // one per vial color, --v0 … --v5 in v2.css
+  var MAX_REPEAT = 400; // safety cap on how many doses one repeat can lay down
+  var MAX_VIALS = 6;    // one per preset color, --v0 … --v5 in v2.css
   var MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
   var DOW = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  var EVERY = { 1: "daily", 2: "every-other-day", 7: "weekly" };
 
   var $ = function (s, c) { return (c || root).querySelector(s); };
   var $$ = function (s, c) { return Array.prototype.slice.call((c || root).querySelectorAll(s)); };
@@ -30,14 +31,38 @@
   function key(d) { return d.getFullYear() + "-" + pad(d.getMonth() + 1) + "-" + pad(d.getDate()); }
   function parse(k) { var p = k.split("-"); return new Date(+p[0], +p[1] - 1, +p[2]); }
   function addDays(d, n) { return new Date(d.getFullYear(), d.getMonth(), d.getDate() + n); }
+  function dayDiff(a, b) { return Math.round((parse(b) - parse(a)) / 864e5); }
   function mon(d) { return MONTHS[d.getMonth()].slice(0, 3); }
   function dayLabel(d) { return DOW[d.getDay()] + ", " + mon(d) + " " + d.getDate(); }
   function rangeLabel(a, b) { return mon(a) + " " + a.getDate() + "–" + (a.getMonth() === b.getMonth() ? "" : mon(b) + " ") + b.getDate(); }
+  var KEY_RE = /^\d{4}-\d\d-\d\d$/;
   var now = new Date();
   var today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
   var todayKey = key(today);
 
+  // ---- colors: a preset index (0–5, themed in v2.css) or a custom "#rrggbb" ----
+  function isHex(c) { return typeof c === "string" && /^#[0-9a-f]{6}$/i.test(c); }
+  function ink(hex) { // readable text on a solid custom color
+    var r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+    return 0.299 * r + 0.587 * g + 0.114 * b > 150 ? "#04120d" : "#ffffff";
+  }
+  function tint(el, v) {
+    if (isHex(v.color)) {
+      el.removeAttribute("data-c");
+      el.style.setProperty("--vc", v.color);
+      el.style.setProperty("--vink", ink(v.color));
+    } else {
+      el.setAttribute("data-c", v.color);
+      el.style.removeProperty("--vc");
+      el.style.removeProperty("--vink");
+    }
+  }
+  function tintAttr(v) { return isHex(v.color) ? 'style="--vc:' + v.color + '"' : 'data-c="' + v.color + '"'; }
+
   // ---- state: a list of vials, one of them active (the one the calendar, editor and tiles show) ----
+  // a vial's doses are the days set by hand (0 = "none" on a day its repeat would fill); its rule, if any, is a
+  // repeat that keeps going every `every` days after `from` until the vial runs dry, so it stretches or shrinks
+  // whenever the vial size or an earlier dose changes
   var state = { vials: [], active: null };
 
   function cleanDoses(src) {
@@ -45,13 +70,18 @@
     if (src && typeof src === "object") {
       Object.keys(src).forEach(function (k) {
         var v = +src[k];
-        if (/^\d{4}-\d\d-\d\d$/.test(k) && v > 0) d[k] = v;
+        if (KEY_RE.test(k) && v >= 0 && isFinite(v)) d[k] = v;
       });
     }
     return d;
   }
+  function cleanRule(r) {
+    if (!r || !KEY_RE.test(r.from) || !(+r.dose > 0) || !(+r.every >= 1 && +r.every <= 60)) return null;
+    return { from: r.from, dose: +r.dose, every: Math.round(+r.every) };
+  }
+  function presetUsed(c, except) { return state.vials.some(function (v) { return v !== except && v.color === c; }); }
   function freeColor() {
-    for (var c = 0; c < MAX_VIALS; c++) if (!state.vials.some(function (v) { return v.color === c; })) return c;
+    for (var c = 0; c < MAX_VIALS; c++) if (!presetUsed(c)) return c;
     return 0;
   }
   function nextName() {
@@ -62,9 +92,10 @@
     do id = Math.random().toString(36).slice(2, 8); while (find(id));
     return id;
   }
-  function addVialObj(size, name, doses, color, id) {
-    var v = { id: id && !find(id) ? id : newId(), name: name, size: size, color: 0, doses: doses || {} };
-    v.color = color >= 0 && color < MAX_VIALS && !state.vials.some(function (x) { return x.color === color; }) ? color : freeColor();
+  function addVialObj(o) {
+    var v = { id: o.id && !find(o.id) ? o.id : newId(), name: o.name || "", size: o.size, color: 0, doses: o.doses || {}, rule: o.rule || null };
+    var c = o.color;
+    v.color = isHex(c) ? c.toLowerCase() : c >= 0 && c < MAX_VIALS && c === Math.floor(c) && !presetUsed(c) ? c : freeColor();
     state.vials.push(v);
     return v;
   }
@@ -72,32 +103,68 @@
   function V() { return find(state.active); }
   function label(v) { return v.name.trim() || "vial " + (state.vials.indexOf(v) + 1); }
 
+  // plans saved before repeats were kept as rules held every repeated dose as its own day; turn a trailing run of
+  // equal doses a repeat option apart (daily / every other day / weekly) back into a repeat, so it stretches too.
+  // a run of two only counts if it left too little for a third, i.e. it was a repeat that ran the vial dry
+  function inferRule(v) {
+    var keys = Object.keys(v.doses).filter(function (k) { return v.doses[k] > 0; }).sort(), n = keys.length;
+    if (n < 2) return;
+    var dose = v.doses[keys[n - 1]], every = dayDiff(keys[n - 2], keys[n - 1]), s = n - 1;
+    if (!EVERY[every]) return;
+    while (s > 0 && Math.abs(v.doses[keys[s - 1]] - dose) < EPS && dayDiff(keys[s - 1], keys[s]) === every) s--;
+    var left = v.size - keys.reduce(function (t, k) { return t + v.doses[k]; }, 0);
+    if (n - s < 2 || (n - s < 3 && left >= dose - EPS)) return;
+    for (var i = s + 1; i < n; i++) delete v.doses[keys[i]];
+    v.rule = { from: keys[s], dose: dose, every: every };
+  }
+
   try {
     var saved = JSON.parse(localStorage.getItem(STORE) || "null");
     if (saved && Array.isArray(saved.vials)) {
       saved.vials.slice(0, MAX_VIALS).forEach(function (v) {
-        if (v && +v.size > 0) addVialObj(+v.size, String(v.name || "").slice(0, 28), cleanDoses(v.doses), +v.color, String(v.id || ""));
+        if (!v || !(+v.size > 0)) return;
+        var nv = addVialObj({ id: String(v.id || ""), name: String(v.name || "").slice(0, 28), size: +v.size, color: v.color, doses: cleanDoses(v.doses), rule: cleanRule(v.rule) });
+        if (!(saved.v >= 3) && !nv.rule) inferRule(nv);
       });
       state.active = saved.active;
-    } else if (saved && +saved.vial > 0) {
-      addVialObj(+saved.vial, "vial 1", cleanDoses(saved.doses)); // plans saved before there were several vials
+    } else if (saved && +saved.vial > 0) { // the very first format: one vial, { vial, doses }
+      inferRule(addVialObj({ name: "vial 1", size: +saved.vial, doses: cleanDoses(saved.doses) }));
     }
   } catch (e) {}
-  if (!state.vials.length) addVialObj(calc.vial > 0 ? calc.vial : 5, "vial 1");
+  if (!state.vials.length) addVialObj({ name: "vial 1", size: calc.vial > 0 ? calc.vial : 5 });
   if (!V()) state.active = state.vials[0].id;
-  function save() { try { localStorage.setItem(STORE, JSON.stringify({ v: 2, active: state.active, vials: state.vials })); } catch (e) {} }
+  function save() { try { localStorage.setItem(STORE, JSON.stringify({ v: 3, active: state.active, vials: state.vials })); } catch (e) {} }
 
   var view = new Date(today.getFullYear(), today.getMonth(), 1); // month on screen
   var focus = todayKey;  // the day the "left in vial" panel describes
   var editing = null;    // day open in the editor
-  var snapshot = null;   // the active vial's doses when the editor opened (or switched vials); every choice re-applies over this
+  var snapshot = null;   // the active vial's doses + rule when the editor opened (or switched vials); every choice re-applies over this
   var edDose = 0, edRep = 0, edCustom = false, edClear = false;
 
   // ---- plan math (per vial) ----
+  // every day that actually has a dose: the hand-set ones plus the repeat, run until the vial is dry
+  function schedule(v) {
+    var out = {};
+    Object.keys(v.doses).forEach(function (k) { if (v.doses[k] > 0) out[k] = v.doses[k]; });
+    var r = v.rule;
+    if (!r) return out;
+    var hand = Object.keys(out).sort(), i = 0, used = 0, day = parse(r.from);
+    for (var n = 0; n < MAX_REPEAT; n++) {
+      day = addDays(day, r.every);
+      var k = key(day);
+      while (i < hand.length && hand[i] < k) used += out[hand[i++]];
+      if (k in v.doses) continue; // set by hand on this day (a different amount, or none)
+      if (v.size - used < r.dose - EPS) break; // dry: the repeat ends here
+      out[k] = r.dose;
+      used += r.dose;
+    }
+    return out;
+  }
+  function onRule(r, k) { return !!r && k > r.from && dayDiff(r.from, k) % r.every === 0; }
   // every dose in date order, with the running total drawn from the vial
   function ledger(v) {
-    var cum = 0;
-    return Object.keys(v.doses).sort().map(function (k) { cum += v.doses[k]; return { k: k, mg: v.doses[k], cum: cum }; });
+    var s = schedule(v), cum = 0;
+    return Object.keys(s).sort().map(function (k) { cum += s[k]; return { k: k, mg: s[k], cum: cum }; });
   }
   function usedThrough(L, k) { var u = 0; for (var i = 0; i < L.length && L[i].k <= k; i++) u = L[i].cum; return u; }
   function usedIn(L, a, b) { var u = 0; L.forEach(function (e) { if (e.k >= a && e.k <= b) u += e.mg; }); return u; }
@@ -145,13 +212,13 @@
 
   // fromKey: the day just edited, so the change ripples forward from it instead of from the 1st
   function paint(fromKey) {
-    var v = V(), L = ledger(v), size = v.size, many = state.vials.length > 1;
-    var others = state.vials.filter(function (o) { return o !== v; });
+    var v = V(), L = ledger(v), sched = schedule(v), size = v.size, many = state.vials.length > 1;
+    var others = state.vials.filter(function (o) { return o !== v; }).map(function (o) { return { o: o, s: schedule(o) }; });
     var first = L.length ? L[0].k : "", last = L.length ? L[L.length - 1].k : "";
     var step = 0;
     slots.forEach(function (s, i) {
       if (!s.k) return;
-      var k = s.k, el = s.el, dose = v.doses[k] || 0;
+      var k = s.k, el = s.el, dose = sched[k] || 0;
       var after = size - usedThrough(L, k), before = after + dose;
       var inPlan = L.length > 0 && k >= first && k <= last;
       el.style.setProperty("--lvl", inPlan ? Math.max(0, Math.min(1, after / size)).toFixed(4) : "0");
@@ -164,10 +231,10 @@
       el.querySelector(".cal__v").innerHTML = dose > 0 ? fmt(dose, 2) + "<small>mg</small>" : "";
       // the other vials' doses that day, as dots in their colors
       var dots = "", also = [];
-      others.forEach(function (o) {
-        if (!o.doses[k]) return;
-        dots += '<i data-c="' + o.color + '"></i>';
-        also.push(label(o) + " " + mg(o.doses[k]));
+      others.forEach(function (x) {
+        if (!x.s[k]) return;
+        dots += "<i " + tintAttr(x.o) + "></i>";
+        also.push(label(x.o) + " " + mg(x.s[k]));
       });
       el.querySelector(".cal__dots").innerHTML = dots;
       el.setAttribute("aria-label", dayLabel(parse(k)) + (many ? ", " + label(v) : "") + (dose > 0 ? ", " + mg(dose) : ", no dose") +
@@ -238,7 +305,7 @@
       var row = document.createElement("button");
       row.type = "button";
       row.className = "pl-row" + (v.id === state.active ? " is-active" : "") + (left < -EPS ? " is-short" : "");
-      row.setAttribute("data-c", v.color);
+      tint(row, v);
       row.setAttribute("data-vial", v.id);
       row.style.setProperty("--lvl", Math.max(0, Math.min(1, left / v.size)).toFixed(4));
       row.innerHTML = '<i class="pl-row__dot"></i><span class="pl-row__name"></span><span class="pl-row__left"></span><span class="pl-row__bar"><i></i></span><span class="pl-row__dry"></span>';
@@ -267,8 +334,8 @@
   // (re)start editing day k on the active vial
   function startEdit(k) {
     var v = V();
-    snapshot = clone(v.doses);
-    edDose = v.doses[k] || 0;
+    snapshot = { doses: clone(v.doses), rule: v.rule ? clone(v.rule) : null };
+    edDose = schedule(v)[k] || 0;
     edRep = 0;
     edClear = false;
     edCustom = edDose > 0 && !doseBtns.some(function (b) { return parseFloat(b.getAttribute("data-val")) === edDose; });
@@ -315,19 +382,19 @@
 
   function syncEditor() {
     if (!editing) return;
-    var v = V(), d = parse(editing);
+    var v = V(), d = parse(editing), sched = schedule(v);
     edDate.textContent = editing === todayKey ? "today, " + mon(d) + " " + d.getDate() : dayLabel(d);
     edVialRow.hidden = state.vials.length < 2;
     if (!edVialRow.hidden) {
       edVials.innerHTML = "";
       state.vials.forEach(function (o) {
-        var b = document.createElement("button");
+        var b = document.createElement("button"), od = o === v ? sched[editing] : schedule(o)[editing];
         b.type = "button";
         b.className = "opt ed-vial" + (o === v ? " is-active" : "");
-        b.setAttribute("data-c", o.color);
+        tint(b, o);
         b.setAttribute("data-vial", o.id);
         b.innerHTML = "<i></i><span></span>";
-        $("span", b).textContent = label(o) + (o.doses[editing] ? " · " + fmt(o.doses[editing], 2) : "");
+        $("span", b).textContent = label(o) + (od ? " · " + fmt(od, 2) : "");
         edVials.appendChild(b);
       });
     }
@@ -339,32 +406,40 @@
     if (edCustom && document.activeElement !== doseIn) doseIn.value = edDose > 0 ? edDose : "";
     repBtns.forEach(function (b) { b.classList.toggle("is-active", +b.getAttribute("data-val") === edRep); });
 
-    var L = ledger(v), dose = v.doses[editing] || 0, left = v.size - usedThrough(L, editing);
+    var L = ledger(v), dose = sched[editing] || 0, left = v.size - usedThrough(L, editing);
     var water = +calc.water || 0;
     edMeta.classList.toggle("is-warn", dose > 0 && left < -EPS);
     if (dose > 0 && left < -EPS) edMeta.textContent = "not enough left: " + mg(-left) + " short";
     else if (dose > 0) edMeta.textContent = mg(left) + " left after this dose" + (water > 0 ? " · draw " + fmt(dose * water * 100 / v.size, 1) + " units with " + fmt(water, 2) + " ml water" : "");
     else edMeta.textContent = L.length && editing >= L[0].k ? mg(Math.max(0, left)) + " in the vial" : "no dose yet";
-    edHint.hidden = !edRep;
-    edHint.textContent = edDose > 0 ? "repeats from this day until the vial runs dry." : edClear ? "clears this day and every dose after it." : "pick a dose to repeat from this day.";
+    var r = v.rule, inRepeat = !!r && (editing === r.from || onRule(r, editing));
+    edHint.hidden = !edRep && !inRepeat;
+    edHint.textContent = edRep
+      ? (edDose > 0 ? "repeats from this day until the vial runs dry." : edClear ? "clears this day and every dose after it." : "pick a dose to repeat from this day.")
+      : inRepeat ? "part of the " + (EVERY[r.every] || "every " + r.every + " days") + " " + mg(r.dose) + " repeat from " + mon(parse(r.from)) + " " + parse(r.from).getDate() + ". changes here only touch this day." : "";
   }
 
   function apply() {
-    var v = V(), k = editing, d = clone(snapshot);
-    if (edRep && (edDose > 0 || edClear)) Object.keys(d).forEach(function (x) { if (x > k) delete d[x]; });
-    if (edDose > 0) {
-      d[k] = edDose;
-      if (edRep) {
-        var left = v.size, day = parse(k), n = 0;
-        Object.keys(d).forEach(function (x) { left -= d[x]; }); // only days up to k are left in d
-        while (left >= edDose - EPS && n++ < MAX_REPEAT) {
-          day = addDays(day, edRep);
-          d[key(day)] = edDose;
-          left -= edDose;
-        }
+    var v = V(), k = editing, d = clone(snapshot.doses), rule = snapshot.rule;
+    if (edRep && (edDose > 0 || edClear)) {
+      // restart from this day: keep what the plan had before it, written out day by day, and drop everything after
+      var before = schedule({ size: v.size, doses: snapshot.doses, rule: snapshot.rule });
+      d = {};
+      Object.keys(before).forEach(function (x) { if (x < k) d[x] = before[x]; });
+      rule = null;
+      if (edDose > 0) {
+        d[k] = edDose;
+        rule = { from: k, dose: edDose, every: edRep };
       }
-    } else delete d[k];
+    } else if (edDose > 0) {
+      d[k] = edDose;
+    } else if (onRule(rule, k)) {
+      d[k] = 0; // "none" on a day the repeat would fill: skip just that one
+    } else {
+      delete d[k];
+    }
     v.doses = d;
+    v.rule = rule;
     save();
     paint(k);
     summarize();
@@ -444,14 +519,16 @@
     disarm();
     closeEditor();
     V().doses = {};
+    V().rule = null;
     save();
     paint();
     summarize();
   });
 
-  // ---- vials: tabs to switch and add, plus the active vial's name, size and remove ----
+  // ---- vials: tabs to switch and add, plus the active vial's name, color, size and remove ----
   var tabsEl = $("[data-pl-tabs]"), nameIn = $("[data-pl-name]"), removeBtn = $("[data-pl-remove]");
   var vialBtns = $$("[data-pl-vial] .opt"), vialIn = $("[data-pl-vial] .opt-in"), echo = $("[data-pl-echo]");
+  var swatches = $$("[data-pl-colors] [data-color]"), customSw = $(".pl-sw--custom"), customIn = $("[data-pl-custom]");
   var vialCustom = false, removeT = 0;
 
   function renderTabs() {
@@ -460,7 +537,7 @@
       var b = document.createElement("button");
       b.type = "button";
       b.className = "pl-tab" + (v.id === state.active ? " is-active" : "");
-      b.setAttribute("data-c", v.color);
+      tint(b, v);
       b.setAttribute("data-vial", v.id);
       b.setAttribute("aria-pressed", v.id === state.active ? "true" : "false");
       b.innerHTML = "<i></i><span></span><small></small>";
@@ -480,7 +557,7 @@
 
   function syncVial() {
     var v = V();
-    root.setAttribute("data-c", v.color);
+    tint(root, v);
     if (!vialBtns.some(function (b) { return parseFloat(b.getAttribute("data-val")) === v.size; })) vialCustom = true;
     vialBtns.forEach(function (b) {
       var val = b.getAttribute("data-val");
@@ -489,6 +566,12 @@
     vialIn.hidden = !vialCustom;
     if (vialCustom && document.activeElement !== vialIn) vialIn.value = v.size;
     if (document.activeElement !== nameIn) nameIn.value = v.name;
+    swatches.forEach(function (s) { s.classList.toggle("is-active", +s.getAttribute("data-color") === v.color); });
+    customSw.classList.toggle("is-active", isHex(v.color));
+    if (isHex(v.color)) {
+      customSw.style.setProperty("--vc", v.color);
+      if (document.activeElement !== customIn) customIn.value = v.color;
+    } else customSw.style.removeProperty("--vc");
     echo.textContent = mg(v.size);
     removeBtn.hidden = state.vials.length < 2;
     renderTabs();
@@ -517,7 +600,7 @@
     if (!b) return;
     if (b.hasAttribute("data-vial-add")) {
       if (state.vials.length >= MAX_VIALS) return;
-      var v = addVialObj(calc.vial > 0 ? calc.vial : V().size, nextName());
+      var v = addVialObj({ name: nextName(), size: calc.vial > 0 ? calc.vial : V().size });
       setActive(v.id);
       nameIn.focus();
       nameIn.select();
@@ -533,6 +616,22 @@
     paint();
     summarize();
     syncEditor();
+  });
+
+  // a preset another vial already wears gets swapped with this vial's color, so no two vials share one
+  swatches.forEach(function (s) {
+    s.addEventListener("click", function () {
+      var v = V(), c = +s.getAttribute("data-color");
+      if (v.color === c) return;
+      state.vials.forEach(function (o) { if (o !== v && o.color === c) o.color = v.color; });
+      v.color = c;
+      refresh();
+    });
+  });
+  customIn.addEventListener("input", function () {
+    if (!isHex(customIn.value)) return;
+    V().color = customIn.value.toLowerCase();
+    refresh();
   });
 
   function disarmRemove() { clearTimeout(removeT); removeBtn.classList.remove("is-armed"); removeBtn.textContent = "remove vial"; }

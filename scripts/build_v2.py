@@ -610,6 +610,10 @@ def page_calculator(groups):
         f'<button type="button" class="opt{" is-active" if v == 0 else ""}" data-val="{v}">{label}</button>'
         for v, label in [(0, "just this day"), (1, "daily"), (2, "every other day"), (7, "weekly")]
     )
+    swatches = "".join(
+        f'<button type="button" class="pl-sw" data-c="{i}" data-color="{i}" aria-label="{c}"></button>'
+        for i, c in enumerate(["green", "blue", "violet", "pink", "lime", "silver"])
+    )
     dow = "".join(f"<span>{d}</span>" for d in ["sun", "mon", "tue", "wed", "thu", "fri", "sat"])
     tiles = "".join(
         f'<div class="pl-t" data-pl-t="{k}"><p class="pl-t__k">{k}</p><p class="pl-t__d" data-pl-d>&nbsp;</p>'
@@ -626,7 +630,8 @@ def page_calculator(groups):
       <legend><span class="step__t">your vials</span><b class="step__e" data-pl-echo>5 mg</b></legend>
       <div class="pl-tabs" data-pl-tabs></div>
       <div class="pl-set">
-        <label class="pl-name"><span class="pl-k">name</span><input type="text" data-pl-name maxlength="28" placeholder="e.g. bpc-157" list="pl-names" autocomplete="off" spellcheck="false"></label>
+        <label class="pl-name"><span class="pl-k">name</span><input type="text" data-pl-name maxlength="28" placeholder="e.g. BPC-157" list="pl-names" autocomplete="off" spellcheck="false"></label>
+        <div class="pl-color"><span class="pl-k">color</span><div class="pl-swatches" data-pl-colors>{swatches}<label class="pl-sw pl-sw--custom" aria-label="custom color"><input type="color" data-pl-custom value="#33e6b0"></label></div></div>
         <div class="pl-size"><span class="pl-k">size</span><div class="opts" data-pl-vial>{pvial}</div></div>
         <button type="button" class="pl-remove" data-pl-remove hidden>remove vial</button>
       </div>

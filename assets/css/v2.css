@@ -696,6 +696,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 [data-c="3"] { --vc: var(--v3); }
 [data-c="4"] { --vc: var(--v4); }
 [data-c="5"] { --vc: var(--v5); }
+[data-c] { --vink: var(--accent-ink); } /* custom colors set --vc / --vink inline instead of data-c */
 .planner { margin-top: clamp(64px, 10vh, 120px); padding: clamp(48px, 8vh, 96px) 0 clamp(100px, 16vh, 180px); border-top: 1px solid var(--line); }
 .planner__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px 48px; margin-bottom: clamp(36px, 6vh, 64px); }
 .planner__title { font: 800 clamp(3rem, 8.5vw, 7.5rem)/0.88 var(--f-display); letter-spacing: -0.065em; margin-top: 20px; }
@@ -717,7 +718,17 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .pl-name input { width: 220px; padding: 12px 14px; background: none; border: 1px solid var(--line-2); border-radius: var(--r); outline: 0; color: var(--fg); font: 500 14px var(--f-mono); transition: border-color 0.3s; }
 .pl-name input:focus { border-color: var(--vc); }
 .pl-name input::placeholder { color: var(--faint); }
-.planner .opt.is-active { background: var(--vc); border-color: var(--vc); color: var(--accent-ink); }
+/* vial names keep the case they were typed in (the rest of the site is lowercase) */
+.pl-name input, .pl-tab span, .pl-row__name, .ed-vial span, .pl-out__head b, .cal__foot, .pl-remove, .planner .warn { text-transform: none; }
+/* --vink: text on a solid vial color; set inline for custom colors, which may be dark or light */
+.planner .opt.is-active { background: var(--vc); border-color: var(--vc); color: var(--vink, var(--accent-ink)); }
+.pl-swatches { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-height: 43px; }
+.pl-sw { position: relative; flex: none; width: 28px; height: 28px; overflow: hidden; border-radius: 50%; background: var(--vc); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); cursor: pointer; transition: transform 0.3s var(--ease), box-shadow 0.3s; }
+.pl-sw:hover { transform: scale(1.1); }
+.pl-sw.is-active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--vc); }
+.pl-sw--custom { background: conic-gradient(#ff6b6b, #ffd25c, #5cf08a, #5cc8ff, #b48cff, #ff7eb6, #ff6b6b); }
+.pl-sw--custom.is-active { background: var(--vc); }
+.pl-sw--custom input { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; opacity: 0; cursor: pointer; }
 .pl-size .opts { gap: 6px; }
 .pl-size .opt { padding: 11px 14px; font-size: 13px; }
 .pl-size .opt-in { width: 92px; padding: 11px 12px; font-size: 13px; }
@@ -799,8 +810,8 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .ed-vial { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; }
 .ed-vial i { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--vc); }
 .ed-vial span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.ed__row .ed-vial.is-active { background: var(--vc); border-color: var(--vc); color: var(--accent-ink); }
-.ed-vial.is-active i { background: var(--accent-ink); }
+.ed__row .ed-vial.is-active { background: var(--vc); border-color: var(--vc); color: var(--vink, var(--accent-ink)); }
+.ed-vial.is-active i { background: var(--vink, var(--accent-ink)); }
 
 /* "left in vial" panel */
 .pl-out { position: sticky; top: calc(var(--nav-h) + 24px); padding: clamp(20px, 2.2vw, 30px); border: 1px solid var(--line-2); border-radius: var(--r-lg); background: linear-gradient(180deg, var(--surface-tint), transparent); }
