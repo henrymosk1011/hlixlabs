@@ -602,6 +602,53 @@ def page_calculator(groups):
     planu = "".join(
         f'<button type="button" class="opt{" is-active" if u == "months" else ""}" data-val="{u}">{u}</button>' for u in ["weeks", "months", "years"]
     )
+    # dose planner (v2-planner.js): its own vial size, a month calendar, and a day editor the JS slots under the tapped week
+    pvial = opts("pvial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
+    pdose = opts("pdose", [0.25, 0.5, 1, 2, 2.5, 5, 10], "mg", None) + '<button type="button" class="opt" data-val="0">none</button>'
+    prep = "".join(
+        f'<button type="button" class="opt{" is-active" if v == 0 else ""}" data-val="{v}">{label}</button>'
+        for v, label in [(0, "just this day"), (1, "daily"), (2, "every other day"), (7, "weekly")]
+    )
+    dow = "".join(f"<span>{d}</span>" for d in ["sun", "mon", "tue", "wed", "thu", "fri", "sat"])
+    tiles = "".join(
+        f'<div class="pl-t" data-pl-t="{k}"><p class="pl-t__k">{k}</p><p class="pl-t__d" data-pl-d>&nbsp;</p>'
+        f'<div class="mv">{mini_vial_svg(k)}</div>'
+        f'<p class="pl-t__v"><b data-pl-v>5</b><small>mg</small></p><p class="pl-t__u" data-pl-u>nothing used</p></div>'
+        for k in ("day", "week", "month")
+    )
+    planner = f'''<section class="planner" data-planner>
+    <div class="planner__head">
+      <div><p class="kicker" data-reveal="fade">// dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
+      <p class="planner__lede" data-reveal>tap any day to log a dose. the calendar drains as the vial does, so you can see what's left on any day, week or month.</p>
+    </div>
+    <fieldset class="step pl-vial" data-reveal><legend><span class="step__t">vial size</span><b class="step__e" data-pl-echo>5 mg</b></legend><div class="opts" data-pl-vial>{pvial}</div></fieldset>
+    <div class="planner__body">
+      <div class="cal" data-cal data-reveal>
+        <div class="cal__head">
+          <h3 class="cal__month" data-cal-title>&nbsp;</h3>
+          <div class="cal__nav"><button type="button" class="cal__btn" data-cal-nav="-1" aria-label="previous month">{CHEV_L}</button><button type="button" class="cal__btn cal__today" data-cal-today>today</button><button type="button" class="cal__btn" data-cal-nav="1" aria-label="next month">{CHEV_R}</button></div>
+        </div>
+        <div class="cal__dow" aria-hidden="true">{dow}</div>
+        <div class="cal__grid" data-cal-grid></div>
+        <div class="cal__foot"><span data-cal-sum>&nbsp;</span><button type="button" class="cal__clear" data-cal-clear hidden>clear plan</button></div>
+        <div class="cal__ed" data-cal-ed hidden><div class="cal__ed-in"><div class="cal__ed-box" role="group" aria-label="dose for this day">
+          <div class="ed__head"><b data-ed-date></b><span class="ed__meta" data-ed-meta></span><button type="button" class="ed__x" data-ed-close aria-label="close">{CLOSE}</button></div>
+          <div class="ed__row"><span class="ed__k">dose</span><div class="opts" data-ed-dose>{pdose}</div></div>
+          <div class="ed__row"><span class="ed__k">repeat</span><div class="opts" data-ed-rep>{prep}</div></div>
+          <p class="ed__hint" data-ed-hint hidden></p>
+        </div></div></div>
+      </div>
+      <aside class="pl-out" data-reveal="fade">
+        <div class="pl-out__head"><p class="out__k">left in vial</p><b data-pl-size>5 mg vial</b></div>
+        <div class="pl-tiles">{tiles}</div>
+        <dl class="rows pl-rows">
+          <div><dt data-pl-out-k>runs dry</dt><dd data-pl-out>—</dd></div>
+          <div><dt>planned</dt><dd data-pl-plan>no doses yet</dd></div>
+        </dl>
+        <p class="warn" data-pl-warn hidden></p>
+      </aside>
+    </div>
+  </section>'''
     body = f'''
 <section class="phead"><div class="wrap">
   <p class="kicker" data-reveal="fade">// dosage calculator</p>
@@ -639,12 +686,13 @@ def page_calculator(groups):
       <p>you'll need about <b><span data-o="vials">5</span> vials</b> to cover <span data-o="planN">3</span> <span data-o="planU">months</span>.</p>
     </div>
   </div>
+  {planner}
 </div>
 <div class="dock" data-dock aria-hidden="true">
   <div class="dock__row"><span>draw to</span><span class="dock__val"><b data-o="dock">10</b>units</span></div>
   <div class="syr syr--dock" data-syr>{syringe_svg("dock")}</div>
 </div>'''
-    return shell(title="dosage calculator", desc="peptide reconstitution and dosage calculator.", page="calculator", body=body, groups=groups, scripts=("v2-calc.js",), body_class="calc-page")
+    return shell(title="dosage calculator", desc="peptide reconstitution and dosage calculator.", page="calculator", body=body, groups=groups, scripts=("v2-calc.js", "v2-planner.js"), body_class="calc-page")
 
 
 # ---------------------------------------------------------------- checkout ---

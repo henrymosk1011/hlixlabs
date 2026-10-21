@@ -9,6 +9,7 @@
   var state = { vial: 5, water: 2, dose: 0.25, freq: 1, syringe: 1, supplyUnit: "days", planAmount: 3, planUnit: "months" };
   var units = { vial: "mg", water: "mL", dose: "mg", syringe: "mL" };
   var shown = { units: 0, conc: 0, vol: 0 };
+  (window.HLIX2 = window.HLIX2 || {}).calc = state; // read by the dose planner (v2-planner.js)
 
   var $$ = function (s, c) { return Array.prototype.slice.call((c || document).querySelectorAll(s)); };
   var outs = {};
@@ -170,18 +171,29 @@
     put("vials", vials > 0 ? String(vials) : "···");
     put("planN", fmt(state.planAmount, 2));
     put("planU", state.planUnit);
+
+    document.dispatchEvent(new CustomEvent("hlix:calc", { detail: state }));
   }
 
   render();
 
-  // ---- mobile dock: hide once the static "draw to" card scrolls into view ----
+  // ---- mobile dock: hide while the static "draw to" card is on screen, and from the dose planner down ----
+  // (checked on scroll rather than with an IntersectionObserver, which misses a jump straight past the card)
   var dock = document.querySelector("[data-dock]");
   var out = root.querySelector(".calc__out");
-  if (dock && out && "IntersectionObserver" in window) {
-    var io = new IntersectionObserver(function (entries) {
-      entries.forEach(function (e) { dock.classList.toggle("is-hidden", e.isIntersecting); });
-    }, { rootMargin: "0px 0px -40% 0px" });
-    io.observe(out);
+  var planner = document.querySelector("[data-planner]");
+  if (dock && out) {
+    var dockQueued = false;
+    var dockCheck = function () {
+      dockQueued = false;
+      var h = window.innerHeight, o = out.getBoundingClientRect();
+      var off = (o.top < h * 0.6 && o.bottom > 0) || (planner && planner.getBoundingClientRect().top < h);
+      dock.classList.toggle("is-hidden", off);
+      document.body.classList.toggle("dock-off", off);
+    };
+    window.addEventListener("scroll", function () { if (!dockQueued) { dockQueued = true; requestAnimationFrame(dockCheck); } }, { passive: true });
+    window.addEventListener("resize", dockCheck);
+    dockCheck();
   }
 
   // ---- tidecalc.com redirects here with ?from=tidecalc: offer a way back to its original calculator ----
