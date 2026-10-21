@@ -61,6 +61,26 @@ def syringe_svg(uid):
 </svg>'''
 
 
+def mini_vial_svg(uid):
+    """Small upright vial for the dose planner; the liquid's height follows the
+    --lvl custom property (0–1) set on any ancestor."""
+    ticks = "".join(f'<line x1="{29 if y == 50 else 31}" y1="{y}" x2="35" y2="{y}"/>' for y in (34, 50, 66))
+    return f'''<svg viewBox="0 0 40 84" aria-hidden="true">
+  <defs>
+    <clipPath id="mv-{uid}-clip"><rect x="5.5" y="18.5" width="29" height="63" rx="6.5"/></clipPath>
+    <linearGradient id="mv-{uid}-liq" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#33e6b0"/><stop offset="1" stop-color="#1fd39c"/></linearGradient>
+  </defs>
+  <rect class="mv__cap" x="10.5" y="2.5" width="19" height="10" rx="2.5"/>
+  <rect class="mv__neck" x="13.5" y="12.5" width="13" height="6" rx="1"/>
+  <g clip-path="url(#mv-{uid}-clip)"><g class="mv__liq"><rect x="4" y="18" width="32" height="66" fill="url(#mv-{uid}-liq)"/><rect class="mv__men" x="4" y="18" width="32" height="1.6"/></g></g>
+  <rect class="mv__body" x="5.5" y="18.5" width="29" height="63" rx="6.5"/>
+  <g class="mv__ticks">{ticks}</g>
+</svg>'''
+
+
+CHEV_L = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>'
+CHEV_R = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>'
+
 
 VIALS = ROOT / "assets" / "img" / "vials"
 HERO_CUTOUTS = VIALS / "hero-cutout"
@@ -161,7 +181,6 @@ def footer(p, groups):
     <div class="foot__col"><h4>site</h4><a href="{p}about.html">about</a><a href="{p}calculator.html">calculator</a><a href="{p}contact.html">contact</a></div>
     <div class="foot__col"><h4>contact</h4><a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a><span>research use only</span></div>
   </div>
-  <div class="foot__word" aria-hidden="true"><span data-parallax="-0.06">hlix</span></div>
   <div class="wrap foot__legal">
     <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
   </div>
