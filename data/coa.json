@@ -1,7 +1,7 @@
 [
-  {"variant": "glp3-r-10mg", "file": "glp3-r-10mg-2026-09-30.pdf", "date": "2026-09-30", "lab": "PharmLabs", "purity": "99.99%", "measured": "9.77 mg", "finnrick_id": "tv7hy6d"},
-  {"variant": "glp3-r-10mg", "file": "glp3-r-10mg-2026-06-18.pdf", "date": "2026-06-18", "lab": "BTLabs", "purity": "99.8%", "measured": "10.2 mg", "finnrick_id": "unyrbhh"},
-  {"variant": "glp3-r-20mg", "file": "glp3-r-20mg-2026-09-18.pdf", "date": "2026-09-18", "lab": "PharmLabs", "purity": "99.99%", "measured": "22.26 mg", "finnrick_id": "7p4fa9m"},
-  {"variant": "glp2-t-10mg", "file": "glp2-t-10mg-2026-06-16.pdf", "date": "2026-06-16", "lab": "Krause Analytical", "purity": ">99.9%", "measured": "9.36 mg", "finnrick_id": "rmwrrqs"},
-  {"variant": "glp2-t-20mg", "file": "glp2-t-20mg-2026-10-06.pdf", "date": "2026-10-06", "lab": "BTLabs", "purity": "99.9%", "measured": "21.7 mg", "finnrick_id": "zswvzwx"}
+  {"product": "glp3-r", "file": "glp3-r-10mg-2026-09-30.pdf", "date": "2026-09-30", "lab": "PharmLabs", "purity": "99.99%", "finnrick_id": "tv7hy6d"},
+  {"product": "glp3-r", "file": "glp3-r-20mg-2026-09-18.pdf", "date": "2026-09-18", "lab": "PharmLabs", "purity": "99.99%", "finnrick_id": "7p4fa9m"},
+  {"product": "glp3-r", "file": "glp3-r-10mg-2026-06-18.pdf", "date": "2026-06-18", "lab": "BTLabs", "purity": "99.8%", "finnrick_id": "unyrbhh"},
+  {"product": "glp2-t", "file": "glp2-t-20mg-2026-10-06.pdf", "date": "2026-10-06", "lab": "BTLabs", "purity": "99.9%", "finnrick_id": "zswvzwx"},
+  {"product": "glp2-t", "file": "glp2-t-10mg-2026-06-16.pdf", "date": "2026-06-16", "lab": "Krause Analytical", "purity": ">99.9%", "finnrick_id": "rmwrrqs"}
 ]

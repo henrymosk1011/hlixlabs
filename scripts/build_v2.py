@@ -436,52 +436,35 @@ COA_FALLBACK = '<p>a certificate of analysis is kept on file for this compound a
 
 
 def coa_blocks(g):
-    """Lab reports from data/coa.json, one block per vial size that has any
-    (newest first). Every block carries data-coa-for=<sku>; v2.js shows the
-    selected size's, or the "*" block when that size has none."""
-    d = g["default"]
-    by_sku = {}
-    for v in g["variants"]:
-        certs = sorted((c for c in COA if c["variant"] == v["slug"]), key=lambda c: c["date"], reverse=True)
-        if certs:
-            by_sku[v["sku"]] = (v, certs)
-    if not by_sku:
-        return COA_FALLBACK, ""
+    """Lab reports from data/coa.json for the whole product, whatever vial
+    size is picked: (line under the product name for the newest report,
+    certificate of analysis section listing them all, newest first)."""
+    certs = sorted((c for c in COA if c["product"] == g["slug"]), key=lambda c: c["date"], reverse=True)
+    if not certs:
+        return "", COA_FALLBACK
 
     def when(c):
         y, m, day = (int(x) for x in c["date"].split("-"))
         return f"{MONTHS[m - 1]} {day}, {y}"
 
-    def hide(sku):
-        shown = d["sku"] if d["sku"] in by_sku else "*"
-        return "" if sku == shown else " hidden"
-
-    body, spec = [], []
-    for sku, (v, certs) in by_sku.items():
-        items = "".join(
-            f'<li><div class="coa__top"><b>{when(c)}</b><span>{esc(c["lab"].lower())}</span></div>'
-            f'<div class="coa__nums"><span>purity <b>{esc(c["purity"])}</b></span><span>measured <b>{esc(c["measured"])}</b></span></div>'
-            f'<div class="coa__links"><a href="../assets/coa/{c["file"]}" target="_blank" rel="noopener">view report (pdf) {ARROW_UR}</a>'
-            f'<a href="https://www.finnrick.com/verify" target="_blank" rel="noopener">verify on finnrick · id {esc(c["finnrick_id"])}</a></div></li>'
-            for c in certs
-        )
-        body.append(
-            f'<div data-coa-for="{esc(sku)}"{hide(sku)}><p>independent lab results for the {esc(v["dose"])} vial, tested for finnrick analytics. '
-            f'each report covers only the lot it tested.</p><ul class="coa">{items}</ul></div>'
-        )
-        c = certs[0]
-        spec.append(
-            f'<div data-coa-for="{esc(sku)}"{hide(sku)}><dt>lab report</dt><dd>{esc(c["purity"])} · '
-            f'<a class="coa__spec" href="../assets/coa/{c["file"]}" target="_blank" rel="noopener">view {ARROW_UR}</a></dd></div>'
-        )
-    if len(by_sku) < len(g["variants"]):
-        sizes = " and ".join(v["dose"] for v, _ in by_sku.values())
-        body.append(
-            f'<div data-coa-for="*"{hide("*")}><p>lab reports are published for the {esc(sizes)} vial{"s" if len(by_sku) > 1 else ""} — '
-            f'pick {"one of those sizes" if len(by_sku) > 1 else "that size"} above to see them. questions about other sizes? '
-            f'<a href="../contact.html" style="color:var(--accent)">contact us</a>.</p></div>'
-        )
-    return "".join(body), "".join(spec)
+    c = certs[0]
+    more = f'<a href="#coa" data-coa-jump>all {len(certs)} reports</a>' if len(certs) > 1 else ""
+    top = (
+        f'<p class="coa-line" data-reveal><span>{esc(c["purity"])} purity · {esc(c["lab"].lower())} · {when(c)}</span>'
+        f'<span class="coa-line__links"><a href="../assets/coa/{c["file"]}" target="_blank" rel="noopener">view certificate {ARROW_UR}</a>{more}</span></p>'
+    )
+    items = "".join(
+        f'<li><div class="coa__top"><b>{when(c)}</b><span>{esc(c["lab"].lower())}</span></div>'
+        f'<div class="coa__nums"><span>purity <b>{esc(c["purity"])}</b></span></div>'
+        f'<div class="coa__links"><a href="../assets/coa/{c["file"]}" target="_blank" rel="noopener">view report (pdf) {ARROW_UR}</a>'
+        f'<a href="https://www.finnrick.com/verify" target="_blank" rel="noopener">verify on finnrick · id {esc(c["finnrick_id"])}</a></div></li>'
+        for c in certs
+    )
+    body = (
+        f'<p>independent lab results for {esc(g["name"])}, tested for finnrick analytics. '
+        f'each report covers only the lot it tested.</p><ul class="coa">{items}</ul>'
+    )
+    return top, body
 
 
 def page_product(g, groups):
@@ -509,7 +492,7 @@ def page_product(g, groups):
         '<button role="radio" aria-checked="true" class="is-active" data-form="recon">ready to use</button>'
     )
     seg += f'<span class="field-l">form</span><div class="seg" data-seg="form" role="radiogroup" aria-label="shipping form"><span class="seg__thumb"></span>{form_btns}</div>'
-    coa_body, coa_spec = coa_blocks(g)
+    coa_top, coa_body = coa_blocks(g)
     related = [x for x in groups if x["category"] == g["category"] and x["slug"] != g["slug"]][:4]
     rel = ""
     if related:
@@ -524,7 +507,7 @@ def page_product(g, groups):
       <div class="pdp__media" data-reveal="scale"><div class="stage" data-zoom>{svg}<span class="stage__hint">click to enlarge</span></div></div>
       <div class="pdp__info">
         <p class="kicker" style="color:var(--c)" data-reveal="fade">// {esc(g['category_label'].lower())}</p>
-        <h1 class="pdp__name" data-split>{esc(g['name'])}</h1>
+        <h1 class="pdp__name" data-split>{esc(g['name'])}</h1>{coa_top}
         {tags_html}
         <div class="price" data-reveal><span class="price__n" data-price="{d['price']:.2f}" data-price-recon="{recon_price(d['price']):.2f}">{money(recon_price(d['price']))}</span><span class="price__u">/ vial</span></div>
         <div data-reveal>{seg}</div>
@@ -542,13 +525,13 @@ def page_product(g, groups):
           <div><dt>category</dt><dd>{esc(g['category_label'])}</dd></div>
           <div><dt>dose per vial</dt><dd data-dose-out>{esc(d['dose'])}</dd></div>
           <div><dt>sku</dt><dd data-sku-out>{esc(d['sku'])}</dd></div>
-          <div><dt>purity</dt><dd>≥99% · hplc verified</dd></div>{coa_spec}
+          <div><dt>purity</dt><dd>≥99% · hplc verified</dd></div>
         </dl>
         <div class="ruo" data-reveal><b>research use only</b>for laboratory research use only. not intended for human or animal consumption, and not evaluated by the fda to diagnose, treat, cure or prevent any disease. nothing on this page is medical advice.</div>
         <div class="acc" data-acc data-reveal>
           <div class="acc__i is-open"><button class="acc__h" aria-expanded="true">overview<i></i></button><div class="acc__b"><div><p>{esc(g['name'])}, cataloged under {esc(g['category_label'].lower())}, available in {len(variants)} vial size{'s' if multi else ''}. logged at ≥99% purity per the standard applied across this catalog.</p></div></div></div>
           <div class="acc__i"><button class="acc__h" aria-expanded="false">research use only<i></i></button><div class="acc__b"><div><p>this entry is for research and record-keeping purposes only. it is not intended for human consumption, clinical use, or as a drug, food, cosmetic or medical device, and has not been evaluated by the fda.</p></div></div></div>
-          <div class="acc__i"><button class="acc__h" aria-expanded="false">certificate of analysis<i></i></button><div class="acc__b"><div>{coa_body}</div></div></div>
+          <div class="acc__i" id="coa"><button class="acc__h" aria-expanded="false">certificate of analysis<i></i></button><div class="acc__b"><div>{coa_body}</div></div></div>
         </div>
       </div>
     </div>

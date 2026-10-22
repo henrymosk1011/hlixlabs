@@ -173,20 +173,20 @@ look, edit `render_art_badge()` in `scripts/photo_labels.py`; `--outdir` plus
   if they're true for your actual supply. Products with no entry in
   `data/coa.json` still show the generic "kept on file, available on request"
   line in their certificate of analysis section.
+- Every generated page carries a "Research Use Only / not for human
+  consumption" disclaimer. Don't remove it without knowing why it's there.
 
 ## Certificates of analysis
 
-Lab reports live in `assets/coa/` (the PDFs exactly as received, named
-`<variant-slug>-<report date>.pdf`) and are listed in `data/coa.json`, one
-entry per report, keyed by the variant slug from `data/products.json` (e.g.
-`glp3-r-10mg`). `build_v2.py` adds a "lab report" row to that product's specs
-and lists the reports, newest first, in its certificate of analysis section;
-the page switches between them as the vial size changes. To add one, drop the
-PDF in `assets/coa/`, add its entry, and rebuild. `vercel.json` serves
-`/assets/coa/` without the site's Content-Security-Policy so browsers' built-in
-PDF viewers aren't blocked.
-- Every generated page carries a "Research Use Only / not for human
-  consumption" disclaimer. Don't remove it without knowing why it's there.
+Lab reports live in `assets/coa/` (the PDFs exactly as received) and are
+listed in `data/coa.json`, one entry per report, keyed by the product's page
+slug (e.g. `glp3-r`). They apply to the whole product, whatever vial size is
+picked: `build_v2.py` puts the newest report on a line under the product name
+(purity · lab · date · view certificate, plus "all n reports" when there are
+several) and lists them all, newest first, in the certificate of analysis
+section (`#coa`). To add one, drop the PDF in `assets/coa/`, add its entry,
+and rebuild. `vercel.json` serves `/assets/coa/` without the site's
+Content-Security-Policy so browsers' built-in PDF viewers aren't blocked.
 
 ## Local preview
 
