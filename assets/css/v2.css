@@ -547,6 +547,17 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .acc__i.is-open .acc__b { grid-template-rows: 1fr; }
 .acc__b > div { overflow: hidden; }
 .acc__b p { padding-bottom: 22px; color: var(--dim); max-width: 56ch; }
+[data-coa-for][hidden] { display: none; }
+.coa { display: grid; gap: 10px; padding-bottom: 22px; }
+.coa li { padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r); background: var(--surface-tint); }
+.coa__top { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; font-weight: 600; }
+.coa__top span { color: var(--dim); font: 500 12px var(--f-mono); letter-spacing: 0.08em; }
+.coa__nums { display: flex; flex-wrap: wrap; gap: 4px 18px; margin-top: 6px; color: var(--dim); font-size: 13.5px; }
+.coa__nums b { color: var(--fg); font-weight: 600; }
+.coa__links { display: flex; flex-wrap: wrap; gap: 6px 18px; margin-top: 10px; font: 500 12px var(--f-mono); letter-spacing: 0.04em; }
+.coa__links a, .coa__spec { display: inline-flex; align-items: center; gap: 4px; color: var(--accent); }
+.coa__links a + a { color: var(--dim); }
+.coa__links svg, .coa__spec svg { width: 12px; height: 12px; }
 .related { border-top: 1px solid var(--line); padding: clamp(60px, 10vh, 120px) 0 clamp(80px, 14vh, 160px); }
 .related .pgrid { padding-bottom: 0; }
 @media (max-width: 900px) {

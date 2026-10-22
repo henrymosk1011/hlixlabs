@@ -170,7 +170,21 @@ look, edit `render_art_badge()` in `scripts/photo_labels.py`; `--outdir` plus
   change it there if that inbox ever changes, then rebuild.
 - The trust badges (HPLC Verified / Batch Tested / COA on File) are copy
   choices, not verified claims this generator makes for you — keep them only
-  if they're true for your actual supply.
+  if they're true for your actual supply. Products with no entry in
+  `data/coa.json` still show the generic "kept on file, available on request"
+  line in their certificate of analysis section.
+
+## Certificates of analysis
+
+Lab reports live in `assets/coa/` (the PDFs exactly as received, named
+`<variant-slug>-<report date>.pdf`) and are listed in `data/coa.json`, one
+entry per report, keyed by the variant slug from `data/products.json` (e.g.
+`glp3-r-10mg`). `build_v2.py` adds a "lab report" row to that product's specs
+and lists the reports, newest first, in its certificate of analysis section;
+the page switches between them as the vial size changes. To add one, drop the
+PDF in `assets/coa/`, add its entry, and rebuild. `vercel.json` serves
+`/assets/coa/` without the site's Content-Security-Policy so browsers' built-in
+PDF viewers aren't blocked.
 - Every generated page carries a "Research Use Only / not for human
   consumption" disclaimer. Don't remove it without knowing why it's there.
 

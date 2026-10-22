@@ -432,6 +432,17 @@
     imgState.priceShown = target;
   }
 
+  // lab reports: show the selected size's, or the "*" note when it has none
+  var coaEls = $$("[data-coa-for]");
+  function showCoa(sku) {
+    if (!coaEls.length) return;
+    var has = coaEls.some(function (el) { return el.getAttribute("data-coa-for") === sku; });
+    coaEls.forEach(function (el) {
+      var f = el.getAttribute("data-coa-for");
+      el.hidden = has ? f !== sku : f !== "*";
+    });
+  }
+
   $$("[data-seg]").forEach(function (seg) {
     var isForm = seg.getAttribute("data-seg") === "form";
     var btns = $$(isForm ? "[data-form]" : "[data-variant]", seg);
@@ -474,6 +485,7 @@
         var dose = b.getAttribute("data-dose"), sku = b.getAttribute("data-sku");
         $$("[data-dose-out]").forEach(function (el) { el.textContent = dose; });
         $$("[data-sku-out]").forEach(function (el) { el.textContent = sku; });
+        showCoa(sku);
         if (doseText) doseText.textContent = dose;
         if (skuText) skuText.textContent = sku;
         imgState.priceBase = parseFloat(b.getAttribute("data-price")) || 0;

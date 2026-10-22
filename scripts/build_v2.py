@@ -8,6 +8,7 @@ chat backend with the original site but none of its markup or styling.
 
 The original site is untouched apart from one unlabeled link in its footer.
 """
+import json
 import shutil
 import time
 from collections import Counter
@@ -20,6 +21,7 @@ ROOT = b.ROOT
 OUT = ROOT
 VER = str(int(time.time()))
 CONTACT_EMAIL = b.CONTACT_EMAIL
+COA = json.loads((ROOT / "data" / "coa.json").read_text())
 
 ARROW = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>'
 ARROW_UR = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17 17 7M8 7h9v9"/></svg>'
@@ -429,6 +431,59 @@ def page_catalog(groups):
 
 # -------------------------------------------------------------- product ---
 
+MONTHS = "jan feb mar apr may jun jul aug sep oct nov dec".split()
+COA_FALLBACK = '<p>a certificate of analysis is kept on file for this compound and available on request via the <a href="../contact.html" style="color:var(--accent)">contact page</a>.</p>'
+
+
+def coa_blocks(g):
+    """Lab reports from data/coa.json, one block per vial size that has any
+    (newest first). Every block carries data-coa-for=<sku>; v2.js shows the
+    selected size's, or the "*" block when that size has none."""
+    d = g["default"]
+    by_sku = {}
+    for v in g["variants"]:
+        certs = sorted((c for c in COA if c["variant"] == v["slug"]), key=lambda c: c["date"], reverse=True)
+        if certs:
+            by_sku[v["sku"]] = (v, certs)
+    if not by_sku:
+        return COA_FALLBACK, ""
+
+    def when(c):
+        y, m, day = (int(x) for x in c["date"].split("-"))
+        return f"{MONTHS[m - 1]} {day}, {y}"
+
+    def hide(sku):
+        shown = d["sku"] if d["sku"] in by_sku else "*"
+        return "" if sku == shown else " hidden"
+
+    body, spec = [], []
+    for sku, (v, certs) in by_sku.items():
+        items = "".join(
+            f'<li><div class="coa__top"><b>{when(c)}</b><span>{esc(c["lab"].lower())}</span></div>'
+            f'<div class="coa__nums"><span>purity <b>{esc(c["purity"])}</b></span><span>measured <b>{esc(c["measured"])}</b></span></div>'
+            f'<div class="coa__links"><a href="../assets/coa/{c["file"]}" target="_blank" rel="noopener">view report (pdf) {ARROW_UR}</a>'
+            f'<a href="https://www.finnrick.com/verify" target="_blank" rel="noopener">verify on finnrick · id {esc(c["finnrick_id"])}</a></div></li>'
+            for c in certs
+        )
+        body.append(
+            f'<div data-coa-for="{esc(sku)}"{hide(sku)}><p>independent lab results for the {esc(v["dose"])} vial, tested for finnrick analytics. '
+            f'each report covers only the lot it tested.</p><ul class="coa">{items}</ul></div>'
+        )
+        c = certs[0]
+        spec.append(
+            f'<div data-coa-for="{esc(sku)}"{hide(sku)}><dt>lab report</dt><dd>{esc(c["purity"])} · '
+            f'<a class="coa__spec" href="../assets/coa/{c["file"]}" target="_blank" rel="noopener">view {ARROW_UR}</a></dd></div>'
+        )
+    if len(by_sku) < len(g["variants"]):
+        sizes = " and ".join(v["dose"] for v, _ in by_sku.values())
+        body.append(
+            f'<div data-coa-for="*"{hide("*")}><p>lab reports are published for the {esc(sizes)} vial{"s" if len(by_sku) > 1 else ""} — '
+            f'pick {"one of those sizes" if len(by_sku) > 1 else "that size"} above to see them. questions about other sizes? '
+            f'<a href="../contact.html" style="color:var(--accent)">contact us</a>.</p></div>'
+        )
+    return "".join(body), "".join(spec)
+
+
 def page_product(g, groups):
     d = g["default"]
     svg = vial_media(d, f"pdp-{g['slug']}", "l", "../../", eager=True)
@@ -454,6 +509,7 @@ def page_product(g, groups):
         '<button role="radio" aria-checked="true" class="is-active" data-form="recon">ready to use</button>'
     )
     seg += f'<span class="field-l">form</span><div class="seg" data-seg="form" role="radiogroup" aria-label="shipping form"><span class="seg__thumb"></span>{form_btns}</div>'
+    coa_body, coa_spec = coa_blocks(g)
     related = [x for x in groups if x["category"] == g["category"] and x["slug"] != g["slug"]][:4]
     rel = ""
     if related:
@@ -486,13 +542,13 @@ def page_product(g, groups):
           <div><dt>category</dt><dd>{esc(g['category_label'])}</dd></div>
           <div><dt>dose per vial</dt><dd data-dose-out>{esc(d['dose'])}</dd></div>
           <div><dt>sku</dt><dd data-sku-out>{esc(d['sku'])}</dd></div>
-          <div><dt>purity</dt><dd>≥99% · hplc verified</dd></div>
+          <div><dt>purity</dt><dd>≥99% · hplc verified</dd></div>{coa_spec}
         </dl>
         <div class="ruo" data-reveal><b>research use only</b>for laboratory research use only. not intended for human or animal consumption, and not evaluated by the fda to diagnose, treat, cure or prevent any disease. nothing on this page is medical advice.</div>
         <div class="acc" data-acc data-reveal>
           <div class="acc__i is-open"><button class="acc__h" aria-expanded="true">overview<i></i></button><div class="acc__b"><div><p>{esc(g['name'])}, cataloged under {esc(g['category_label'].lower())}, available in {len(variants)} vial size{'s' if multi else ''}. logged at ≥99% purity per the standard applied across this catalog.</p></div></div></div>
           <div class="acc__i"><button class="acc__h" aria-expanded="false">research use only<i></i></button><div class="acc__b"><div><p>this entry is for research and record-keeping purposes only. it is not intended for human consumption, clinical use, or as a drug, food, cosmetic or medical device, and has not been evaluated by the fda.</p></div></div></div>
-          <div class="acc__i"><button class="acc__h" aria-expanded="false">certificate of analysis<i></i></button><div class="acc__b"><div><p>a certificate of analysis is kept on file for this compound and available on request via the <a href="../contact.html" style="color:var(--accent)">contact page</a>.</p></div></div></div>
+          <div class="acc__i"><button class="acc__h" aria-expanded="false">certificate of analysis<i></i></button><div class="acc__b"><div>{coa_body}</div></div></div>
         </div>
       </div>
     </div>
