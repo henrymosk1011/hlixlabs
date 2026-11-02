@@ -719,7 +719,19 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
   background: var(--bg); color: var(--fg); color-scheme: light;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 50px 120px -70px rgba(51, 230, 176, 0.5), 0 30px 70px -45px rgba(0, 0, 0, 0.8);
 }
-:root[data-theme="light"] .planner__sheet { --bg: #fbfbf9; box-shadow: 0 0 0 1px rgba(14, 15, 16, 0.06), 0 30px 80px -50px rgba(14, 15, 16, 0.3); }
+:root[data-theme="light"] .planner__sheet:not(.is-dark) { --bg: #fbfbf9; box-shadow: 0 0 0 1px rgba(14, 15, 16, 0.06), 0 30px 80px -50px rgba(14, 15, 16, 0.3); }
+/* or a dark sheet, from the light / dark button by the month (saved with the plan): the site's dark palette and
+   the bright vial colors */
+.planner__sheet.is-dark {
+  --bg: #0a0c0e; --bg-rgb: 10, 12, 14; --bg-2: #101317; --bg-2-rgb: 16, 19, 23; --bg-3: #1a1e23;
+  --fg: #f3f4f2; --dim: #8a9096; --faint: #5a6067;
+  --line: rgba(255, 255, 255, 0.08); --line-2: rgba(255, 255, 255, 0.17); --surface-tint: rgba(255, 255, 255, 0.035);
+  --accent: #33e6b0; --accent-ink: #04120d; --warn: #f2b84b;
+  --v0: #33e6b0; --v1: #5cb8ff; --v2: #b48cff; --v3: #ff7eb6; --v4: #c6ec5c; --v5: #d2d7de;
+  color-scheme: dark;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.08), 0 50px 120px -70px rgba(51, 230, 176, 0.35);
+}
+.planner__sheet.is-dark[data-c], .planner__sheet.is-dark [data-c] { --vink: var(--accent-ink); } /* every bright preset takes dark text */
 .planner__sheet ::selection { background: var(--accent); color: var(--accent-ink); }
 .planner__sheet .warn { color: var(--warn); }
 .planner__sheet, [data-c="0"] { --vc: var(--v0); }
@@ -772,18 +784,37 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .planner__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); gap: clamp(24px, 4vw, 64px); align-items: start; }
 
 .cal { --gap: 6px; min-width: 0; container: cal / inline-size; }
-.cal__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
-.cal__month { font: 700 clamp(1.5rem, 2.6vw, 2.2rem) var(--f-display); letter-spacing: -0.04em; }
+.cal__head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; margin-bottom: 18px; }
+.cal__month { flex: 1 1 0; min-width: 9ch; font: 700 clamp(1.5rem, 2.6vw, 2.2rem) var(--f-display); letter-spacing: -0.04em; }
 .cal__month span { color: var(--faint); }
-.cal__nav { display: flex; gap: 6px; }
+.cal__nav, .cal__view { display: flex; gap: 6px; }
+.cal__seg { display: flex; gap: 2px; padding: 3px; border: 1px solid var(--line-2); border-radius: var(--r); }
+.cal__seg button { height: 34px; padding: 0 12px; border-radius: 5px; color: var(--dim); font: 500 12px var(--f-mono); letter-spacing: 0.06em; white-space: nowrap; transition: background-color 0.3s, color 0.3s; }
+.cal__seg button:hover { color: var(--fg); }
+.cal__seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg-2); }
 .cal__btn { display: grid; place-items: center; min-width: 42px; height: 42px; border: 1px solid var(--line-2); border-radius: var(--r); color: var(--fg); transition: border-color 0.3s, transform 0.35s var(--ease); }
 .cal__btn:hover { border-color: var(--fg); transform: translateY(-2px); }
 .cal__btn svg { width: 18px; height: 18px; }
 .cal__today { padding: 0 14px; font: 500 12px var(--f-mono); letter-spacing: 0.1em; }
+.cal__look { display: inline-flex; align-items: center; gap: 8px; padding: 0 14px; font: 500 12px var(--f-mono); letter-spacing: 0.1em; }
+.cal__look svg { width: 16px; height: 16px; }
+.cal__look svg + svg, .is-dark .cal__look svg:first-child { display: none; }
+.is-dark .cal__look svg + svg { display: block; }
+@container cal (max-width: 560px) {
+  .cal__view { order: 3; flex-basis: 100%; }
+  .cal__seg { flex: 1; }
+  .cal__seg button { flex: 1; }
+}
 .cal__dow { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--gap); margin-bottom: 8px; color: var(--faint); font: 500 11px var(--f-mono); letter-spacing: 0.14em; }
 .cal__dow span { padding-left: 10px; }
 .cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--gap); }
-.cal__grid.is-in { animation: cal-in 0.55s var(--ease) both; }
+.cal__months { display: grid; gap: clamp(26px, 4vh, 40px); }
+.cal__months.is-in { animation: cal-in 0.55s var(--ease) both; }
+.cal__mon-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 12px; }
+.cal__mon-t { font: 700 clamp(1.1rem, 1.7vw, 1.4rem) var(--f-display); letter-spacing: -0.03em; }
+.cal__mon-t span { color: var(--faint); }
+.cal__mon:not(.is-center) .cal__mon-t { color: var(--dim); }
+.cal__mon-sum { color: var(--dim); font: 500 12px var(--f-mono); letter-spacing: 0.06em; white-space: nowrap; }
 @keyframes cal-in { from { opacity: 0; transform: translateX(calc(var(--dir, 1) * 20px)); } }
 .cal__d { position: relative; min-width: 0; aspect-ratio: 1 / 0.74; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-2); text-align: left; transition: border-color 0.3s, box-shadow 0.3s; }
 .cal__d.is-blank { border-color: transparent; background: none; }
@@ -807,6 +838,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 /* the other vials' doses that day */
 .cal__dots { position: absolute; left: 10px; bottom: 9px; display: flex; gap: 4px; }
 .cal__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--vc); box-shadow: 0 0 0 1.5px var(--bg-2); }
+.cal__dots b { color: var(--dim); font: 600 9px/6px var(--f-mono); }
 @media (hover: hover) {
   button.cal__d:hover { border-color: var(--line-2); }
   button.cal__d.has-dose:hover, button.cal__d.is-sel:hover { border-color: var(--vc); }
@@ -887,7 +919,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .pl-row__bar i { display: block; width: calc(var(--lvl, 0) * 100%); height: 100%; border-radius: 2px; background: var(--vc); transition: width 0.8s var(--ease); }
 .pl-row__dry { grid-area: dry; color: var(--dim); font: 500 11px var(--f-mono); white-space: nowrap; }
 .pl-row.is-short .pl-row__left { color: var(--warn); }
-.no-motion .cal__grid, .no-motion .cal__v { animation: none !important; }
+.no-motion .cal__months, .no-motion .cal__v { animation: none !important; }
 .no-motion .cal__d::before, .no-motion .mv__liq, .no-motion .cal__ed, .no-motion .cal__ed-box::before { transition: none !important; }
 
 @media (max-width: 1120px) {
@@ -914,7 +946,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
   .cal__d.has-dose .cal__v::before { width: 4px; height: 4px; }
   .cal__dots { right: 5px; top: 6px; }
   .cal__dots i { width: 4px; height: 4px; box-shadow: none; }
-  .cal__dots i:nth-child(n + 4) { display: none; }
+  .cal__dots i:nth-of-type(n + 3), .cal__dots b { display: none; } /* two dots at most: the day's number needs the room */
   .pl-tab { padding: 10px 12px; font-size: 13px; }
   .pl-tab span { max-width: 12ch; }
   .pl-set { flex-direction: column; align-items: stretch; padding: 14px; }

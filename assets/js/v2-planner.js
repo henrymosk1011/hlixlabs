@@ -1,4 +1,4 @@
-// hlix v2 — dose planner: a month calendar that tracks what's left in each of up to six vials
+// hlix v2 — dose planner: a month calendar (or three) that tracks what's left in each vial, any number of them
 // (pure client-side; the plan is kept in this browser's localStorage, or, on planner-embed.html inside the
 // admin dashboard's Calendar page, by the admin; see "embedded" at the bottom)
 (function () {
@@ -13,7 +13,8 @@
   var STORE = "hlix-plan";
   var EPS = 1e-9;
   var MAX_REPEAT = 400; // safety cap on how many doses one repeat can lay down
-  var MAX_VIALS = 6;    // one per preset color, --v0 … --v5 in v2.css
+  var PRESETS = 6;      // preset colors, --v0 … --v5 in v2.css; vials past six get a color of their own
+  var MAX_DOTS = 3;     // other vials' dots a day shows before "+n"
   var MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
   var DOW = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
   var EVERY = { 1: "daily", 2: "every-other-day", 7: "weekly" };
@@ -60,12 +61,21 @@
     }
   }
   function tintAttr(v) { return isHex(v.color) ? 'style="--vc:' + v.color + '"' : 'data-c="' + v.color + '"'; }
+  function hueHex(h) { // a hue (0–360) at a fixed saturation and lightness, as "#rrggbb"
+    var s = 0.62, l = 0.5, a = s * Math.min(l, 1 - l);
+    function f(n) {
+      var k = (n + h / 30) % 12, c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
+      return ("0" + Math.round(c * 255).toString(16)).slice(-2);
+    }
+    return "#" + f(0) + f(8) + f(4);
+  }
 
   // ---- state: a list of vials, one of them active (the one the calendar, editor and tiles show) ----
   // a vial's doses are the days set by hand (0 = "none" on a day its repeat would fill); its rule, if any, is a
   // repeat that keeps going every `every` days after `from` until the vial runs dry, so it stretches or shrinks
-  // whenever the vial size or an earlier dose changes
-  var state = { vials: [], active: null };
+  // whenever the vial size or an earlier dose changes. look (light / dark sheet) and months (1, or 3 with the
+  // months before and after) are how it's shown, saved with the plan
+  var state = { vials: [], active: null, look: "light", months: 1 };
 
   function cleanDoses(src) {
     var d = {};
@@ -82,9 +92,11 @@
     return { from: r.from, dose: +r.dose, every: Math.round(+r.every) };
   }
   function presetUsed(c, except) { return state.vials.some(function (v) { return v !== except && v.color === c; }); }
+  var EXTRA = ["#e8833a", "#e5484d", "#c99a06", "#0f9fb5", "#5b5bd6", "#a8743f"]; // after the presets: orange, red, amber, teal, indigo, brown
   function freeColor() {
-    for (var c = 0; c < MAX_VIALS; c++) if (!presetUsed(c)) return c;
-    return 0;
+    for (var c = 0; c < PRESETS; c++) if (!presetUsed(c)) return c;
+    for (var i = 0; i < EXTRA.length; i++) if (!presetUsed(EXTRA[i])) return EXTRA[i];
+    return hueHex(state.vials.length * 137.508 % 360); // all of those taken: spread around the wheel so neighbours differ
   }
   function nextName() {
     for (var n = 1; ; n++) if (!state.vials.some(function (v) { return v.name === "vial " + n; })) return "vial " + n;
@@ -97,7 +109,7 @@
   function addVialObj(o) {
     var v = { id: o.id && !find(o.id) ? o.id : newId(), name: o.name || "", size: o.size, color: 0, doses: o.doses || {}, rule: o.rule || null };
     var c = o.color;
-    v.color = isHex(c) ? c.toLowerCase() : c >= 0 && c < MAX_VIALS && c === Math.floor(c) && !presetUsed(c) ? c : freeColor();
+    v.color = isHex(c) ? c.toLowerCase() : c >= 0 && c < PRESETS && c === Math.floor(c) && !presetUsed(c) ? c : freeColor();
     state.vials.push(v);
     return v;
   }
@@ -124,9 +136,11 @@
   function load(saved) {
     state.vials = [];
     state.active = null;
+    state.look = saved && saved.look === "dark" ? "dark" : "light";
+    state.months = saved && +saved.months === 3 ? 3 : 1;
     try {
       if (saved && Array.isArray(saved.vials)) {
-        saved.vials.slice(0, MAX_VIALS).forEach(function (v) {
+        saved.vials.forEach(function (v) {
           if (!v || !(+v.size > 0)) return;
           var nv = addVialObj({ id: String(v.id || ""), name: String(v.name || "").slice(0, 28), size: +v.size, color: v.color, doses: cleanDoses(v.doses), rule: cleanRule(v.rule) });
           if (!(saved.v >= 3) && !nv.rule) inferRule(nv);
@@ -140,7 +154,7 @@
     if (!V()) state.active = state.vials[0].id;
   }
   function save() {
-    var plan = { v: 3, active: state.active, vials: state.vials };
+    var plan = { v: 3, active: state.active, look: state.look, months: state.months, vials: state.vials };
     if (embed) { tell("save", { plan: plan }); return; }
     try { localStorage.setItem(STORE, JSON.stringify(plan)); } catch (e) {}
   }
@@ -185,43 +199,63 @@
   function usedIn(L, a, b) { var u = 0; L.forEach(function (e) { if (e.k >= a && e.k <= b) u += e.mg; }); return u; }
   function dryEntry(v, L) { for (var i = 0; i < L.length; i++) if (L[i].cum >= v.size - EPS) return L[i]; return null; }
 
-  // ---- calendar ----
+  // ---- calendar: one month, or three (the month before and the one after around it), each its own grid ----
   var cal = $("[data-cal]");
-  var grid = $("[data-cal-grid]");
+  var monthsEl = $("[data-cal-months]");
   var titleEl = $("[data-cal-title]");
   var sumEl = $("[data-cal-sum]");
   var clearBtn = $("[data-cal-clear]");
-  var slots = []; // one per grid square: { el, k } (k is null for the blanks around the month)
+  var slots = [];  // one per day square: { el, k, grid, at } (at: its place in its month's grid; k is null for the blanks)
+  var onScreen = []; // per month shown: { a, b, m, sum } its first and last day keys, month index, summary element (three only)
 
+  function monthAt(n) { return new Date(view.getFullYear(), view.getMonth() + n, 1); }
   function build(dir) {
     detachEditor();
-    grid.innerHTML = "";
+    monthsEl.innerHTML = "";
     slots = [];
-    var y = view.getFullYear(), m = view.getMonth();
-    var lead = view.getDay(), days = new Date(y, m + 1, 0).getDate();
-    var total = Math.ceil((lead + days) / 7) * 7;
-    for (var i = 0; i < total; i++) {
-      var n = i - lead + 1, el, k = null;
-      if (n < 1 || n > days) {
-        el = document.createElement("span");
-        el.className = "cal__d is-blank";
-      } else {
-        k = key(new Date(y, m, n));
-        el = document.createElement("button");
-        el.type = "button";
-        el.className = "cal__d";
-        el.setAttribute("data-k", k);
-        el.innerHTML = '<span class="cal__n">' + n + '</span><span class="cal__v"></span><span class="cal__dots"></span>';
+    onScreen = [];
+    var three = state.months === 3;
+    for (var off = three ? -1 : 0; off <= (three ? 1 : 0); off++) {
+      var md = monthAt(off), y = md.getFullYear(), m = md.getMonth();
+      var lead = md.getDay(), days = new Date(y, m + 1, 0).getDate();
+      var total = Math.ceil((lead + days) / 7) * 7;
+      var sec = document.createElement("div"), g = document.createElement("div"), sum = null;
+      sec.className = "cal__mon" + (off === 0 ? " is-center" : "");
+      if (three) {
+        sec.innerHTML = '<div class="cal__mon-head"><h4 class="cal__mon-t">' + MONTHS[m] + " <span>" + y + '</span></h4><span class="cal__mon-sum"></span></div>';
+        sum = $(".cal__mon-sum", sec);
       }
-      grid.appendChild(el);
-      slots.push({ el: el, k: k });
+      sec.insertAdjacentHTML("beforeend", '<div class="cal__dow" aria-hidden="true">' + DOW.map(function (d) { return "<span>" + d + "</span>"; }).join("") + "</div>");
+      g.className = "cal__grid";
+      for (var i = 0; i < total; i++) {
+        var n = i - lead + 1, el, k = null;
+        if (n < 1 || n > days) {
+          el = document.createElement("span");
+          el.className = "cal__d is-blank";
+        } else {
+          k = key(new Date(y, m, n));
+          el = document.createElement("button");
+          el.type = "button";
+          el.className = "cal__d";
+          el.setAttribute("data-k", k);
+          el.innerHTML = '<span class="cal__n">' + n + '</span><span class="cal__v"></span><span class="cal__dots"></span>';
+        }
+        g.appendChild(el);
+        slots.push({ el: el, k: k, grid: g, at: i });
+      }
+      sec.appendChild(g);
+      monthsEl.appendChild(sec);
+      onScreen.push({ a: key(md), b: key(new Date(y, m + 1, 0)), m: m, sum: sum });
     }
-    titleEl.innerHTML = MONTHS[m] + " <span>" + y + "</span>";
+    var f = monthAt(three ? -1 : 0), l = monthAt(three ? 1 : 0), fy = f.getFullYear(), ly = l.getFullYear();
+    titleEl.innerHTML = three
+      ? mon(f) + " – " + mon(l) + " <span>" + (fy === ly ? ly : fy + "–" + String(ly).slice(2)) + "</span>"
+      : MONTHS[f.getMonth()] + " <span>" + fy + "</span>";
     if (dir) {
-      grid.style.setProperty("--dir", dir);
-      grid.classList.remove("is-in");
-      void grid.offsetWidth; // restart the slide-in, and let the liquid rise in from empty
-      grid.classList.add("is-in");
+      monthsEl.style.setProperty("--dir", dir);
+      monthsEl.classList.remove("is-in");
+      void monthsEl.offsetWidth; // restart the slide-in, and let the liquid rise in from empty
+      monthsEl.classList.add("is-in");
     }
   }
 
@@ -231,35 +265,41 @@
     var others = state.vials.filter(function (o) { return o !== v; }).map(function (o) { return { o: o, s: schedule(o) }; });
     var first = L.length ? L[0].k : "", last = L.length ? L[L.length - 1].k : "";
     var step = 0;
-    slots.forEach(function (s, i) {
+    slots.forEach(function (s) {
       if (!s.k) return;
       var k = s.k, el = s.el, dose = sched[k] || 0;
       var after = size - usedThrough(L, k), before = after + dose;
       var inPlan = L.length > 0 && k >= first && k <= last;
       el.style.setProperty("--lvl", inPlan ? Math.max(0, Math.min(1, after / size)).toFixed(4) : "0");
-      el.style.setProperty("--i", fromKey == null ? i : k > fromKey ? ++step : 0);
+      el.style.setProperty("--i", fromKey == null ? s.at : k > fromKey ? Math.min(++step, 42) : 0);
       el.classList.toggle("has-dose", dose > 0);
       el.classList.toggle("is-short", dose > 0 && before < dose - EPS);
       el.classList.toggle("is-today", k === todayKey);
       el.classList.toggle("is-past", k < todayKey);
       el.classList.toggle("is-sel", k === editing);
       el.querySelector(".cal__v").innerHTML = dose > 0 ? fmt(dose, 2) + "<small>mg</small>" : "";
-      // the other vials' doses that day, as dots in their colors
+      // the other vials' doses that day, as dots in their colors (a few, then "+n")
       var dots = "", also = [];
       others.forEach(function (x) {
         if (!x.s[k]) return;
-        dots += "<i " + tintAttr(x.o) + "></i>";
+        if (also.length < MAX_DOTS) dots += "<i " + tintAttr(x.o) + "></i>";
         also.push(label(x.o) + " " + mg(x.s[k]));
       });
+      if (also.length > MAX_DOTS) dots += "<b>+" + (also.length - MAX_DOTS) + "</b>";
       el.querySelector(".cal__dots").innerHTML = dots;
       el.setAttribute("aria-label", dayLabel(parse(k)) + (many ? ", " + label(v) : "") + (dose > 0 ? ", " + mg(dose) : ", no dose") +
         (inPlan ? ", " + mg(Math.max(0, after)) + " left" : "") + (also.length ? "; also " + also.join(", ") : ""));
     });
 
-    var y = view.getFullYear(), m = view.getMonth();
-    var a = key(view), b = key(new Date(y, m + 1, 0));
-    var count = L.filter(function (e) { return e.k >= a && e.k <= b; }).length;
-    sumEl.textContent = (many ? label(v) + " · " : "") + (count ? MONTHS[m] + ": " + count + (count === 1 ? " dose · " : " doses · ") + mg(usedIn(L, a, b)) : "no doses in " + MONTHS[m] + " yet");
+    function doses(a, b) {
+      var count = L.filter(function (e) { return e.k >= a && e.k <= b; }).length;
+      return count ? count + (count === 1 ? " dose · " : " doses · ") + mg(usedIn(L, a, b)) : "";
+    }
+    var s0 = onScreen[0], s1 = onScreen[onScreen.length - 1];
+    var name = onScreen.length > 1 ? MONTHS[s0.m].slice(0, 3) + " – " + MONTHS[s1.m].slice(0, 3) : MONTHS[s0.m];
+    var all = doses(s0.a, s1.b);
+    sumEl.textContent = (many ? label(v) + " · " : "") + (all ? name + ": " + all : "no doses in " + name + " yet");
+    onScreen.forEach(function (s) { if (s.sum) s.sum.textContent = doses(s.a, s.b) || "no doses"; });
     clearBtn.hidden = !L.length;
     if (!clearBtn.classList.contains("is-armed")) clearBtn.textContent = many ? "clear " + label(v) : "clear plan";
   }
@@ -343,8 +383,8 @@
   var repBtns = $$("[data-ed-rep] .opt", ed);
   var closeT = 0;
 
-  function indexOf(k) { for (var i = 0; i < slots.length; i++) if (slots[i].k === k) return i; return -1; }
-  function cellOf(k) { var i = indexOf(k); return i < 0 ? null : slots[i].el; }
+  function slotOf(k) { for (var i = 0; i < slots.length; i++) if (slots[i].k === k) return slots[i]; return null; }
+  function cellOf(k) { var s = slotOf(k); return s && s.el; }
 
   // (re)start editing day k on the active vial
   function startEdit(k) {
@@ -358,17 +398,18 @@
 
   function openEditor(k) {
     if (editing === k) { closeEditor(); return; }
-    var idx = indexOf(k), row = Math.floor(idx / 7);
-    var wasRow = editing && ed.parentNode === grid ? Math.floor(indexOf(editing) / 7) : -1;
+    var s = slotOf(k), row = Math.floor(s.at / 7);
+    var was = editing && ed.parentNode === s.grid ? slotOf(editing) : null; // same month: it only moves if the week changes
+    var wasRow = was ? Math.floor(was.at / 7) : -1;
     editing = k;
     focus = k;
     startEdit(k);
     clearTimeout(closeT);
-    ed.style.setProperty("--col", idx % 7);
+    ed.style.setProperty("--col", s.at % 7);
     if (row !== wasRow) {
       ed.classList.remove("is-open");
       ed.hidden = false;
-      grid.insertBefore(ed, slots[row * 7 + 6].el.nextSibling);
+      s.grid.insertBefore(ed, slots[slots.indexOf(s) - s.at + row * 7 + 6].el.nextSibling); // after the week's saturday
       void ed.offsetHeight;
       ed.classList.add("is-open");
     }
@@ -461,7 +502,7 @@
     syncEditor();
   }
 
-  grid.addEventListener("click", function (e) {
+  monthsEl.addEventListener("click", function (e) {
     var c = e.target.closest && e.target.closest("button.cal__d");
     if (c) openEditor(c.getAttribute("data-k"));
   });
@@ -521,6 +562,30 @@
     summarize();
   });
 
+  // ---- how it's shown, saved with the plan: one month or three, and a light or dark sheet ----
+  var spanBtns = $$("[data-cal-span]"), lookBtn = $("[data-cal-look]");
+  function syncLook() {
+    root.classList.toggle("is-dark", state.look === "dark");
+    $("span", lookBtn).textContent = state.look === "dark" ? "light" : "dark"; // what a tap switches to
+    spanBtns.forEach(function (b) { b.setAttribute("aria-pressed", +b.getAttribute("data-cal-span") === state.months ? "true" : "false"); });
+  }
+  lookBtn.addEventListener("click", function () {
+    state.look = state.look === "dark" ? "light" : "dark";
+    syncLook();
+    save();
+  });
+  spanBtns.forEach(function (b) {
+    b.addEventListener("click", function () {
+      var n = +b.getAttribute("data-cal-span");
+      if (n === state.months) return;
+      state.months = n;
+      syncLook();
+      save();
+      build(0);
+      paint();
+    });
+  });
+
   // ---- clear the active vial's doses (tap twice) ----
   var armT = 0;
   function disarm() { clearTimeout(armT); clearBtn.classList.remove("is-armed"); }
@@ -560,14 +625,12 @@
       $("small", b).textContent = mg(v.size);
       tabsEl.appendChild(b);
     });
-    if (state.vials.length < MAX_VIALS) {
-      var add = document.createElement("button");
-      add.type = "button";
-      add.className = "pl-tab pl-tab--add";
-      add.setAttribute("data-vial-add", "");
-      add.innerHTML = "<b>+</b>add vial";
-      tabsEl.appendChild(add);
-    }
+    var add = document.createElement("button");
+    add.type = "button";
+    add.className = "pl-tab pl-tab--add";
+    add.setAttribute("data-vial-add", "");
+    add.innerHTML = "<b>+</b>add vial";
+    tabsEl.appendChild(add);
   }
 
   function syncVial() {
@@ -614,7 +677,6 @@
     var b = e.target.closest && e.target.closest("button");
     if (!b) return;
     if (b.hasAttribute("data-vial-add")) {
-      if (state.vials.length >= MAX_VIALS) return;
       var v = addVialObj({ name: nextName(), size: calc.vial > 0 ? calc.vial : V().size });
       setActive(v.id);
       nameIn.focus();
@@ -713,6 +775,7 @@
   });
 
   function start() {
+    syncLook();
     build(0);
     syncVial();
     paint();
@@ -743,14 +806,11 @@
       started = true;
       start();
     } else { // saved on another device: show it as is
-      closeEditor();
       disarm();
       disarmRemove();
       vialCustom = false;
       shown = {};
-      syncVial();
-      paint();
-      summarize();
+      start();
     }
     sendHeight();
   });

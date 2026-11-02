@@ -623,7 +623,8 @@ def planner_section(embed=False):
     calendar, and a day editor the JS slots under the tapped week. The calculator page shows it under the
     calculator; planner-embed.html shows it on its own (embed=True: no heading, and the plan comes from the
     page framing it), which is how the admin dashboard's Calendar page runs this exact planner. The vials,
-    calendar and "left in vial" panel sit on a light sheet (data-planner, the JS root) in either theme."""
+    calendar and "left in vial" panel sit on a sheet (data-planner, the JS root), light unless the plan says
+    dark; the JS draws one month or three into [data-cal-months]."""
     pvial = opts("pvial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
     pdose = opts("pdose", [0.25, 0.5, 1, 2, 2.5, 5, 10], "mg", None) + '<button type="button" class="opt" data-val="0">none</button>'
     prep = "".join(
@@ -634,7 +635,6 @@ def planner_section(embed=False):
         f'<button type="button" class="pl-sw" data-c="{i}" data-color="{i}" aria-label="{c}"></button>'
         for i, c in enumerate(["green", "blue", "violet", "pink", "lime", "silver"])
     )
-    dow = "".join(f"<span>{d}</span>" for d in ["sun", "mon", "tue", "wed", "thu", "fri", "sat"])
     tiles = "".join(
         f'<div class="pl-t" data-pl-t="{k}"><p class="pl-t__k">{k}</p><p class="pl-t__d" data-pl-d>&nbsp;</p>'
         f'<div class="mv">{mini_vial_svg(k)}</div>'
@@ -663,10 +663,10 @@ def planner_section(embed=False):
       <div class="cal" data-cal data-reveal>
         <div class="cal__head">
           <h3 class="cal__month" data-cal-title>&nbsp;</h3>
+          <div class="cal__view"><div class="cal__seg" role="group" aria-label="months shown"><button type="button" data-cal-span="1" aria-pressed="true">month</button><button type="button" data-cal-span="3" aria-pressed="false">3 months</button></div><button type="button" class="cal__btn cal__look" data-cal-look>{MOON}{SUN}<span>dark</span></button></div>
           <div class="cal__nav"><button type="button" class="cal__btn" data-cal-nav="-1" aria-label="previous month">{CHEV_L}</button><button type="button" class="cal__btn cal__today" data-cal-today>today</button><button type="button" class="cal__btn" data-cal-nav="1" aria-label="next month">{CHEV_R}</button></div>
         </div>
-        <div class="cal__dow" aria-hidden="true">{dow}</div>
-        <div class="cal__grid" data-cal-grid></div>
+        <div class="cal__months" data-cal-months></div>
         <div class="cal__foot"><span data-cal-sum>&nbsp;</span><button type="button" class="cal__clear" data-cal-clear hidden>clear plan</button></div>
         <div class="cal__ed" data-cal-ed hidden><div class="cal__ed-in"><div class="cal__ed-box" role="group" aria-label="dose for this day">
           <div class="ed__head"><b data-ed-date></b><span class="ed__meta" data-ed-meta></span><button type="button" class="ed__x" data-ed-close aria-label="close">{CLOSE}</button></div>
