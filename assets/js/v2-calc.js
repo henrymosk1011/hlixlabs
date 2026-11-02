@@ -181,7 +181,7 @@
   // (checked on scroll rather than with an IntersectionObserver, which misses a jump straight past the card)
   var dock = document.querySelector("[data-dock]");
   var out = root.querySelector(".calc__out");
-  var planner = document.querySelector("[data-planner]");
+  var planner = document.querySelector(".planner");
   if (dock && out) {
     var dockQueued = false;
     var dockCheck = function () {

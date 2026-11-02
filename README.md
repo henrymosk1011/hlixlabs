@@ -51,7 +51,8 @@ hlix/
 
 The admin dashboard's **Calendar** page (admin.hlixlabs.com) is this site's dose
 planner: it shows `planner-embed.html` in a frame. That page is the planner on
-its own (no nav, footer, cart or chat, always dark), generated from the same
+its own (no nav, footer, cart or chat; the same light sheet as on the calculator
+page, on a see-through page so the admin shows around it), generated from the same
 `planner_section()` in `scripts/build_v2.py` as the calculator page and run by
 the same `assets/js/v2-planner.js` and `assets/css/v2.css`. So there's only one
 planner: change it here, rebuild and deploy, and the calculator page and the

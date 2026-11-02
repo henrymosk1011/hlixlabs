@@ -622,7 +622,8 @@ def planner_section(embed=False):
     """The dose planner (v2-planner.js): vial tabs (each with its own name, size and schedule), a month
     calendar, and a day editor the JS slots under the tapped week. The calculator page shows it under the
     calculator; planner-embed.html shows it on its own (embed=True: no heading, and the plan comes from the
-    page framing it), which is how the admin dashboard's Calendar page runs this exact planner."""
+    page framing it), which is how the admin dashboard's Calendar page runs this exact planner. The vials,
+    calendar and "left in vial" panel sit on a light sheet (data-planner, the JS root) in either theme."""
     pvial = opts("pvial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
     pdose = opts("pdose", [0.25, 0.5, 1, 2, 2.5, 5, 10], "mg", None) + '<button type="button" class="opt" data-val="0">none</button>'
     prep = "".join(
@@ -645,8 +646,9 @@ def planner_section(embed=False):
       <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. the calendar drains as the vial does, so you can see what's left on any day, week or month.</p>
     </div>
     '''
-    return f'''<section class="planner" data-planner{" data-embed" if embed else ""}>
-    {head}<fieldset class="step pl-vials" data-reveal>
+    return f'''<section class="planner">
+    {head}<div class="planner__sheet" data-planner{" data-embed" if embed else ""} data-reveal>
+    <fieldset class="step pl-vials" data-reveal>
       <legend><span class="step__t">your vials</span><b class="step__e" data-pl-echo>5 mg</b></legend>
       <div class="pl-tabs" data-pl-tabs></div>
       <div class="pl-set">
@@ -684,6 +686,7 @@ def planner_section(embed=False):
         <p class="warn" data-pl-warn hidden></p>
         <div class="pl-all" data-pl-all hidden><p class="out__k">all vials · <span data-pl-all-day></span></p><div data-pl-all-list></div></div>
       </aside>
+    </div>
     </div>
   </section>'''
 

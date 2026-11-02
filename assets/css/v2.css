@@ -700,20 +700,36 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 @media (max-width: 640px) { [data-group="vial"] .opt[data-val="custom"], [data-pl-vial] .opt[data-val="custom"] { padding-inline: 8px; font-size: 12px; } }
 
 /* ------------------------------------------------------------
-   dose planner (calculator page): each day's square holds the
-   vial's level after that day (--lvl, 0–1), so the month reads
-   as the vial draining. every vial has a color (data-c → --vc);
-   the planner itself carries the active vial's
+   dose planner (calculator page, and the admin's Calendar via
+   planner-embed.html). the heading sits on the page; the vials,
+   calendar and "left in vial" panel sit on a light sheet in
+   either theme, with the light palette scoped to it, so a month
+   of numbers reads easily. each day's square holds the vial's
+   level after that day (--lvl, 0–1), so the month reads as the
+   vial draining. every vial has a color (data-c → --vc); the
+   sheet itself carries the active vial's
    ------------------------------------------------------------ */
-.planner { --v0: #33e6b0; --v1: #5cb8ff; --v2: #b48cff; --v3: #ff7eb6; --v4: #c6ec5c; --v5: #d2d7de; }
-:root[data-theme="light"] .planner { --v0: #0ea87c; --v1: #1f7fd6; --v2: #7c4ddb; --v3: #d43f86; --v4: #6a9410; --v5: #6b7280; }
-.planner, [data-c="0"] { --vc: var(--v0); }
+.planner__sheet {
+  --bg: #f3f4f0; --bg-rgb: 243, 244, 240; --bg-2: #ffffff; --bg-2-rgb: 255, 255, 255; --bg-3: #e7e9e4;
+  --fg: #0e0f10; --dim: #5c6167; --faint: #8b9096;
+  --line: rgba(14, 15, 16, 0.08); --line-2: rgba(14, 15, 16, 0.15); --surface-tint: rgba(14, 15, 16, 0.03);
+  --accent: #0ea87c; --accent-ink: #04120d; --warn: #9a6a0c;
+  --v0: #0ea87c; --v1: #1f7fd6; --v2: #7c4ddb; --v3: #d43f86; --v4: #6a9410; --v5: #6b7280;
+  padding: clamp(12px, 3.2vw, 48px); border-radius: clamp(18px, 2.4vw, 28px);
+  background: var(--bg); color: var(--fg); color-scheme: light;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 50px 120px -70px rgba(51, 230, 176, 0.5), 0 30px 70px -45px rgba(0, 0, 0, 0.8);
+}
+:root[data-theme="light"] .planner__sheet { --bg: #fbfbf9; box-shadow: 0 0 0 1px rgba(14, 15, 16, 0.06), 0 30px 80px -50px rgba(14, 15, 16, 0.3); }
+.planner__sheet ::selection { background: var(--accent); color: var(--accent-ink); }
+.planner__sheet .warn { color: var(--warn); }
+.planner__sheet, [data-c="0"] { --vc: var(--v0); }
 [data-c="1"] { --vc: var(--v1); }
 [data-c="2"] { --vc: var(--v2); }
 [data-c="3"] { --vc: var(--v3); }
 [data-c="4"] { --vc: var(--v4); }
 [data-c="5"] { --vc: var(--v5); }
 [data-c] { --vink: var(--accent-ink); } /* custom colors set --vc / --vink inline instead of data-c */
+[data-c="1"], [data-c="2"], [data-c="3"], [data-c="5"] { --vink: #ffffff; } /* the deeper presets read better with white text */
 .planner { margin-top: clamp(64px, 10vh, 120px); padding: clamp(48px, 8vh, 96px) 0 clamp(100px, 16vh, 180px); border-top: 1px solid var(--line); }
 .planner__head { display: flex; flex-wrap: wrap; align-items: flex-end; justify-content: space-between; gap: 20px 48px; margin-bottom: clamp(36px, 6vh, 64px); }
 .planner__title { font: 800 clamp(3rem, 8.5vw, 7.5rem)/0.88 var(--f-display); letter-spacing: -0.065em; margin-top: 20px; }
@@ -730,7 +746,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .pl-tab.is-active { border-color: var(--vc); background: color-mix(in srgb, var(--vc) 12%, transparent); box-shadow: inset 0 0 0 1px var(--vc); }
 .pl-tab--add { border-style: dashed; color: var(--dim); }
 .pl-tab--add b { color: var(--fg); font-size: 16px; font-weight: 500; line-height: 1; }
-.pl-set { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 28px; margin-top: 10px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r); background: linear-gradient(180deg, color-mix(in srgb, var(--vc) 6%, transparent), transparent); transition: background 0.4s; }
+.pl-set { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 16px 28px; margin-top: 10px; padding: 16px 18px; border: 1px solid var(--line); border-radius: var(--r); background: linear-gradient(180deg, color-mix(in srgb, var(--vc) 6%, transparent), transparent), var(--bg-2); transition: background 0.4s; }
 .pl-k { display: block; margin-bottom: 8px; color: var(--faint); font: 500 11px var(--f-mono); letter-spacing: 0.14em; }
 .pl-name input { width: 220px; padding: 12px 14px; background: none; border: 1px solid var(--line-2); border-radius: var(--r); outline: 0; color: var(--fg); font: 500 14px var(--f-mono); transition: border-color 0.3s; }
 .pl-name input:focus { border-color: var(--vc); }
@@ -742,7 +758,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .pl-swatches { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; min-height: 43px; }
 .pl-sw { position: relative; flex: none; width: 28px; height: 28px; overflow: hidden; border-radius: 50%; background: var(--vc); box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.14); cursor: pointer; transition: transform 0.3s var(--ease), box-shadow 0.3s; }
 .pl-sw:hover { transform: scale(1.1); }
-.pl-sw.is-active { box-shadow: 0 0 0 2px var(--bg), 0 0 0 4px var(--vc); }
+.pl-sw.is-active { box-shadow: 0 0 0 2px var(--bg-2), 0 0 0 4px var(--vc); }
 .pl-sw--custom { background: conic-gradient(#ff6b6b, #ffd25c, #5cf08a, #5cc8ff, #b48cff, #ff7eb6, #ff6b6b); }
 .pl-sw--custom.is-active { background: var(--vc); }
 .pl-sw--custom input { position: absolute; inset: 0; width: 100%; height: 100%; padding: 0; border: 0; opacity: 0; cursor: pointer; }
@@ -755,7 +771,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .pl-remove[hidden] { display: none; }
 .planner__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); gap: clamp(24px, 4vw, 64px); align-items: start; }
 
-.cal { --gap: 6px; min-width: 0; }
+.cal { --gap: 6px; min-width: 0; container: cal / inline-size; }
 .cal__head { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 18px; }
 .cal__month { font: 700 clamp(1.5rem, 2.6vw, 2.2rem) var(--f-display); letter-spacing: -0.04em; }
 .cal__month span { color: var(--faint); }
@@ -769,8 +785,8 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--gap); }
 .cal__grid.is-in { animation: cal-in 0.55s var(--ease) both; }
 @keyframes cal-in { from { opacity: 0; transform: translateX(calc(var(--dir, 1) * 20px)); } }
-.cal__d { position: relative; min-width: 0; aspect-ratio: 1 / 0.74; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r); text-align: left; transition: border-color 0.3s, box-shadow 0.3s; }
-.cal__d.is-blank { border-color: transparent; }
+.cal__d { position: relative; min-width: 0; aspect-ratio: 1 / 0.74; overflow: hidden; border: 1px solid var(--line); border-radius: var(--r); background: var(--bg-2); text-align: left; transition: border-color 0.3s, box-shadow 0.3s; }
+.cal__d.is-blank { border-color: transparent; background: none; }
 /* a full vial fills to --full of the square, keeping the liquid's edge clear of the header row */
 .cal__d { --full: 70%; }
 .cal__d::before { content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: calc(var(--lvl, 0) * var(--full)); background: linear-gradient(180deg, color-mix(in srgb, var(--vc) 22%, transparent), color-mix(in srgb, var(--vc) 6%, transparent)); box-shadow: inset 0 1.5px 0 color-mix(in srgb, var(--vc) 60%, transparent); transition: height 0.8s var(--ease) calc(var(--i, 0) * 14ms); }
@@ -790,7 +806,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .cal__d.is-sel { border-color: var(--vc); box-shadow: inset 0 0 0 1px var(--vc); }
 /* the other vials' doses that day */
 .cal__dots { position: absolute; left: 10px; bottom: 9px; display: flex; gap: 4px; }
-.cal__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--vc); box-shadow: 0 0 0 1.5px var(--bg); }
+.cal__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--vc); box-shadow: 0 0 0 1.5px var(--bg-2); }
 @media (hover: hover) {
   button.cal__d:hover { border-color: var(--line-2); }
   button.cal__d.has-dose:hover, button.cal__d.is-sel:hover { border-color: var(--vc); }
@@ -831,7 +847,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .ed-vial.is-active i { background: var(--vink, var(--accent-ink)); }
 
 /* "left in vial" panel */
-.pl-out { position: sticky; top: calc(var(--nav-h) + 24px); padding: clamp(20px, 2.2vw, 30px); border: 1px solid var(--line-2); border-radius: var(--r-lg); background: linear-gradient(180deg, var(--surface-tint), transparent); }
+.pl-out { position: sticky; top: calc(var(--nav-h) + 24px); padding: clamp(20px, 2.2vw, 30px); border: 1px solid var(--line-2); border-radius: var(--r-lg); background: var(--bg-2); }
 .pl-out__head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
 .pl-out__head b { color: var(--vc); font: 500 13px var(--f-mono); }
 .pl-tiles { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin: 18px 0 8px; }
@@ -874,9 +890,15 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .no-motion .cal__grid, .no-motion .cal__v { animation: none !important; }
 .no-motion .cal__d::before, .no-motion .mv__liq, .no-motion .cal__ed, .no-motion .cal__ed-box::before { transition: none !important; }
 
-@media (max-width: 900px) {
+@media (max-width: 1120px) {
   .planner__body { grid-template-columns: 1fr; }
   .pl-out { position: static; }
+}
+/* a calendar under ~95px a day (phones, the admin's frame, a stacked tablet) has no room for number and
+   dose on one line, so the dose drops to the bottom center and the other vials' dots go top right */
+@container cal (max-width: 700px) {
+  .cal__v { top: auto; left: 0; right: 0; bottom: 7px; justify-content: center; gap: 4px; }
+  .cal__dots { left: auto; right: 7px; top: 8px; bottom: auto; gap: 3px; }
 }
 @media (max-width: 640px) {
   .cal { --gap: 4px; }
@@ -887,11 +909,10 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
   .cal__d { --full: 64%; aspect-ratio: 1 / 1.08; border-radius: 6px; }
   .cal__n { top: 5px; left: 6px; font-size: 11px; }
   .cal__d.is-today .cal__n { margin: -2px 0 0 -3px; padding: 2px 5px; }
-  /* phones: too narrow for number + dose on one line, so the dose drops to the bottom center */
-  .cal__v { top: auto; left: 0; right: 0; bottom: 6px; justify-content: center; gap: 3px; font-size: 11px; }
+  .cal__v { font-size: 11px; }
   .cal__v small { display: none; }
   .cal__d.has-dose .cal__v::before { width: 4px; height: 4px; }
-  .cal__dots { left: auto; right: 5px; top: 6px; bottom: auto; gap: 2px; }
+  .cal__dots { right: 5px; top: 6px; }
   .cal__dots i { width: 4px; height: 4px; box-shadow: none; }
   .cal__dots i:nth-child(n + 4) { display: none; }
   .pl-tab { padding: 10px 12px; font-size: 13px; }
@@ -915,10 +936,12 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 
 /* the planner alone (planner-embed.html), framed by the admin's Calendar page: the frame is sized to
    fit and the admin's background shows through, so no page spacing, grain or minimum height. the few
-   px of padding keep hover lifts and swatch rings from being clipped at the frame's edge */
+   px of padding keep hover lifts and swatch rings from being clipped at the frame's edge; the sheet
+   takes the admin cards' corners and drops the shadow the frame would cut off */
 .planner-embed { min-height: 0; background: transparent; }
 .planner-embed::after { content: none; }
 .planner-embed .planner { margin: 0; padding: 4px; border: 0; }
+.planner-embed .planner__sheet { border-radius: 14px; box-shadow: none; }
 
 /* ------------------------------------------------------------
    chat widget
