@@ -71,9 +71,10 @@
   }
 
   // ---- state: a list of vials, one of them active (the one the calendar, editor and tiles show) ----
-  // a vial's doses are the days set by hand (0 = "none" on a day its repeat would fill); its rule, if any, is a
-  // repeat that keeps going every `every` days after `from` until the vial runs dry, so it stretches or shrinks
-  // whenever the vial size or an earlier dose changes. look (light / dark sheet) and months (1, or 3 with the
+  // a vial's doses are the days set by hand (0 = "none" on a day a repeat would fill); its rules are repeats, each
+  // going every `every` days after `from` (until the day before `until`, if it has one), all drawing on the vial
+  // until it runs dry, so they stretch or shrink whenever the vial size or an earlier dose changes. two weekly
+  // repeats a few days apart are a dose split over the week (mon + thu). look (light / dark sheet) and months (1, or 3 with the
   // months before and after) are how it's shown, saved with the plan
   var state = { vials: [], active: null, look: "light", months: 1 };
 
@@ -89,7 +90,17 @@
   }
   function cleanRule(r) {
     if (!r || !KEY_RE.test(r.from) || !(+r.dose > 0) || !(+r.every >= 1 && +r.every <= 60)) return null;
-    return { from: r.from, dose: +r.dose, every: Math.round(+r.every) };
+    var c = { from: r.from, dose: +r.dose, every: Math.round(+r.every) };
+    if (typeof r.until === "string" && KEY_RE.test(r.until)) {
+      if (r.until <= r.from) return null; // ended before it began
+      c.until = r.until;
+    }
+    return c;
+  }
+  // a vial's repeats: `rules` (a list), or the single `rule` plans had before there could be several
+  function cleanRules(v) {
+    var src = Array.isArray(v.rules) ? v.rules : v.rule ? [v.rule] : [];
+    return src.map(cleanRule).filter(Boolean).slice(0, 20);
   }
   function presetUsed(c, except) { return state.vials.some(function (v) { return v !== except && v.color === c; }); }
   var EXTRA = ["#e8833a", "#e5484d", "#c99a06", "#0f9fb5", "#5b5bd6", "#a8743f"]; // after the presets: orange, red, amber, teal, indigo, brown
@@ -107,7 +118,7 @@
     return id;
   }
   function addVialObj(o) {
-    var v = { id: o.id && !find(o.id) ? o.id : newId(), name: o.name || "", size: o.size, color: 0, doses: o.doses || {}, rule: o.rule || null };
+    var v = { id: o.id && !find(o.id) ? o.id : newId(), name: o.name || "", size: o.size, color: 0, doses: o.doses || {}, rules: o.rules || [] };
     var c = o.color;
     v.color = isHex(c) ? c.toLowerCase() : c >= 0 && c < PRESETS && c === Math.floor(c) && !presetUsed(c) ? c : freeColor();
     state.vials.push(v);
@@ -129,7 +140,7 @@
     var left = v.size - keys.reduce(function (t, k) { return t + v.doses[k]; }, 0);
     if (n - s < 2 || (n - s < 3 && left >= dose - EPS)) return;
     for (var i = s + 1; i < n; i++) delete v.doses[keys[i]];
-    v.rule = { from: keys[s], dose: dose, every: every };
+    v.rules = [{ from: keys[s], dose: dose, every: every }];
   }
 
   // a saved plan (any format this planner ever wrote) -> state
@@ -142,8 +153,8 @@
       if (saved && Array.isArray(saved.vials)) {
         saved.vials.forEach(function (v) {
           if (!v || !(+v.size > 0)) return;
-          var nv = addVialObj({ id: String(v.id || ""), name: String(v.name || "").slice(0, 28), size: +v.size, color: v.color, doses: cleanDoses(v.doses), rule: cleanRule(v.rule) });
-          if (!(saved.v >= 3) && !nv.rule) inferRule(nv);
+          var nv = addVialObj({ id: String(v.id || ""), name: String(v.name || "").slice(0, 28), size: +v.size, color: v.color, doses: cleanDoses(v.doses), rules: cleanRules(v) });
+          if (!(saved.v >= 3) && !nv.rules.length) inferRule(nv);
         });
         state.active = saved.active;
       } else if (saved && +saved.vial > 0) { // the very first format: one vial, { vial, doses }
@@ -167,29 +178,43 @@
   var view = new Date(today.getFullYear(), today.getMonth(), 1); // month on screen
   var focus = todayKey;  // the day the "left in vial" panel describes
   var editing = null;    // day open in the editor
-  var snapshot = null;   // the active vial's doses + rule when the editor opened (or switched vials); every choice re-applies over this
+  var snapshot = null;   // the active vial's doses + rules when the editor opened (or switched vials); every choice re-applies over this
   var edDose = 0, edRep = 0, edCustom = false, edClear = false;
 
   // ---- plan math (per vial) ----
-  // every day that actually has a dose: the hand-set ones plus the repeat, run until the vial is dry
+  // every day that actually has a dose: the hand-set ones plus the repeats, walked together in date order
+  // until the vial can't cover the next one (two repeats on the same day add up)
   function schedule(v) {
     var out = {};
     Object.keys(v.doses).forEach(function (k) { if (v.doses[k] > 0) out[k] = v.doses[k]; });
-    var r = v.rule;
-    if (!r) return out;
-    var hand = Object.keys(out).sort(), i = 0, used = 0, day = parse(r.from);
+    var rs = v.rules || [];
+    if (!rs.length) return out;
+    var next = rs.map(function (r) { return addDays(parse(r.from), r.every); });
+    var hand = Object.keys(out).sort(), i = 0, used = 0;
     for (var n = 0; n < MAX_REPEAT; n++) {
-      day = addDays(day, r.every);
-      var k = key(day);
+      var ks = next.map(function (d, j) { var x = key(d); return rs[j].until && x >= rs[j].until ? null : x; });
+      var k = null, dose = 0;
+      ks.forEach(function (x) { if (x !== null && (k === null || x < k)) k = x; });
+      if (k === null) break; // every repeat has ended
+      ks.forEach(function (x, j) { if (x === k) { dose += rs[j].dose; next[j] = addDays(next[j], rs[j].every); } });
       while (i < hand.length && hand[i] < k) used += out[hand[i++]];
       if (k in v.doses) continue; // set by hand on this day (a different amount, or none)
-      if (v.size - used < r.dose - EPS) break; // dry: the repeat ends here
-      out[k] = r.dose;
-      used += r.dose;
+      if (v.size - used < dose - EPS) break; // dry: the repeats end here
+      out[k] = dose;
+      used += dose;
     }
     return out;
   }
-  function onRule(r, k) { return !!r && k > r.from && dayDiff(r.from, k) % r.every === 0; }
+  // a day the repeat fills (after its first day, which is set by hand), and any of its days at all
+  function onRule(r, k) { return !!r && k > r.from && (!r.until || k < r.until) && dayDiff(r.from, k) % r.every === 0; }
+  function isDay(r, k) { return k === r.from || onRule(r, k); }
+  // started before k and not ended by then: still going on k, whether or not k is one of its days
+  function running(r, k) { return r.from < k && (!r.until || r.until > k); }
+  function about(r) { // "the weekly 2 mg repeat from mon, nov 2"
+    var f = parse(r.from);
+    return "the " + (EVERY[r.every] || "every " + r.every + " days") + " " + mg(r.dose) + " repeat from " + DOW[f.getDay()] + ", " + mon(f) + " " + f.getDate();
+  }
+  function abouts(rs) { return rs.map(about).join(" and "); }
   // every dose in date order, with the running total drawn from the vial
   function ledger(v) {
     var s = schedule(v), cum = 0;
@@ -389,7 +414,7 @@
   // (re)start editing day k on the active vial
   function startEdit(k) {
     var v = V();
-    snapshot = { doses: clone(v.doses), rule: v.rule ? clone(v.rule) : null };
+    snapshot = { doses: clone(v.doses), rules: v.rules.map(clone) };
     edDose = schedule(v)[k] || 0;
     edRep = 0;
     edClear = false;
@@ -468,34 +493,54 @@
     if (dose > 0 && left < -EPS) edMeta.textContent = "not enough left: " + mg(-left) + " short";
     else if (dose > 0) edMeta.textContent = mg(left) + " left after this dose" + (water > 0 ? " · draw " + fmt(dose * water * 100 / v.size, 1) + " units with " + fmt(water, 2) + " ml water" : "");
     else edMeta.textContent = L.length && editing >= L[0].k ? mg(Math.max(0, left)) + " in the vial" : "no dose yet";
-    var r = v.rule, inRepeat = !!r && (editing === r.from || onRule(r, editing));
-    edHint.hidden = !edRep && !inRepeat;
-    edHint.textContent = edRep
-      ? (edDose > 0 ? "repeats from this day until the vial runs dry." : edClear ? "clears this day and every dose after it." : "pick a dose to repeat from this day.")
-      : inRepeat ? "part of the " + (EVERY[r.every] || "every " + r.every + " days") + " " + mg(r.dose) + " repeat from " + mon(parse(r.from)) + " " + parse(r.from).getDate() + ". changes here only touch this day." : "";
+    // what a repeat picked here would do, against the repeats as they were when this day was opened
+    var here = snapshot.rules.filter(function (r) { return isDay(r, editing); });
+    var along = snapshot.rules.filter(function (r) { return here.indexOf(r) < 0 && running(r, editing); });
+    var goes = along.length ? " " + abouts(along) + " keeps going." : "";
+    edHint.hidden = !edRep && !here.length;
+    edHint.textContent = !edRep ? (here.length ? "part of " + abouts(here) + ". changes here only touch this day." : "")
+      : !(edDose > 0) && !edClear ? "pick a dose to repeat from this day."
+      : here.length && along.length ? (edClear ? "stops " + abouts(here) + " from this day on." : "repeats from this day in place of " + abouts(here) + ", until the vial runs dry.") + goes
+      : edClear ? "clears this day and every dose after it."
+      : along.length ? "adds a repeat from this day, alongside " + abouts(along) + ". they share the vial until it runs dry."
+      : "repeats from this day until the vial runs dry.";
   }
 
+  // every choice re-applies over the snapshot, so trying options in a row never stacks them up
   function apply() {
-    var v = V(), k = editing, d = clone(snapshot.doses), rule = snapshot.rule;
+    var v = V(), k = editing, d = clone(snapshot.doses), rules = snapshot.rules.map(clone);
+    var here = rules.filter(function (r) { return isDay(r, k); });
+    var along = rules.filter(function (r) { return here.indexOf(r) < 0 && running(r, k); });
+    function end(r) { if (!r.until || r.until > k) r.until = k; }
     if (edRep && (edDose > 0 || edClear)) {
-      // restart from this day: keep what the plan had before it, written out day by day, and drop everything after
-      var before = schedule({ size: v.size, doses: snapshot.doses, rule: snapshot.rule });
-      d = {};
-      Object.keys(before).forEach(function (x) { if (x < k) d[x] = before[x]; });
-      rule = null;
+      if (here.length && along.length) {
+        // a dose split over the week, and this day is one of its repeats: only that one changes from here on
+        here.forEach(end);
+        Object.keys(d).forEach(function (x) {
+          if (x > k && here.some(function (r) { return isDay(r, x); }) && !along.some(function (r) { return isDay(r, x); })) delete d[x];
+        });
+        delete d[k];
+      } else if (!here.length && along.length && edDose > 0) {
+        // a day off the other repeats' days: one more repeat beside them (mon, then thu: a split dose)
+      } else {
+        // restart from this day: keep what the plan had before it and drop everything after
+        rules.forEach(end);
+        Object.keys(d).forEach(function (x) { if (x >= k) delete d[x]; });
+      }
+      rules = rules.filter(function (r) { return !r.until || r.until > r.from; });
       if (edDose > 0) {
         d[k] = edDose;
-        rule = { from: k, dose: edDose, every: edRep };
+        rules.push({ from: k, dose: edDose, every: edRep });
       }
     } else if (edDose > 0) {
       d[k] = edDose;
-    } else if (onRule(rule, k)) {
-      d[k] = 0; // "none" on a day the repeat would fill: skip just that one
+    } else if (rules.some(function (r) { return onRule(r, k); })) {
+      d[k] = 0; // "none" on a day a repeat would fill: skip just that one
     } else {
       delete d[k];
     }
     v.doses = d;
-    v.rule = rule;
+    v.rules = rules;
     save();
     paint(k);
     summarize();
@@ -599,7 +644,7 @@
     disarm();
     closeEditor();
     V().doses = {};
-    V().rule = null;
+    V().rules = [];
     save();
     paint();
     summarize();
@@ -609,6 +654,7 @@
   var tabsEl = $("[data-pl-tabs]"), nameIn = $("[data-pl-name]"), removeBtn = $("[data-pl-remove]");
   var vialBtns = $$("[data-pl-vial] .opt"), vialIn = $("[data-pl-vial] .opt-in"), echo = $("[data-pl-echo]");
   var swatches = $$("[data-pl-colors] [data-color]"), customSw = $(".pl-sw--custom"), customIn = $("[data-pl-custom]");
+  var cPick = $("[data-pl-cpick]"), hexIn = $("[data-pl-hex]");
   var vialCustom = false, removeT = 0;
 
   function renderTabs() {
@@ -646,10 +692,8 @@
     if (document.activeElement !== nameIn) nameIn.value = v.name;
     swatches.forEach(function (s) { s.classList.toggle("is-active", +s.getAttribute("data-color") === v.color); });
     customSw.classList.toggle("is-active", isHex(v.color));
-    if (isHex(v.color)) {
-      customSw.style.setProperty("--vc", v.color);
-      if (document.activeElement !== customIn) customIn.value = v.color;
-    } else customSw.style.removeProperty("--vc");
+    if (isHex(v.color)) customSw.style.setProperty("--vc", v.color);
+    else customSw.style.removeProperty("--vc");
     echo.textContent = mg(v.size);
     removeBtn.hidden = state.vials.length < 2;
     renderTabs();
@@ -667,6 +711,7 @@
     if (!find(id) || id === state.active) return;
     state.active = id;
     vialCustom = false;
+    closePick();
     shown = {}; // a different vial: tiles jump straight to its numbers instead of counting from the last one's
     if (editing) startEdit(editing);
     disarmRemove();
@@ -699,17 +744,59 @@
   swatches.forEach(function (s) {
     s.addEventListener("click", function () {
       var v = V(), c = +s.getAttribute("data-color");
+      closePick();
       if (v.color === c) return;
       state.vials.forEach(function (o) { if (o !== v && o.color === c) o.color = v.color; });
       v.color = c;
       refresh();
     });
   });
-  customIn.addEventListener("input", function () {
-    if (!isHex(customIn.value)) return;
-    V().color = customIn.value.toLowerCase();
+  // custom color: the rainbow swatch opens a picker with the color's code and "apply". the browser's picker says
+  // nothing when you keep the color it opened on, so the color only takes when you press apply (or enter)
+  function hexOf(c) { // a preset as it's drawn right now, to start the picker on
+    var probe = document.createElement("i");
+    probe.setAttribute("data-c", c);
+    probe.style.color = "var(--vc)";
+    root.appendChild(probe);
+    var m = /rgba?\((\d+),\s*(\d+),\s*(\d+)/.exec(getComputedStyle(probe).color);
+    root.removeChild(probe);
+    return m ? "#" + [m[1], m[2], m[3]].map(function (x) { return ("0" + (+x).toString(16)).slice(-2); }).join("") : "#33e6b0";
+  }
+  function setPick(hex) {
+    customIn.value = hex;
+    if (document.activeElement !== hexIn) hexIn.value = hex;
+    cPick.style.setProperty("--pick", hex);
+    cPick.style.setProperty("--pick-ink", ink(hex));
+  }
+  function openPick() {
+    var c = V().color;
+    setPick(isHex(c) ? c.toLowerCase() : hexOf(c));
+    cPick.hidden = false;
+    customSw.setAttribute("aria-expanded", "true");
+  }
+  function closePick() {
+    if (cPick.hidden) return;
+    cPick.hidden = true;
+    customSw.setAttribute("aria-expanded", "false");
+  }
+  function applyPick() {
+    var t = hexIn.value.trim().toLowerCase(), hex = isHex(t) ? t : isHex("#" + t) ? "#" + t : customIn.value.toLowerCase();
+    closePick();
+    if (!isHex(hex)) return;
+    V().color = hex;
     refresh();
+    customSw.focus({ preventScroll: true });
+  }
+  customSw.addEventListener("click", function () { if (cPick.hidden) openPick(); else closePick(); });
+  customIn.addEventListener("input", function () { if (isHex(customIn.value)) setPick(customIn.value.toLowerCase()); });
+  hexIn.addEventListener("input", function () {
+    var t = hexIn.value.trim().toLowerCase(), hex = isHex(t) ? t : isHex("#" + t) ? "#" + t : null;
+    if (hex) setPick(hex);
   });
+  hexIn.addEventListener("keydown", function (e) { if (e.key === "Enter") { e.preventDefault(); applyPick(); } });
+  $("[data-pl-cpick-ok]").addEventListener("click", applyPick);
+  $("[data-pl-cpick-x]").addEventListener("click", function () { closePick(); customSw.focus({ preventScroll: true }); });
+  cPick.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.stopPropagation(); closePick(); customSw.focus({ preventScroll: true }); } });
 
   function disarmRemove() { clearTimeout(removeT); removeBtn.classList.remove("is-armed"); removeBtn.textContent = "remove vial"; }
   removeBtn.addEventListener("click", function () {
@@ -806,6 +893,7 @@
       started = true;
       start();
     } else { // saved on another device: show it as is
+      closePick();
       disarm();
       disarmRemove();
       vialCustom = false;

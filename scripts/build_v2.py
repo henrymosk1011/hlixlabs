@@ -653,7 +653,8 @@ def planner_section(embed=False):
       <div class="pl-tabs" data-pl-tabs></div>
       <div class="pl-set">
         <label class="pl-name"><span class="pl-k">name</span><input type="text" data-pl-name maxlength="28" placeholder="e.g. BPC-157" list="pl-names" autocomplete="off" spellcheck="false"></label>
-        <div class="pl-color"><span class="pl-k">color</span><div class="pl-swatches" data-pl-colors>{swatches}<label class="pl-sw pl-sw--custom" aria-label="custom color"><input type="color" data-pl-custom value="#33e6b0"></label></div></div>
+        <div class="pl-color"><span class="pl-k">color</span><div class="pl-swatches" data-pl-colors>{swatches}<button type="button" class="pl-sw pl-sw--custom" data-pl-custom-open aria-label="custom color" aria-expanded="false" aria-controls="pl-cpick"></button></div></div>
+        <div class="pl-cpick" id="pl-cpick" data-pl-cpick role="group" aria-label="custom color" hidden><span class="pl-k">custom color</span><div class="pl-cpick__row"><input type="color" data-pl-custom value="#33e6b0" aria-label="pick a color"><input type="text" class="pl-cpick__hex" data-pl-hex maxlength="7" autocomplete="off" spellcheck="false" aria-label="color code, like #33e6b0"><button type="button" class="pl-cpick__ok" data-pl-cpick-ok>apply</button><button type="button" class="pl-cpick__x" data-pl-cpick-x>cancel</button></div></div>
         <div class="pl-size"><span class="pl-k">size</span><div class="opts" data-pl-vial>{pvial}</div></div>
         <button type="button" class="pl-remove" data-pl-remove hidden>remove vial</button>
       </div>
