@@ -10,6 +10,12 @@
   var tween = H.tween || function (a, b, d, u, done) { u(b); if (done) done(); };
   var calc = H.calc || {};
   var embed = root.hasAttribute("data-embed");
+  // the admin's Calendar, when it's wide, runs two copies of planner-embed.html side by side: the calendar
+  // ("calendar": everything but the "left in vial" panel) and the panel on its own ("panel", the page's #panel),
+  // which the admin page keeps in sight as you scroll. the admin passes the plan, the day in focus and the vial
+  // picked in the panel between them; only the calendar saves. narrow, it runs one copy with both ("all")
+  var part = embed && location.hash === "#panel" ? "panel" : "all";
+  root.setAttribute("data-part", part);
   var STORE = "hlix-plan";
   var EPS = 1e-9;
   var MAX_REPEAT = 400; // safety cap on how many doses one repeat can lay down
@@ -166,7 +172,7 @@
   }
   function save() {
     var plan = { v: 3, active: state.active, look: state.look, months: state.months, vials: state.vials };
-    if (embed) { tell("save", { plan: plan }); return; }
+    if (embed) { if (part !== "panel") tell("save", { plan: plan }); return; }
     try { localStorage.setItem(STORE, JSON.stringify(plan)); } catch (e) {}
   }
   if (!embed) {
@@ -342,7 +348,9 @@
     tween(from, to, 650, function (x) { el.textContent = fmt(x, 2); }, function () { el.textContent = fmt(to, 2); });
   }
 
+  var toldFocus = null;
   function summarize() {
+    if (embed && part === "calendar" && focus !== toldFocus) { toldFocus = focus; tell("focus", { k: focus }); }
     var v = V(), L = ledger(v), size = v.size, f = parse(focus);
     var ws = addDays(f, -f.getDay()), we = addDays(f, 6 - f.getDay());
     var ms = new Date(f.getFullYear(), f.getMonth(), 1), me = new Date(f.getFullYear(), f.getMonth() + 1, 0);
@@ -397,7 +405,9 @@
   }
   allList.addEventListener("click", function (e) {
     var r = e.target.closest && e.target.closest("[data-vial]");
-    if (r) setActive(r.getAttribute("data-vial"));
+    if (!r) return;
+    setActive(r.getAttribute("data-vial"));
+    if (embed && part === "panel") tell("active", { id: r.getAttribute("data-vial") });
   });
 
   // ---- day editor (slides open under the tapped day's week) ----
@@ -885,34 +895,23 @@
   }
   function sendHeight() { tell("height", { h: Math.ceil(document.body.getBoundingClientRect().height) }); }
 
-  // "left in vial" stays in sight as you scroll down the calendar. this frame is as tall as the planner, so it
-  // never scrolls and the panel's sticky never kicks in: the admin sends where its window is over the frame
-  // ("view": how far its top is past the frame's top, and its height), and the panel moves down with it, never
-  // past the bottom of the calendar. side by side only: in a narrow frame the panel sits under the calendar
-  var outEl = $(".pl-out"), bodyEl = $(".planner__body"), win = null, outY = 0;
-  function follow() {
-    if (!outEl || !bodyEl) return;
-    var y = 0;
-    if (win && getComputedStyle(bodyEl).gridTemplateColumns.split(" ").length > 1) {
-      var o = outEl.getBoundingClientRect(), b = bodyEl.getBoundingClientRect(), gap = 24;
-      var top = o.top - outY, bottom = o.bottom - outY; // where it sits when it isn't moved
-      // its top just under the window's top; taller than the window, its bottom just above the window's bottom
-      var want = o.height + 2 * gap <= win.h ? win.top + gap - top : win.top + win.h - gap - bottom;
-      y = Math.max(0, Math.min(want, b.bottom - bottom));
-    }
-    y = Math.round(y);
-    if (y === outY) return;
-    outY = y;
-    outEl.style.transform = y ? "translateY(" + y + "px)" : "";
-  }
-
   window.addEventListener("message", function (e) {
     var m = e.data;
     if (e.source !== window.parent || !m) return;
-    if (m.type === "hlix-plan:view") {
-      if (e.origin !== host || !isFinite(m.top) || !(m.h > 0)) return;
-      win = { top: +m.top, h: +m.h };
-      follow();
+    if (m.type === "hlix-plan:part" && e.origin === host && part !== "panel") { // the calendar on its own, or with the panel
+      part = m.part === "calendar" ? "calendar" : "all";
+      root.setAttribute("data-part", part);
+      toldFocus = null;
+      if (started) summarize();
+      return;
+    }
+    if (m.type === "hlix-plan:focus" && e.origin === host && started && typeof m.k === "string" && KEY_RE.test(m.k)) { // the day tapped in the calendar
+      focus = m.k;
+      summarize();
+      return;
+    }
+    if (m.type === "hlix-plan:active" && e.origin === host && started && typeof m.id === "string") { // the vial picked in the panel
+      setActive(m.id);
       return;
     }
     if (m.type !== "hlix-plan:load") return;
@@ -921,17 +920,16 @@
     if (!started) {
       started = true;
       start();
-    } else { // saved on another device: show it as is
+    } else { // another plan, or this one saved elsewhere: show it as is
       closePick();
       disarm();
       disarmRemove();
       vialCustom = false;
-      shown = {};
+      if (part !== "panel") shown = {}; // the panel follows every change in the calendar: its numbers count to the new ones
       start();
     }
     sendHeight();
-    follow();
   });
-  if ("ResizeObserver" in window) new ResizeObserver(function () { sendHeight(); follow(); }).observe(document.body);
+  if ("ResizeObserver" in window) new ResizeObserver(sendHeight).observe(document.body);
   window.parent.postMessage({ type: "hlix-plan:ready" }, "*"); // carries nothing; the plan comes back from the admin
 })();
