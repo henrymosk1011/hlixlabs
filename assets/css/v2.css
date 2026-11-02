@@ -935,9 +935,12 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .no-motion .cal__months, .no-motion .cal__v { animation: none !important; }
 .no-motion .cal__d::before, .no-motion .mv__liq, .no-motion .cal__ed, .no-motion .cal__ed-box::before { transition: none !important; }
 
+/* in the admin's frame the panel is moved down as the admin page scrolls (see "view" in v2-planner.js) */
+[data-embed] .pl-out { transition: transform 0.18s var(--ease); will-change: transform; }
 @media (max-width: 1120px) {
   .planner__body { grid-template-columns: 1fr; }
   .pl-out { position: static; }
+  [data-embed] .pl-out { transform: none !important; }
 }
 /* a calendar under ~95px a day (phones, the admin's frame, a stacked tablet) has no room for number and
    dose on one line, so the dose drops to the bottom center and the other vials' dots go top right */

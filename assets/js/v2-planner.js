@@ -884,9 +884,38 @@
     window.parent.postMessage(m, host);
   }
   function sendHeight() { tell("height", { h: Math.ceil(document.body.getBoundingClientRect().height) }); }
+
+  // "left in vial" stays in sight as you scroll down the calendar. this frame is as tall as the planner, so it
+  // never scrolls and the panel's sticky never kicks in: the admin sends where its window is over the frame
+  // ("view": how far its top is past the frame's top, and its height), and the panel moves down with it, never
+  // past the bottom of the calendar. side by side only: in a narrow frame the panel sits under the calendar
+  var outEl = $(".pl-out"), bodyEl = $(".planner__body"), win = null, outY = 0;
+  function follow() {
+    if (!outEl || !bodyEl) return;
+    var y = 0;
+    if (win && getComputedStyle(bodyEl).gridTemplateColumns.split(" ").length > 1) {
+      var o = outEl.getBoundingClientRect(), b = bodyEl.getBoundingClientRect(), gap = 24;
+      var top = o.top - outY, bottom = o.bottom - outY; // where it sits when it isn't moved
+      // its top just under the window's top; taller than the window, its bottom just above the window's bottom
+      var want = o.height + 2 * gap <= win.h ? win.top + gap - top : win.top + win.h - gap - bottom;
+      y = Math.max(0, Math.min(want, b.bottom - bottom));
+    }
+    y = Math.round(y);
+    if (y === outY) return;
+    outY = y;
+    outEl.style.transform = y ? "translateY(" + y + "px)" : "";
+  }
+
   window.addEventListener("message", function (e) {
     var m = e.data;
-    if (e.source !== window.parent || !m || m.type !== "hlix-plan:load") return;
+    if (e.source !== window.parent || !m) return;
+    if (m.type === "hlix-plan:view") {
+      if (e.origin !== host || !isFinite(m.top) || !(m.h > 0)) return;
+      win = { top: +m.top, h: +m.h };
+      follow();
+      return;
+    }
+    if (m.type !== "hlix-plan:load") return;
     host = e.origin;
     load(m.plan);
     if (!started) {
@@ -901,7 +930,8 @@
       start();
     }
     sendHeight();
+    follow();
   });
-  if ("ResizeObserver" in window) new ResizeObserver(sendHeight).observe(document.body);
+  if ("ResizeObserver" in window) new ResizeObserver(function () { sendHeight(); follow(); }).observe(document.body);
   window.parent.postMessage({ type: "hlix-plan:ready" }, "*"); // carries nothing; the plan comes back from the admin
 })();
