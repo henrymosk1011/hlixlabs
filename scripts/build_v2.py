@@ -626,7 +626,7 @@ def planner_section(embed=False):
     calendar and "left in vial" panel sit on a sheet (data-planner, the JS root), light unless the plan says
     dark; the JS draws one month or three into [data-cal-months]."""
     pvial = opts("pvial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
-    pdose = opts("pdose", [0.25, 0.5, 1, 2, 2.5, 5, 10], "mg", None) + '<button type="button" class="opt" data-val="0">none</button>'
+    pdose = opts("pdose", [0.5, 1, 2, 2.5, 3, 5, 10], "mg", None) + '<button type="button" class="opt" data-val="0">none</button>'
     prep = "".join(
         f'<button type="button" class="opt{" is-active" if v == 0 else ""}" data-val="{v}">{label}</button>'
         for v, label in [(0, "just this day"), (1, "daily"), (2, "every other day"), (7, "weekly")]
