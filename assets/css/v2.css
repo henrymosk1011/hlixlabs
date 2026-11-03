@@ -883,6 +883,10 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .ed__row .opts { flex: 1; gap: 6px; }
 .ed__row .opt { padding: 10px 13px; font-size: 13px; }
 .ed__row .opt-in { width: 88px; padding: 10px 12px; font-size: 13px; }
+.planner .opt.opt--stop { border-style: dashed; color: var(--dim); }
+.planner .opt.opt--stop:hover { color: var(--warn); border-color: var(--warn); }
+.planner .opt.opt--stop.is-active { border-style: solid; background: var(--warn); border-color: var(--warn); color: #fff; }
+.opt--stop[hidden] { display: none; }
 .ed__hint { margin: 12px 0 0 76px; color: var(--dim); font: 500 12px var(--f-mono); letter-spacing: 0.04em; }
 .ed__hint[hidden], .ed__row[hidden] { display: none; }
 .ed-vial { display: inline-flex; align-items: center; gap: 8px; max-width: 100%; }

@@ -186,6 +186,7 @@
   var editing = null;    // day open in the editor
   var snapshot = null;   // the active vial's doses + rules when the editor opened (or switched vials); every choice re-applies over this
   var edDose = 0, edRep = 0, edCustom = false, edClear = false;
+  var edStop = false; // "stop here": no more doses from this day on, the rest of the vial thrown away
 
   // ---- plan math (per vial) ----
   // every day that actually has a dose: the hand-set ones plus the repeats, walked together in date order
@@ -414,7 +415,7 @@
   var ed = $("[data-cal-ed]");
   var edDate = $("[data-ed-date]", ed), edMeta = $("[data-ed-meta]", ed), edHint = $("[data-ed-hint]", ed);
   var edVialRow = $("[data-ed-vial-row]", ed), edVials = $("[data-ed-vials]", ed);
-  var doseBtns = $$("[data-ed-dose] .opt", ed), doseIn = $("[data-ed-dose] .opt-in", ed);
+  var doseBtns = $$("[data-ed-dose] .opt[data-val]", ed), doseIn = $("[data-ed-dose] .opt-in", ed), stopBtn = $("[data-ed-stop]", ed);
   var repBtns = $$("[data-ed-rep] .opt", ed);
   var closeT = 0;
 
@@ -428,6 +429,7 @@
     edDose = schedule(v)[k] || 0;
     edRep = 0;
     edClear = false;
+    edStop = false;
     edCustom = edDose > 0 && !doseBtns.some(function (b) { return parseFloat(b.getAttribute("data-val")) === edDose; });
   }
 
@@ -491,11 +493,15 @@
     }
     doseBtns.forEach(function (b) {
       var val = b.getAttribute("data-val");
-      b.classList.toggle("is-active", val === "custom" ? edCustom : !edCustom && parseFloat(val) === edDose);
+      b.classList.toggle("is-active", !edStop && (val === "custom" ? edCustom : !edCustom && parseFloat(val) === edDose));
     });
     doseIn.hidden = !edCustom;
     if (edCustom && document.activeElement !== doseIn) doseIn.value = edDose > 0 ? edDose : "";
-    repBtns.forEach(function (b) { b.classList.toggle("is-active", +b.getAttribute("data-val") === edRep); });
+    repBtns.forEach(function (b) { b.classList.toggle("is-active", !edStop && +b.getAttribute("data-val") === edRep); });
+    // "stop here" only where there's something to stop: a dose on this day or after it, as the day was opened
+    var later = Object.keys(schedule({ size: v.size, doses: snapshot.doses, rules: snapshot.rules })).some(function (x) { return x >= editing; });
+    stopBtn.hidden = !later && !edStop;
+    stopBtn.classList.toggle("is-active", edStop);
 
     var L = ledger(v), dose = sched[editing] || 0, left = v.size - usedThrough(L, editing);
     var water = +calc.water || 0;
@@ -507,8 +513,10 @@
     var here = snapshot.rules.filter(function (r) { return isDay(r, editing); });
     var along = snapshot.rules.filter(function (r) { return here.indexOf(r) < 0 && running(r, editing); });
     var goes = along.length ? " " + abouts(along) + " keeps going." : "";
-    edHint.hidden = !edRep && !here.length;
-    edHint.textContent = !edRep ? (here.length ? "part of " + abouts(here) + ". changes here only touch this day." : "")
+    edHint.hidden = !edRep && !here.length && !edStop;
+    var spare = v.size - L.reduce(function (t, e) { return t + e.mg; }, 0);
+    edHint.textContent = edStop ? "no more doses from this day on: the vial ends here" + (spare > EPS ? ", and the " + mg(spare) + " left in it is thrown away." : ".")
+      : !edRep ? (here.length ? "part of " + abouts(here) + ". changes here only touch this day." : "")
       : !(edDose > 0) && !edClear ? "pick a dose to repeat from this day."
       : here.length && along.length ? (edClear ? "stops " + abouts(here) + " from this day on." : "repeats from this day in place of " + abouts(here) + ", until the vial runs dry.") + goes
       : edClear ? "clears this day and every dose after it."
@@ -522,7 +530,12 @@
     var here = rules.filter(function (r) { return isDay(r, k); });
     var along = rules.filter(function (r) { return here.indexOf(r) < 0 && running(r, k); });
     function end(r) { if (!r.until || r.until > k) r.until = k; }
-    if (edRep && (edDose > 0 || edClear)) {
+    if (edStop) {
+      // the vial ends here: every repeat stops on this day, and nothing is taken from it this day or after
+      rules.forEach(end);
+      rules = rules.filter(function (r) { return r.until > r.from; });
+      Object.keys(d).forEach(function (x) { if (x >= k) delete d[x]; });
+    } else if (edRep && (edDose > 0 || edClear)) {
       if (here.length && along.length) {
         // a dose split over the week, and this day is one of its repeats: only that one changes from here on
         here.forEach(end);
@@ -575,6 +588,7 @@
         return;
       }
       edCustom = false;
+      edStop = false;
       edDose = parseFloat(v) || 0;
       edClear = edDose === 0;
       apply();
@@ -584,10 +598,23 @@
     var v = parseFloat(doseIn.value);
     edDose = isNaN(v) || v <= 0 ? 0 : v;
     edClear = false;
+    edStop = false;
     apply();
   });
   repBtns.forEach(function (b) {
-    b.addEventListener("click", function () { edRep = +b.getAttribute("data-val"); apply(); });
+    b.addEventListener("click", function () {
+      if (edStop) { edStop = false; edClear = true; } // "stop here", then a repeat: the same as none with a repeat
+      edRep = +b.getAttribute("data-val");
+      apply();
+    });
+  });
+  stopBtn.addEventListener("click", function () {
+    edStop = true;
+    edCustom = false;
+    edDose = 0;
+    edRep = 0;
+    edClear = false;
+    apply();
   });
   function closeAndRefocus() {
     var k = editing;
