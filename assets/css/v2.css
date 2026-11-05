@@ -794,6 +794,50 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .pl-remove:hover { color: var(--fg); border-color: var(--fg); }
 .pl-remove.is-armed { color: var(--warn); border-color: var(--warn); }
 .pl-remove[hidden] { display: none; }
+/* a vial's start and end: two dates side by side; an end left to "auto" (the day it runs dry) shows dimmed */
+.pl-dates { min-width: 0; }
+.pl-dates[hidden] { display: none; }
+.pl-dates__row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pl-dates input { width: 158px; padding: 11px 12px; background: none; border: 1px solid var(--line-2); border-radius: var(--r); outline: 0; color: var(--fg); font: 500 13px var(--f-mono); color-scheme: light; transition: border-color 0.3s, color 0.3s; }
+.planner__sheet.is-dark .pl-dates input { color-scheme: dark; }
+.pl-dates input:focus { border-color: var(--vc); }
+.pl-dates input:disabled { opacity: 0.45; }
+.pl-dates input.is-auto { border-style: dashed; color: var(--dim); }
+.pl-dates input.is-auto:focus { color: var(--fg); }
+.pl-dates__to { color: var(--faint); font: 500 13px var(--f-mono); }
+.pl-auto { padding: 11px 12px; border: 1px solid var(--line-2); border-radius: var(--r); color: var(--dim); font: 500 12px var(--f-mono); letter-spacing: 0.06em; transition: color 0.3s, border-color 0.3s; }
+.pl-auto:hover { color: var(--fg); border-color: var(--fg); }
+.pl-auto[hidden] { display: none; }
+.pl-dates__hint { display: block; max-width: 64ch; margin-top: 8px; color: var(--dim); font: 500 12px/1.5 var(--f-mono); text-transform: none; }
+.pl-dates__hint:empty { display: none; }
+/* the new-vial form, under the tabs */
+.pl-new { margin-top: 10px; padding: 16px 18px; border: 1px solid var(--vc); border-radius: var(--r); background: linear-gradient(180deg, color-mix(in srgb, var(--vc) 8%, transparent), transparent), var(--bg-2); animation: pl-new-in 0.35s var(--ease) both; }
+.pl-new[hidden] { display: none; }
+@keyframes pl-new-in { from { opacity: 0; transform: translateY(-6px); } }
+.pl-new__t { margin-bottom: 14px; color: var(--fg); font: 600 13px var(--f-mono); letter-spacing: 0.14em; }
+.pl-new__grid { display: flex; flex-wrap: wrap; align-items: flex-start; gap: 16px 28px; }
+.pl-new .opts { gap: 6px; }
+.pl-new__grid .pl-dates { flex: 1 1 340px; }
+.pl-new .opt { padding: 11px 14px; font-size: 13px; }
+.pl-new .opt[hidden] { display: none; }
+.pl-new .opt span { text-transform: none; }
+.pl-new__dose { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.pl-new__dose[hidden] { display: none; }
+.pl-new__dose .opt-in { width: 92px; padding: 11px 12px; font-size: 13px; }
+.pl-new__acts { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; --pick: var(--vc); --pick-ink: var(--vink, var(--accent-ink)); }
+/* reordering tabs: the one dragged rides the pointer; a bar marks where it lands */
+.pl-tab:not(.pl-tab--add) { position: relative; cursor: grab; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; }
+.pl-tabs.is-sorting .pl-tab { cursor: grabbing; }
+.pl-tab.is-dragging, .pl-tab.is-held { z-index: 2; opacity: 0.92; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.28), inset 0 0 0 1px var(--vc); transition: none; }
+.pl-tab.is-held:not(.is-dragging) { transform: scale(1.04); transition: transform 0.2s var(--ease); }
+.pl-tabs.is-sorting .pl-tab:hover { transform: none; }
+.pl-tab.is-drop-before::before, .pl-tab.is-drop-after::after { content: ""; position: absolute; top: 4px; bottom: 4px; width: 3px; border-radius: 3px; background: var(--fg); }
+.pl-tab.is-drop-before::before { left: -6px; }
+.pl-tab.is-drop-after::after { right: -6px; }
+/* a vial's end date on the calendar: a bar down the day's right edge */
+.cal__d.is-end { box-shadow: inset -3px 0 0 var(--vc); }
+.cal__d.is-end.is-sel { box-shadow: inset 0 0 0 1px var(--vc), inset -3px 0 0 var(--vc); }
+.cal__d.is-end::after { content: "end"; position: absolute; right: 9px; bottom: 7px; color: var(--vc); font: 600 10px/1 var(--f-mono); letter-spacing: 0.1em; }
 .planner__body { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 420px); gap: clamp(24px, 4vw, 64px); align-items: start; }
 
 .cal { --gap: 6px; min-width: 0; container: cal / inline-size; }
@@ -953,6 +997,7 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
    dose on one line, so the dose drops to the bottom center and the other vials' dots go top right */
 @container cal (max-width: 700px) {
   .cal__v { top: auto; left: 0; right: 0; bottom: 7px; justify-content: center; gap: 4px; }
+  .cal__d.is-end::after { display: none; } /* the dose sits at the bottom here: the bar alone marks the end */
   .cal__dots { left: auto; right: 7px; top: 8px; bottom: auto; gap: 3px; }
 }
 @media (max-width: 640px) {
@@ -975,6 +1020,10 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
   .pl-set { flex-direction: column; align-items: stretch; padding: 14px; }
   .pl-name input { width: 100%; }
   .pl-remove { margin-left: 0; align-self: flex-start; }
+  .pl-new { padding: 14px; }
+  .pl-new__grid { flex-direction: column; align-items: stretch; }
+  .pl-new__grid .pl-dates { flex: none; }
+  .pl-dates input { width: auto; flex: 1 1 130px; min-width: 0; }
   .cal__ed-box { padding: 14px; }
   .ed__head { flex-wrap: wrap; }
   .ed__head b { flex: 1; }

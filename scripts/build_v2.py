@@ -625,7 +625,14 @@ def planner_section(embed=False):
     page framing it), which is how the admin dashboard's Calendar page runs this exact planner. The vials,
     calendar and "left in vial" panel sit on a sheet (data-planner, the JS root), light unless the plan says
     dark; the JS draws one month or three into [data-cal-months]."""
-    pvial = opts("pvial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
+    sizes = [2, 5, 10, 15, 20, 30, 50, 100, 1000]
+    pvial = opts("pvial", sizes, "mg", 5)
+    nvial = opts("nvial", sizes, "mg", None)
+    nevery = "".join(f'<button type="button" class="opt" data-val="{v}">{label}</button>' for v, label in [(1, "daily"), (2, "every other day"), (7, "weekly")])
+    dates = lambda pre: (f'<div class="pl-dates"><span class="pl-k">start → end</span><div class="pl-dates__row">'
+                         f'<input type="date" data-{pre}-start aria-label="start: the first dose"><span class="pl-dates__to" aria-hidden="true">→</span>'
+                         f'<input type="date" data-{pre}-end aria-label="end: the last day it\'s used"><button type="button" class="pl-auto" data-{pre}-end-auto hidden>auto</button></div>'
+                         f'<small class="pl-dates__hint" data-{pre}-hint></small></div>')
     pdose = (opts("pdose", [0.5, 1, 2, 2.5, 3, 5, 10], "mg", None) + '<button type="button" class="opt" data-val="0">none</button>'
              '<button type="button" class="opt opt--stop" data-ed-stop>stop here</button>')
     prep = "".join(
@@ -652,11 +659,24 @@ def planner_section(embed=False):
     <fieldset class="step pl-vials" data-reveal>
       <legend><span class="step__t">your vials</span><b class="step__e" data-pl-echo>5 mg</b></legend>
       <div class="pl-tabs" data-pl-tabs></div>
+      <div class="pl-new" data-pl-new role="group" aria-label="new vial" hidden>
+        <p class="pl-new__t">new vial</p>
+        <div class="pl-new__grid">
+          <label class="pl-name"><span class="pl-k">name</span><input type="text" data-new-name maxlength="28" placeholder="e.g. BPC-157 #2" list="pl-names" autocomplete="off" spellcheck="false"></label>
+          <div class="pl-size"><span class="pl-k">size</span><div class="opts" data-new-size>{nvial}</div></div>
+          <div class="pl-new__doses"><span class="pl-k">doses</span><div class="opts" data-new-how><button type="button" class="opt" data-how="same">same as <span data-new-same></span></button><button type="button" class="opt" data-how="set">a dose</button><button type="button" class="opt" data-how="none">none yet</button></div>
+            <div class="pl-new__dose" data-new-dose-row hidden><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" data-new-dose aria-label="dose in mg"><div class="opts" data-new-every>{nevery}</div></div>
+          </div>
+          {dates("new")}
+        </div>
+        <div class="pl-new__acts"><button type="button" class="pl-cpick__ok" data-new-ok>add vial</button><button type="button" class="pl-cpick__x" data-new-x>cancel</button></div>
+      </div>
       <div class="pl-set">
         <label class="pl-name"><span class="pl-k">name</span><input type="text" data-pl-name maxlength="28" placeholder="e.g. BPC-157" list="pl-names" autocomplete="off" spellcheck="false"></label>
         <div class="pl-color"><span class="pl-k">color</span><div class="pl-swatches" data-pl-colors>{swatches}<button type="button" class="pl-sw pl-sw--custom" data-pl-custom-open aria-label="custom color" aria-expanded="false" aria-controls="pl-cpick"></button></div></div>
         <div class="pl-cpick" id="pl-cpick" data-pl-cpick role="group" aria-label="custom color" hidden><span class="pl-k">custom color</span><div class="pl-cpick__row"><input type="color" data-pl-custom value="#33e6b0" aria-label="pick a color"><input type="text" class="pl-cpick__hex" data-pl-hex maxlength="7" autocomplete="off" spellcheck="false" aria-label="color code, like #33e6b0"><button type="button" class="pl-cpick__ok" data-pl-cpick-ok>apply</button><button type="button" class="pl-cpick__x" data-pl-cpick-x>cancel</button></div></div>
         <div class="pl-size"><span class="pl-k">size</span><div class="opts" data-pl-vial>{pvial}</div></div>
+        {dates("pl")}
         <button type="button" class="pl-remove" data-pl-remove hidden>remove vial</button>
       </div>
       <datalist id="pl-names"></datalist>

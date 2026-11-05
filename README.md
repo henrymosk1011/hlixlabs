@@ -64,6 +64,13 @@ nothing in the browser: the admin sends the plan in and saves every change the
 planner sends back (`postMessage`; see "embedded" at the bottom of
 `v2-planner.js`), so your admin plan and site visitors' plans never mix.
 
+A plan is `{ v: 3, active, look, months, vials }`; each vial is `{ id, name, size,
+color, doses, rules, end? }`: `doses` the days set by hand, `rules` the repeats
+(`{ from, dose, every, until? }`), `end` the last day it's used (its end date, or
+"stop here"; empty: it runs until it's dry). Vials keep the order they're in (drag
+the tabs to change it), and two can share a color. The admin reads plans with the
+same math (`dashboard/src/lib/vials.ts` there): change one, change the other.
+
 `vercel.json` keeps every page unframeable except `planner-embed.html`, which
 only admin.hlixlabs.com (and the admin's local demo on `localhost:5175`) may
 frame. Opened directly, it just forwards to the calculator.
