@@ -22,12 +22,15 @@ hlix/
 ├── planner-embed.html     The calculator's dose planner on its own, for the admin (see below)
 ├── peptides/               One generated page per catalog entry
 ├── v1/                     The original design, kept for reference (see below)
+├── v3/                     Redesign preview: new layout and UI/UX, not linked from the main site (see below)
 ├── assets/
 │   ├── css/style.css       v1's design system
 │   ├── css/v2.css          Main site's design system
+│   ├── css/v3.css, v3-planner.css   The v3 preview's styles (v3-planner.css is generated, see below)
 │   ├── js/main.js, product.js, calculator.js, search.js, chatbot.js   v1's JS
 │   ├── js/v2.js, v2-calc.js, v2-planner.js, v2-chat.js, v2-prices.js   Main site's JS (v2-planner.js: the calculator's dose planner calendar)
-│   ├── js/search-index.js  Shared search index, read by both sites
+│   ├── js/v3.js, v3-cart.js, v3-checkout.js   The v3 preview's JS
+│   ├── js/search-index.js  Shared search index, read by every version
 │   └── img/vials/          Shared photoreal product images
 ├── data/
 │   ├── price_list_source.xlsx   Source of the product list (prices are set in the admin, see "Prices")
@@ -38,6 +41,7 @@ hlix/
 │   ├── pull_prices.py      admin's current prices -> data/products.json
 │   ├── build.py             products.json -> v1/* (also holds shared helpers build_v2.py imports)
 │   ├── build_v2.py          products.json -> the main site at the repo root
+│   ├── build_v3.py          products.json -> the v3 redesign preview in v3/
 │   ├── photo_labels.py     products.json -> assets/img/vials/*.webp
 │   └── vial_svg.py          Coded-SVG vial fallback for any variant with no photo
 └── api/
@@ -90,6 +94,54 @@ and CSS/JS (`assets/css/style.css`, `assets/js/main.js` and friends).
   Run it after `parse_pricelist.py` whenever prices change, same as
   `build_v2.py` for the main site.
 
+## The redesign preview (`/v3/`)
+
+`/v3/` is a full redesign of the site's layout and UI/UX in the same look
+(dark, mint, lowercase, heavy display type). It's a preview: nothing on the
+main site links to it, and its pages are `noindex, nofollow`. Open
+`/v3/index.html` to try it. (The code already calls the live site "v2", from
+the redesign that replaced `/v1/`, so this one is v3.)
+
+What's different from the main site:
+
+- **Home** leads with a search field (name or research goal, results as you
+  type) and a rotating product spotlight, then a category grid, research goals,
+  featured products, the calculator / planner / AI tools, and a short "how
+  ordering works".
+- **Catalog** has a sidebar (category, research goals, a name-or-goal filter),
+  sorting (price, name, most sizes), a grid or list view, removable filter
+  chips, and shareable URLs (`?cat=`, `?tag=`, `?q=`, `?sort=`, `?view=`). On
+  phones the filters open as a bottom sheet.
+- **Product pages** keep the buy panel in view while you scroll: sizes as
+  tiles with their price, powder / ready-to-use as tiles with their price,
+  quantity and add to cart, plus powder and ready-to-use photos to switch
+  between. Below it, a spec sheet: overview, specifications, a table of every
+  size (with price per mg), lab reports and research goals. On phones an add
+  bar appears once the main button scrolls away.
+- **Everywhere:** a "shop" menu (categories, goals, published lab reports), a
+  search palette on `/` or ⌘K (keyboard navigable, remembers recently viewed
+  products), a cart drawer with product photos, and a bottom tab bar on phones
+  (shop, search, calculator, ask ai, cart).
+
+It shares everything that isn't layout with the main site: the catalog data,
+photos, lab reports, live prices (`v2-prices.js`), the chat (`v2-chat.js`),
+the calculator math (`v2-calc.js`) and the dose planner (`v2-planner.js`, same
+plan in the browser). The cart uses the same storage, so a cart carries
+between the two. Checkout posts the same order request to `/api/order`.
+
+The planner's styles stay in `v2.css`: `build_v3.py` copies that section into
+`assets/css/v3-planner.css` on every build, so change the planner in `v2.css`
+and rebuild both. Rebuild v3 after any catalog or price change, like the others:
+
+```bash
+python3 scripts/build_v3.py      # writes only v3/ and assets/css/v3-planner.css
+```
+
+To make v3 the main site later: build it into the repo root instead of `v3/`
+(set `OUT = ROOT` and `DEPTH = 0` in `build_v3.py`), move the current main site
+to an archive folder the way `/v1/` was, and keep `planner-embed.html` (the
+admin's Calendar) building from `build_v2.py` or move it over too.
+
 ## Updating the catalog
 
 1. Replace `data/price_list_source.xlsx` with your updated price list (same
@@ -101,6 +153,7 @@ and CSS/JS (`assets/css/style.css`, `assets/js/main.js` and friends).
    python3 scripts/pull_prices.py     # keep the admin's prices (see "Prices")
    python3 scripts/build_v2.py
    python3 scripts/build.py
+   python3 scripts/build_v3.py       # the /v3/ redesign preview
    ```
 3. `index.html`, `catalog.html` and everything under `peptides/` at the repo
    root (the main site), plus the equivalents under `v1/`, all get rewritten.
