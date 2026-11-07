@@ -908,8 +908,31 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 @media (hover: hover) { .cal__dots i:hover { transform: translateY(-1px) scale(1.08); } }
 .cal__dots i:nth-of-type(n + 4) { display: none; }
 .cal__dots b { flex: none; display: inline-flex; align-items: center; height: 18px; padding: 0 5px; border-radius: 5px; background: var(--bg-3); color: var(--fg); font: 700 10px/1 var(--f-mono); box-shadow: 0 0 0 1.5px var(--bg-2); }
+/* under each week: every peptide's doses that week added up, a chip each in its color (the vial you're on stronger) */
+.cal__wk { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: -1px 0 4px; padding: 0 2px; }
+.cal__wk[hidden] { display: none; }
+.cal__wk-k { margin-right: 2px; color: var(--faint); font: 500 11px var(--f-mono); letter-spacing: 0.08em; white-space: nowrap; }
+.cal__wk-k span + span { display: none; } /* "wk": the short label, for a phone */
+.cal__wk-i { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px 0 8px; border: 1px solid color-mix(in srgb, var(--vc) 38%, transparent); border-radius: 999px; background: color-mix(in srgb, var(--vc) 9%, transparent); color: var(--fg); font: 500 12px/1 var(--f-mono); white-space: nowrap; transition: border-color 0.3s, background-color 0.3s; }
+.cal__wk-i i { flex: none; width: 7px; height: 7px; border-radius: 50%; background: var(--vc); }
+.cal__wk-i span { max-width: 18ch; overflow: hidden; text-overflow: ellipsis; color: var(--dim); text-transform: none; }
+.cal__wk-i b { font-weight: 700; font-variant-numeric: tabular-nums; }
+.cal__wk-i b small { margin-left: 2px; color: var(--dim); font-size: 0.82em; font-weight: 500; }
+.cal__wk-i.is-active { border-color: var(--vc); background: color-mix(in srgb, var(--vc) 20%, transparent); }
+.cal__wk-i.is-active span { color: var(--fg); }
+@container cal (max-width: 700px) {
+  .cal__wk { gap: 4px; margin-bottom: 2px; }
+  .cal__wk-i { height: 22px; gap: 5px; padding: 0 8px 0 7px; font-size: 11px; }
+  .cal__wk-i span { max-width: 11ch; }
+}
+@container cal (max-width: 480px) {
+  .cal__wk-i span { display: none; } /* a phone: the colors say which peptide */
+  .cal__wk-k span { display: none; }
+  .cal__wk-k span + span { display: inline; }
+}
 @media (hover: hover) {
   button.cal__d:hover { border-color: var(--line-2); }
+  .cal__wk-i:hover { border-color: var(--vc); }
   button.cal__d.has-dose:hover, button.cal__d.is-sel:hover { border-color: var(--vc); }
   button.cal__d:not(.has-dose):hover .cal__v::before { content: "+"; color: var(--faint); font-weight: 500; font-size: 16px; }
 }

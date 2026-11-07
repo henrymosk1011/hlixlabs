@@ -141,6 +141,17 @@
     state.vials.push(v);
     return v;
   }
+  // the peptide a vial is, to add up a week: its name without vial numbers, counts or sizes ("GLP3-RT #2" and
+  // "GLP3-RT #3" are one), and the other names hlix products go by resolved ("RT #2", "Reta", "Retatrutide" are
+  // GLP3-R), the same way the admin dashboard matches them (dashboard/src/lib/vials.ts)
+  var ALIAS = { retatrutide: "glp3r", reta: "glp3r", rt: "glp3r", glp3rt: "glp3r", tirzepatide: "glp2t", tirz: "glp2t", tirzep: "glp2t" };
+  function peptideOf(v) {
+    var n = label(v).toLowerCase().replace(/#\s*\d+/g, " ").replace(/×\s*\d+|\d+\s*×/g, " ").replace(/\b\d+(?:\.\d+)?\s*(?:mg|mcg|ml|iu)\b/g, " ").replace(/[^a-z0-9]+/g, "");
+    if (ALIAS[n]) return ALIAS[n];
+    var bare = n.replace(/\d+$/, "");
+    return bare !== n && ALIAS[bare] ? ALIAS[bare] : n || v.id;
+  }
+  function peptideName(v) { return label(v).replace(/\s*#\s*\d+\s*$/, "").trim() || label(v); }
   function find(id) { for (var i = 0; i < state.vials.length; i++) if (state.vials[i].id === id) return state.vials[i]; return null; }
   function V() { return find(state.active); }
   function label(v) { return v.name.trim() || "vial " + (state.vials.indexOf(v) + 1); }
@@ -293,6 +304,7 @@
   var clearBtn = $("[data-cal-clear]");
   var slots = [];  // one per day square: { el, k, grid, at } (at: its place in its month's grid; k is null for the blanks)
   var onScreen = []; // per month shown: { a, b, m, sum } its first and last day keys, month index, summary element (three only)
+  var weeks = [];    // per week row: { el, a, b } the line under it with each peptide's total, its sunday and saturday
 
   function monthAt(n) { return new Date(view.getFullYear(), view.getMonth() + n, 1); }
   function build(dir) {
@@ -300,6 +312,7 @@
     monthsEl.innerHTML = "";
     slots = [];
     onScreen = [];
+    weeks = [];
     var three = state.months === 3;
     for (var off = three ? -1 : 0; off <= (three ? 1 : 0); off++) {
       var md = monthAt(off), y = md.getFullYear(), m = md.getMonth();
@@ -328,6 +341,13 @@
         }
         g.appendChild(el);
         slots.push({ el: el, k: k, grid: g, at: i });
+        if (i % 7 === 6) { // the end of a week: its totals go under it (the whole week, days in the next or last month too)
+          var wk = document.createElement("div"), sun = new Date(y, m, i - 6 - lead + 1);
+          wk.className = "cal__wk";
+          wk.hidden = true;
+          g.appendChild(wk);
+          weeks.push({ el: wk, a: key(sun), b: key(addDays(sun, 6)) });
+        }
       }
       sec.appendChild(g);
       monthsEl.appendChild(sec);
@@ -377,6 +397,31 @@
       el.querySelector(".cal__dots").innerHTML = dots;
       el.setAttribute("aria-label", dayLabel(parse(k)) + (many ? ", " + label(v) : "") + (dose > 0 ? ", " + mg(dose) : ", no dose") +
         (inPlan ? ", " + mg(Math.max(0, after)) + " left" : "") + (also.length ? "; also " + also.join(", ") : ""));
+    });
+
+    // each week: every peptide's doses added up, in the order of the tabs (vials of one peptide count together)
+    var every = state.vials.map(function (o) { return { o: o, s: o === v ? sched : schedule(o), p: peptideOf(o) }; });
+    weeks.forEach(function (w) {
+      var list = [], by = {};
+      every.forEach(function (x) {
+        var t = 0;
+        Object.keys(x.s).forEach(function (k) { if (k >= w.a && k <= w.b) t += x.s[k]; });
+        if (!(t > 0)) return;
+        var g = by[x.p];
+        if (!g) { g = by[x.p] = { o: x.o, mg: 0, top: 0, pick: x.o, on: false }; list.push(g); }
+        g.mg += t;
+        if (t > g.top) { g.top = t; g.pick = x.o; } // tapping it picks the vial that gave most that week
+        if (x.o === v) g.on = true;
+      });
+      w.el.hidden = !list.length;
+      if (!list.length) { w.el.innerHTML = ""; w.el.removeAttribute("aria-label"); return; }
+      var range = rangeLabel(parse(w.a), parse(w.b));
+      w.el.setAttribute("aria-label", "week of " + range + ": " + list.map(function (g) { return peptideName(g.o) + " " + mg(g.mg); }).join(", "));
+      w.el.innerHTML = '<span class="cal__wk-k" aria-hidden="true"><span>' + range + "</span><span>wk</span></span>" + list.map(function (g) {
+        var name = peptideName(g.o);
+        return '<button type="button" class="cal__wk-i' + (g.on ? " is-active" : "") + '" data-vial="' + g.pick.id + '" ' + tintAttr(g.o) +
+          ' title="' + attr(name + ": " + mg(g.mg) + " this week") + '" aria-label="' + attr(name + " " + mg(g.mg) + ", show it") + '"><i></i><span>' + attr(name) + "</span><b>" + fmt(g.mg, 2) + "<small>mg</small></b></button>";
+      }).join("");
     });
 
     function doses(a, b) {
@@ -636,6 +681,8 @@
   }
 
   monthsEl.addEventListener("click", function (e) {
+    var t = e.target.closest && e.target.closest(".cal__wk-i[data-vial]");
+    if (t) { setActive(t.getAttribute("data-vial")); return; } // a week's total: that peptide's vial
     var c = e.target.closest && e.target.closest("button.cal__d");
     if (!c) return;
     // another vial's dose chip: that vial, this day
