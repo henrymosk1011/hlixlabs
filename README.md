@@ -71,6 +71,12 @@ color, doses, rules, end? }`: `doses` the days set by hand, `rules` the repeats
 the tabs to change it), and two can share a color. The admin reads plans with the
 same math (`dashboard/src/lib/vials.ts` there): change one, change the other.
 
+The admin frames the page more than once, each copy showing part of the planner
+(`part` in `v2-planner.js`): `#vials` (the vial tabs, the new-vial form and the
+vial's settings, kept in sight as you scroll), the calendar, and, wide, `#panel`
+("left in vial"). The admin passes the plan and the day or vial picked between
+them; a copy given back the plan it sent changes nothing.
+
 `vercel.json` keeps every page unframeable except `planner-embed.html`, which
 only admin.hlixlabs.com (and the admin's local demo on `localhost:5175`) may
 frame. Opened directly, it just forwards to the calculator.

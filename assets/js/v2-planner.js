@@ -10,11 +10,15 @@
   var tween = H.tween || function (a, b, d, u, done) { u(b); if (done) done(); };
   var calc = H.calc || {};
   var embed = root.hasAttribute("data-embed");
-  // the admin's Calendar, when it's wide, runs two copies of planner-embed.html side by side: the calendar
-  // ("calendar": everything but the "left in vial" panel) and the panel on its own ("panel", the page's #panel),
-  // which the admin page keeps in sight as you scroll. the admin passes the plan, the day in focus and the vial
-  // picked in the panel between them; only the calendar saves. narrow, it runs one copy with both ("all")
-  var part = embed && location.hash === "#panel" ? "panel" : "all";
+  // the admin's Calendar runs copies of planner-embed.html side by side, each showing part of the planner: the
+  // vials bar (tabs, the new-vial form and the vial's settings) on its own ("vials", the page's #vials), which
+  // the admin keeps in sight as you scroll the calendar; and, wide, the calendar ("calendar": no "left in vial")
+  // beside the panel on its own ("panel", #panel), also kept in sight. narrow, the calendar copy shows the panel
+  // under it ("all"). the admin passes the plan, the day in focus and the vial picked between them; the
+  // calendar and the vials bar save, the panel doesn't. a calendar told the bar is in its own frame ("bar")
+  // hides its own
+  var part = embed && location.hash === "#panel" ? "panel" : embed && location.hash === "#vials" ? "vials" : "all";
+  var barOut = false; // the vials bar is in a frame of its own (so not in this one)
   root.setAttribute("data-part", part);
   var STORE = "hlix-plan";
   var EPS = 1e-9;
@@ -69,6 +73,7 @@
       el.style.removeProperty("--vink");
     }
   }
+  function attr(t) { return String(t).replace(/[&"<>]/g, function (c) { return { "&": "&amp;", '"': "&quot;", "<": "&lt;", ">": "&gt;" }[c]; }); }
   function tintAttr(v) { return isHex(v.color) ? 'style="--vc:' + v.color + ";--vink:" + ink(v.color) + '"' : 'data-c="' + v.color + '"'; }
   function hueHex(h) { // a hue (0–360) at a fixed saturation and lightness, as "#rrggbb"
     var s = 0.62, l = 0.5, a = s * Math.min(l, 1 - l);
@@ -176,9 +181,15 @@
     if (!state.vials.length) addVialObj({ name: "vial 1", size: calc.vial > 0 ? calc.vial : 5 });
     if (!V()) state.active = state.vials[0].id;
   }
+  function planOf() { return { v: 3, active: state.active, look: state.look, months: state.months, vials: state.vials }; }
+  var lastJSON = null; // the plan as this copy last sent or took it (embedded): the same one coming back changes nothing
   function save() {
-    var plan = { v: 3, active: state.active, look: state.look, months: state.months, vials: state.vials };
-    if (embed) { if (part !== "panel") tell("save", { plan: plan }); return; }
+    var plan = planOf();
+    if (embed) {
+      lastJSON = JSON.stringify(plan);
+      if (part !== "panel") tell("save", { plan: plan });
+      return;
+    }
     try { localStorage.setItem(STORE, JSON.stringify(plan)); } catch (e) {}
   }
   if (!embed) {
@@ -359,13 +370,11 @@
       var dots = "", also = [];
       others.forEach(function (x) {
         if (!x.s[k]) return;
-        dots += "<i " + tintAttr(x.o) + ">" + fmt(x.s[k], 2) + "</i>";
+        dots += '<i data-vial="' + x.o.id + '" title="' + attr(label(x.o) + " · " + mg(x.s[k]) + " (tap to edit)") + '" ' + tintAttr(x.o) + ">" + fmt(x.s[k], 2) + "</i>";
         also.push(label(x.o) + " " + mg(x.s[k]));
       });
       if (also.length > MAX_DOTS) dots += "<b>+" + (also.length - MAX_DOTS) + "</b>";
-      var dEl = el.querySelector(".cal__dots");
-      dEl.innerHTML = dots;
-      if (also.length) dEl.title = also.join(" · "); else dEl.removeAttribute("title");
+      el.querySelector(".cal__dots").innerHTML = dots;
       el.setAttribute("aria-label", dayLabel(parse(k)) + (many ? ", " + label(v) : "") + (dose > 0 ? ", " + mg(dose) : ", no dose") +
         (inPlan ? ", " + mg(Math.max(0, after)) + " left" : "") + (also.length ? "; also " + also.join(", ") : ""));
     });
@@ -628,7 +637,16 @@
 
   monthsEl.addEventListener("click", function (e) {
     var c = e.target.closest && e.target.closest("button.cal__d");
-    if (c) openEditor(c.getAttribute("data-k"));
+    if (!c) return;
+    // another vial's dose chip: that vial, this day
+    var chip = e.target.closest(".cal__dots i[data-vial]"), id = chip && chip.getAttribute("data-vial");
+    if (id && find(id)) {
+      var k = c.getAttribute("data-k");
+      if (id !== state.active) setActive(id);
+      if (editing !== k) openEditor(k);
+      return;
+    }
+    openEditor(c.getAttribute("data-k"));
   });
   edVials.addEventListener("click", function (e) {
     var b = e.target.closest && e.target.closest("[data-vial]");
@@ -795,6 +813,35 @@
     renderTabs();
   }
 
+  // ---- the vial's settings: folded to a line ("RT #2 · 10 mg · nov 2 → dec 7") until opened; tapping
+  // anywhere else (the calendar, the panel) folds them again ----
+  var setEl = $("[data-pl-set]"), setBody = $("[data-pl-set-body]"), setToggle = $("[data-pl-set-toggle]");
+  var setSum = $("[data-pl-set-sum]"), setWord = $("[data-pl-set-word]"), setOpen = false;
+  function syncSet() {
+    var v = V(), a = firstDay(v), z = v.end || runsTo(v);
+    setBody.hidden = !setOpen;
+    setEl.classList.toggle("is-open", setOpen);
+    setToggle.setAttribute("aria-expanded", setOpen ? "true" : "false");
+    setWord.textContent = setOpen ? "done" : "settings";
+    setSum.textContent = label(v) + " · " + mg(v.size) + (a ? " · " + md(a) + " → " + (z ? md(z) : "…") : " · no doses yet");
+  }
+  function openSet(on) {
+    if (setOpen === on) return;
+    setOpen = on;
+    if (!on) { closePick(); disarmRemove(); }
+    syncSet();
+  }
+  setToggle.addEventListener("click", function () { openSet(!setOpen); });
+  setEl.addEventListener("keydown", function (e) {
+    if (e.key === "Escape" && setOpen) { e.stopPropagation(); openSet(false); setToggle.focus({ preventScroll: true }); }
+  });
+  document.addEventListener("pointerdown", function (e) {
+    var t = e.target;
+    if (t && t.closest && t.closest(".pl-vials")) return;
+    if (barOut || part === "panel") tell("away"); // the bar's frame folds its settings
+    else if (setOpen) openSet(false);
+  });
+
   function refresh() {
     save();
     syncVial();
@@ -811,7 +858,15 @@
     shown = {}; // a different vial: tiles jump straight to its numbers instead of counting from the last one's
     if (editing) startEdit(editing);
     disarmRemove();
-    refresh();
+    if (embed && part === "vials") { // the calendar saves it, and opens it on the day it has open
+      syncVial();
+      paint();
+      summarize();
+      lastJSON = JSON.stringify(planOf());
+      tell("active", { id: id });
+    } else {
+      refresh();
+    }
     if (!nw.hidden) openNew(); // the new-vial form follows the vial picked
   }
 
@@ -823,7 +878,9 @@
       if (nw.hidden) openNew(); else closeNew();
       return;
     }
-    setActive(b.getAttribute("data-vial"));
+    var id = b.getAttribute("data-vial");
+    if (id === state.active) { openSet(!setOpen); return; } // the vial you're on: its settings
+    setActive(id);
   });
 
   // ---- reorder: drag a tab where you want it (a line shows where it lands), or alt + arrow keys on it. on a touch
@@ -1048,6 +1105,7 @@
     plEnd.classList.toggle("is-auto", !own);
     plAuto.hidden = !own;
     plHint.textContent = datesHint(v, a, own, runs);
+    syncSet();
   }
   plStart.min = plEnd.min = "2000-01-01";
   plStart.max = plEnd.max = "2099-12-31";
@@ -1199,14 +1257,19 @@
       state.vials.splice(state.vials.indexOf(from) + 1, 0, v);
     }
     closeNew();
+    save(); // the new vial, before it's picked (a calendar in another frame gets it first)
     setActive(v.id);
-    // its first dose on screen
     var a = firstDay(v);
-    if (a && onScreen.length && (a < onScreen[0].a || a > onScreen[onScreen.length - 1].b)) {
+    if (a) { if (embed && part === "vials") tell("goto", { k: a }); else showDay(a); }
+  }
+  // day a, on screen and in the panel
+  function showDay(a) {
+    if (onScreen.length && (a < onScreen[0].a || a > onScreen[onScreen.length - 1].b)) {
       var m = new Date(parse(a).getFullYear(), parse(a).getMonth(), 1);
       go(m, m > view ? 1 : -1);
     }
-    if (a) { focus = a; summarize(); }
+    focus = a;
+    summarize();
   }
   nwSizeBtns.forEach(function (b) {
     b.addEventListener("click", function () {
@@ -1291,9 +1354,11 @@
   window.addEventListener("message", function (e) {
     var m = e.data;
     if (e.source !== window.parent || !m) return;
-    if (m.type === "hlix-plan:part" && e.origin === host && part !== "panel") { // the calendar on its own, or with the panel
+    if (m.type === "hlix-plan:part" && e.origin === host && part !== "panel" && part !== "vials") { // the calendar on its own, or with the panel
       part = m.part === "calendar" ? "calendar" : "all";
       root.setAttribute("data-part", part);
+      barOut = m.bar === true;
+      root.setAttribute("data-bar", barOut ? "out" : "in");
       toldFocus = null;
       if (started) summarize();
       return;
@@ -1303,12 +1368,24 @@
       summarize();
       return;
     }
-    if (m.type === "hlix-plan:active" && e.origin === host && started && typeof m.id === "string") { // the vial picked in the panel
+    if (m.type === "hlix-plan:active" && e.origin === host && started && typeof m.id === "string") { // the vial picked in the panel or the bar
       setActive(m.id);
+      return;
+    }
+    if (m.type === "hlix-plan:goto" && e.origin === host && started && okDate(m.k) && part !== "vials" && part !== "panel") { // a vial just added in the bar
+      showDay(m.k);
+      return;
+    }
+    if (m.type === "hlix-plan:fold" && e.origin === host && started) { // tapped somewhere else
+      openSet(false);
       return;
     }
     if (m.type !== "hlix-plan:load") return;
     host = e.origin;
+    var json = JSON.stringify(m.plan || null);
+    if (started && json === lastJSON) return; // what this shows already (its own change, come back)
+    lastJSON = json;
+    var wasEd = part === "panel" || part === "vials" ? null : editing; // a day open in the editor stays open
     load(m.plan);
     if (!started) {
       started = true;
@@ -1322,6 +1399,7 @@
       vialCustom = false;
       if (part !== "panel") shown = {}; // the panel follows every change in the calendar: its numbers count to the new ones
       start();
+      if (wasEd && slotOf(wasEd)) openEditor(wasEd);
     }
     sendHeight();
   });

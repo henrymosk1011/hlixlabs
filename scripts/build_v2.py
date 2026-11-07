@@ -82,6 +82,7 @@ def mini_vial_svg(uid):
 
 CHEV_L = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>'
 CHEV_R = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>'
+CHEV_D = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
 
 
 VIALS = ROOT / "assets" / "img" / "vials"
@@ -671,13 +672,16 @@ def planner_section(embed=False):
         </div>
         <div class="pl-new__acts"><button type="button" class="pl-cpick__ok" data-new-ok>add vial</button><button type="button" class="pl-cpick__x" data-new-x>cancel</button></div>
       </div>
-      <div class="pl-set">
+      <div class="pl-set" data-pl-set>
+        <button type="button" class="pl-set__head" data-pl-set-toggle aria-expanded="false" aria-controls="pl-set-body"><i class="pl-set__dot"></i><span class="pl-set__sum" data-pl-set-sum>&nbsp;</span><b class="pl-set__go"><span data-pl-set-word>settings</span>{CHEV_D}</b></button>
+        <div class="pl-set__body" id="pl-set-body" data-pl-set-body hidden>
         <label class="pl-name"><span class="pl-k">name</span><input type="text" data-pl-name maxlength="28" placeholder="e.g. BPC-157" list="pl-names" autocomplete="off" spellcheck="false"></label>
         <div class="pl-color"><span class="pl-k">color</span><div class="pl-swatches" data-pl-colors>{swatches}<button type="button" class="pl-sw pl-sw--custom" data-pl-custom-open aria-label="custom color" aria-expanded="false" aria-controls="pl-cpick"></button></div></div>
         <div class="pl-cpick" id="pl-cpick" data-pl-cpick role="group" aria-label="custom color" hidden><span class="pl-k">custom color</span><div class="pl-cpick__row"><input type="color" data-pl-custom value="#33e6b0" aria-label="pick a color"><input type="text" class="pl-cpick__hex" data-pl-hex maxlength="7" autocomplete="off" spellcheck="false" aria-label="color code, like #33e6b0"><button type="button" class="pl-cpick__ok" data-pl-cpick-ok>apply</button><button type="button" class="pl-cpick__x" data-pl-cpick-x>cancel</button></div></div>
         <div class="pl-size"><span class="pl-k">size</span><div class="opts" data-pl-vial>{pvial}</div></div>
         {dates("pl")}
         <button type="button" class="pl-remove" data-pl-remove hidden>remove vial</button>
+        </div>
       </div>
       <datalist id="pl-names"></datalist>
     </fieldset>
