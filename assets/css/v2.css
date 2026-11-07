@@ -881,21 +881,20 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .cal__n { position: absolute; top: 9px; left: 10px; color: var(--dim); font: 500 12px/1 var(--f-mono); font-variant-numeric: tabular-nums; }
 .cal__d.is-past .cal__n { color: var(--faint); }
 .cal__d.is-today .cal__n { margin: -4px 0 0 -4px; padding: 4px 7px; border-radius: 999px; background: var(--fg); color: var(--bg); }
-/* the dose sits top-right (glowing dot first) so the bottom of the square is only liquid */
-.cal__v { position: absolute; top: 8px; right: 9px; display: flex; align-items: center; gap: 6px; color: var(--fg); font: 600 14px/1 var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
-.cal__v small { margin-left: -4px; color: var(--dim); font-size: 0.72em; font-weight: 500; }
-.cal__d.has-dose { border-color: color-mix(in srgb, var(--vc) 38%, transparent); }
-.cal__d.has-dose .cal__v::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--vc); box-shadow: 0 0 10px var(--vc); }
-.cal__d.has-dose .cal__v { animation: cal-pop 0.5s var(--ease) calc(var(--i, 0) * 14ms) both; }
+/* the vial's dose: a pill in its color, top-right, so the bottom of the square is only liquid */
+.cal__v { position: absolute; top: 6px; right: 6px; display: flex; align-items: baseline; gap: 2px; color: var(--fg); font: 700 14px/1 var(--f-mono); font-variant-numeric: tabular-nums; white-space: nowrap; }
+.cal__v small { font-size: 0.72em; font-weight: 600; opacity: 0.78; }
+.cal__d.has-dose { border-color: color-mix(in srgb, var(--vc) 55%, transparent); }
+.cal__d.has-dose .cal__v { padding: 5px 7px; border-radius: 7px; background: var(--vc); color: var(--vink, var(--accent-ink)); box-shadow: 0 0 0 1.5px var(--bg-2), 0 4px 14px -4px color-mix(in srgb, var(--vc) 70%, transparent); animation: cal-pop 0.5s var(--ease) calc(var(--i, 0) * 14ms) both; }
 @keyframes cal-pop { from { opacity: 0; transform: translateY(-5px) scale(0.9); } }
 .cal__d.is-short { border-style: dashed; border-color: color-mix(in srgb, var(--warn) 55%, transparent); }
-.cal__d.is-short .cal__v { color: var(--warn); }
-.cal__d.is-short .cal__v::before { background: var(--warn); box-shadow: none; }
+.cal__d.is-short .cal__v { background: var(--bg-2); color: var(--warn); box-shadow: inset 0 0 0 1.5px var(--warn); }
 .cal__d.is-sel { border-color: var(--vc); box-shadow: inset 0 0 0 1px var(--vc); }
-/* the other vials' doses that day */
-.cal__dots { position: absolute; left: 10px; bottom: 9px; display: flex; gap: 4px; }
-.cal__dots i { width: 6px; height: 6px; border-radius: 50%; background: var(--vc); box-shadow: 0 0 0 1.5px var(--bg-2); }
-.cal__dots b { color: var(--dim); font: 600 9px/6px var(--f-mono); }
+/* the other vials' doses that day: a chip each in its color with the dose (three, then "+n") */
+.cal__dots { position: absolute; left: 7px; right: 7px; bottom: 7px; display: flex; gap: 3px; overflow: hidden; }
+.cal__dots i { flex: none; display: inline-flex; align-items: center; height: 18px; padding: 0 5px; border-radius: 5px; background: var(--vc); color: var(--vink, var(--accent-ink)); font: 700 11px/1 var(--f-mono); font-style: normal; font-variant-numeric: tabular-nums; box-shadow: 0 0 0 1.5px var(--bg-2); }
+.cal__dots i:nth-of-type(n + 4) { display: none; }
+.cal__dots b { flex: none; display: inline-flex; align-items: center; height: 18px; padding: 0 5px; border-radius: 5px; background: var(--bg-3); color: var(--fg); font: 700 10px/1 var(--f-mono); box-shadow: 0 0 0 1.5px var(--bg-2); }
 @media (hover: hover) {
   button.cal__d:hover { border-color: var(--line-2); }
   button.cal__d.has-dose:hover, button.cal__d.is-sel:hover { border-color: var(--vc); }
@@ -994,11 +993,16 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 .planner__sheet[data-part="panel"] .pl-vials, .planner__sheet[data-part="panel"] .cal { display: none; }
 .planner__sheet[data-part="panel"] .pl-out { position: static; box-shadow: 0 30px 70px -45px rgba(0, 0, 0, 0.8); }
 /* a calendar under ~95px a day (phones, the admin's frame, a stacked tablet) has no room for number and
-   dose on one line, so the dose drops to the bottom center and the other vials' dots go top right */
+   dose on one line, so the dose drops to the bottom center, and the other vials' doses are a thick bar each
+   in their colors across the middle of the day (every one of them, side by side) */
 @container cal (max-width: 700px) {
-  .cal__v { top: auto; left: 0; right: 0; bottom: 7px; justify-content: center; gap: 4px; }
+  .cal__v { top: auto; left: 3px; right: 3px; bottom: 5px; width: fit-content; max-width: calc(100% - 6px); margin: 0 auto; justify-content: center; }
+  .cal__d.has-dose .cal__v { padding: 4px 6px; border-radius: 6px; }
   .cal__d.is-end::after { display: none; } /* the dose sits at the bottom here: the bar alone marks the end */
-  .cal__dots { left: auto; right: 7px; top: 8px; bottom: auto; gap: 3px; }
+  .cal__dots { left: 5px; right: 5px; top: calc(50% - 6px); bottom: auto; gap: 2px; }
+  .cal__dots i { flex: 1 1 0; min-width: 0; height: 7px; padding: 0; border-radius: 4px; font-size: 0; }
+  .cal__dots i:nth-of-type(n + 4) { display: block; }
+  .cal__dots b { display: none; }
 }
 @media (max-width: 640px) {
   .cal { --gap: 4px; }
@@ -1011,10 +1015,9 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
   .cal__d.is-today .cal__n { margin: -2px 0 0 -3px; padding: 2px 5px; }
   .cal__v { font-size: 11px; }
   .cal__v small { display: none; }
-  .cal__d.has-dose .cal__v::before { width: 4px; height: 4px; }
-  .cal__dots { right: 5px; top: 6px; }
-  .cal__dots i { width: 4px; height: 4px; box-shadow: none; }
-  .cal__dots i:nth-of-type(n + 3), .cal__dots b { display: none; } /* two dots at most: the day's number needs the room */
+  .cal__d.has-dose .cal__v { padding: 3px 5px; border-radius: 5px; }
+  .cal__dots { left: 4px; right: 4px; }
+  .cal__dots i { height: 6px; }
   .pl-tab { padding: 10px 12px; font-size: 13px; }
   .pl-tab span { max-width: 12ch; }
   .pl-set { flex-direction: column; align-items: stretch; padding: 14px; }

@@ -20,7 +20,7 @@
   var EPS = 1e-9;
   var MAX_REPEAT = 2000; // safety cap on how many doses the repeats can lay down (a 1000 mg vial at 0.5 mg a day)
   var PRESETS = 6;      // preset colors, --v0 … --v5 in v2.css; vials past six get a color of their own
-  var MAX_DOTS = 3;     // other vials' dots a day shows before "+n"
+  var MAX_DOTS = 3;     // other vials' dose chips a roomy day shows before "+n" (a small one shows each as a bar)
   var MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
   var DOW = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
   var EVERY = { 1: "daily", 2: "every-other-day", 7: "weekly" };
@@ -69,7 +69,7 @@
       el.style.removeProperty("--vink");
     }
   }
-  function tintAttr(v) { return isHex(v.color) ? 'style="--vc:' + v.color + '"' : 'data-c="' + v.color + '"'; }
+  function tintAttr(v) { return isHex(v.color) ? 'style="--vc:' + v.color + ";--vink:" + ink(v.color) + '"' : 'data-c="' + v.color + '"'; }
   function hueHex(h) { // a hue (0–360) at a fixed saturation and lightness, as "#rrggbb"
     var s = 0.62, l = 0.5, a = s * Math.min(l, 1 - l);
     function f(n) {
@@ -354,15 +354,18 @@
       el.classList.toggle("is-sel", k === editing);
       el.classList.toggle("is-end", !!v.end && k === v.end);
       el.querySelector(".cal__v").innerHTML = dose > 0 ? fmt(dose, 2) + "<small>mg</small>" : "";
-      // the other vials' doses that day, as dots in their colors (a few, then "+n")
+      // the other vials' doses that day: a chip each in its color with the dose (v2.css shows a few, then "+n";
+      // on a small calendar, a bar each across the day)
       var dots = "", also = [];
       others.forEach(function (x) {
         if (!x.s[k]) return;
-        if (also.length < MAX_DOTS) dots += "<i " + tintAttr(x.o) + "></i>";
+        dots += "<i " + tintAttr(x.o) + ">" + fmt(x.s[k], 2) + "</i>";
         also.push(label(x.o) + " " + mg(x.s[k]));
       });
       if (also.length > MAX_DOTS) dots += "<b>+" + (also.length - MAX_DOTS) + "</b>";
-      el.querySelector(".cal__dots").innerHTML = dots;
+      var dEl = el.querySelector(".cal__dots");
+      dEl.innerHTML = dots;
+      if (also.length) dEl.title = also.join(" · "); else dEl.removeAttribute("title");
       el.setAttribute("aria-label", dayLabel(parse(k)) + (many ? ", " + label(v) : "") + (dose > 0 ? ", " + mg(dose) : ", no dose") +
         (inPlan ? ", " + mg(Math.max(0, after)) + " left" : "") + (also.length ? "; also " + also.join(", ") : ""));
     });
