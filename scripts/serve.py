@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Local preview of the site with the same addresses as hlixlabs.com: /catalog serves
-catalog.html and /catalog.html redirects to /catalog (Vercel's "cleanUrls" in vercel.json).
+catalog.html and /catalog.html redirects to /catalog (Vercel's "cleanUrls" in vercel.json),
+and /v2/ redirects to /v2, which serves v2/index.html ("trailingSlash": false).
 No dependencies. The API functions (chat, checkout, accounts) don't run this way; use
 `vercel dev` for those.
 
@@ -30,9 +31,17 @@ class Handler(http.server.SimpleHTTPRequestHandler):
             self.send_header("Location", clean + ("?" + query if query else ""))
             self.end_headers()
             return
+        # "trailingSlash": false: /v2/ redirects to /v2, which serves v2/index.html
+        if path != "/" and path.endswith("/"):
+            self.send_response(308)
+            self.send_header("Location", path.rstrip("/") + ("?" + query if query else ""))
+            self.end_headers()
+            return
         if path != "/" and not os.path.splitext(path)[1]:
             if (ROOT / (path.lstrip("/") + ".html")).is_file():
                 self.path = path + ".html" + ("?" + query if query else "")
+            elif (ROOT / path.lstrip("/") / "index.html").is_file():
+                self.path = path + "/index.html" + ("?" + query if query else "")
         return super().do_GET()
 
 

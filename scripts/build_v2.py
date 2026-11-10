@@ -1,24 +1,35 @@
 #!/usr/bin/env python3
 """
-Generates the v2 site into /v2 — a full redesign (minimal, bold, lowercase,
-scroll-driven) that shares the catalog data, vial artwork, search index and
-chat backend with the original site but none of its markup or styling.
+Generates the v2 design, archived at /v2/ since the v3 design (scripts/build_v3.py)
+became the main site: minimal, bold, lowercase, scroll-driven. Kept working and
+reachable at /v2/, but noindex and linked from nowhere, like /v1/.
 
     python3 scripts/build_v2.py
 
-The original site is untouched apart from one unlabeled link in its footer.
+Writes v2/ and, at the repo root, planner-embed.html: the dose planner the admin's
+Calendar page frames (planner_app(), assets/css/planner.css), which stays at the root
+whatever design the site has. planner_section() (the calculator page's planner) is
+also what the main site's calculator page uses.
+
+Every link in v2/ is written root-absolute (/v2/catalog, /assets/...): the site drops
+trailing slashes (vercel.json), so /v2/ is served as /v2, where relative links would
+resolve against the site root and lead into the main site.
 """
 import json
+import re
 import shutil
 import time
 from collections import Counter
 from pathlib import Path
+from urllib.parse import urljoin
 
 import build as b
 from vial_svg import render_vial, CATEGORY_COLORS
 
 ROOT = b.ROOT
-OUT = ROOT
+OUT = ROOT / "v2"
+SITE_PATH = "/v2/"             # where OUT is served
+UP = "../" * len(OUT.relative_to(ROOT).parts)  # from OUT up to the site root, where assets/ is
 VER = str(int(time.time()))
 CONTACT_EMAIL = b.CONTACT_EMAIL
 COA = json.loads((ROOT / "data" / "coa.json").read_text())
@@ -199,8 +210,9 @@ FONTS = '''<link rel="preconnect" href="https://fonts.googleapis.com">
 
 
 def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class="", noindex=False):
-    p = "../" * depth          # site root (assets, pages, search index)
-    js = "".join(f'<script src="{p}assets/js/{s}?v={VER}" defer></script>' for s in scripts)
+    p = "../" * depth          # this design's root, for pages
+    a = p + UP                 # the site root, for files (assets/)
+    js = "".join(f'<script src="{a}assets/js/{s}?v={VER}" defer></script>' for s in scripts)
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -208,10 +220,10 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#050607">
 <title>{title} · hlix</title>
-<meta name="description" content="{esc(desc)}">{'\n<meta name="robots" content="noindex, nofollow">' if noindex else ''}
+<meta name="description" content="{esc(desc)}">{'\n<meta name="robots" content="noindex, nofollow">' if noindex or OUT != ROOT else ''}
 {FONTS}
-<link rel="stylesheet" href="{p}assets/css/v2.css?v={VER}">
-<script src="{p}assets/js/v2-boot.js?v={VER}" data-base="{p}"></script>
+<link rel="stylesheet" href="{a}assets/css/v2.css?v={VER}">
+<script src="{a}assets/js/v2-boot.js?v={VER}" data-base="{p}"></script>
 </head>
 <body class="{body_class}" data-page="{page}">
 {nav(p, page)}
@@ -220,12 +232,12 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 </main>
 {footer(p, groups)}
 <div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close">{CLOSE}</button><div class="lb__in"></div></div>
-<script src="{p}assets/js/search-index.js?v={VER}"></script>
-<script src="{p}assets/js/v2-prices.js?v={VER}"></script>
-<script src="{p}assets/js/v2.js?v={VER}"></script>
-<script src="{p}assets/js/v2-cart.js?v={VER}"></script>
+<script src="{a}assets/js/search-index.js?v={VER}"></script>
+<script src="{a}assets/js/v2-prices.js?v={VER}"></script>
+<script src="{a}assets/js/v2.js?v={VER}"></script>
+<script src="{a}assets/js/v2-cart.js?v={VER}"></script>
 {js}
-<script src="{p}assets/js/v2-chat.js?v={VER}"></script>
+<script src="{a}assets/js/v2-chat.js?v={VER}"></script>
 </body>
 </html>'''
 
@@ -455,12 +467,12 @@ def coa_blocks(g):
     more = f'<a href="#coa" data-coa-jump>all {len(certs)} reports</a>' if len(certs) > 1 else ""
     top = (
         f'<p class="coa-line" data-reveal><span>{esc(c["purity"])} purity · {esc(c["lab"].lower())} · {when(c)}</span>'
-        f'<span class="coa-line__links"><a href="../assets/coa/{c["file"]}" target="_blank" rel="noopener">view certificate {ARROW_UR}</a>{more}</span></p>'
+        f'<span class="coa-line__links"><a href="../{UP}assets/coa/{c["file"]}" target="_blank" rel="noopener">view certificate {ARROW_UR}</a>{more}</span></p>'
     )
     items = "".join(
         f'<li><div class="coa__top"><b>{when(c)}</b><span>{esc(c["lab"].lower())}</span></div>'
         f'<div class="coa__nums"><span>purity <b>{esc(c["purity"])}</b></span></div>'
-        f'<div class="coa__links"><a href="../assets/coa/{c["file"]}" target="_blank" rel="noopener">view report (pdf) {ARROW_UR}</a>'
+        f'<div class="coa__links"><a href="../{UP}assets/coa/{c["file"]}" target="_blank" rel="noopener">view report (pdf) {ARROW_UR}</a>'
         f'<a href="https://www.finnrick.com/verify" target="_blank" rel="noopener">verify on finnrick · id {esc(c["finnrick_id"])}</a></div></li>'
         for c in certs
     )
@@ -1100,6 +1112,33 @@ def page_account():
 
 # ----------------------------------------------------------------- main ---
 
+URL_ATTR = re.compile(r'(\s(?:href|src|action|data-base)=")([^"]*)(")')
+ABSOLUTE = ("#", "/", "http:", "https:", "mailto:", "tel:", "data:")
+
+
+def absolutize(html, page_url):
+    """Every relative href/src/action/data-base in a page served at page_url (e.g. "/v2/catalog")
+    made root-absolute, so the page works with or without a trailing slash on its address.
+    An empty data-base (v2-boot.js: "pages are next to this one") becomes the page's folder."""
+    def fix(m):
+        attr, val = m.group(1), m.group(2)
+        if val.startswith(ABSOLUTE) or (not val and "data-base" not in attr):
+            return m.group(0)
+        url = urljoin(page_url, val or "./")
+        if url.endswith("/") and url != "/" and "data-base" not in attr:
+            url = url[:-1]          # /v2/ is served as /v2: link there directly
+        return attr + url + m.group(3)
+    return URL_ATTR.sub(fix, html)
+
+
+def write(rel, html):
+    """A page into OUT, its links made absolute when OUT is a subfolder (see the docstring)."""
+    if OUT != ROOT:
+        name = rel[:-len(".html")]
+        html = absolutize(html, SITE_PATH + ("" if name == "index" else name))
+    (OUT / rel).write_text(html)
+
+
 def main():
     products = b.load_products()
     groups = b.group_products(products)
@@ -1109,17 +1148,18 @@ def main():
             shutil.rmtree(d)
         d.mkdir(parents=True)
 
-    (OUT / "index.html").write_text(page_home(groups))
-    (OUT / "catalog.html").write_text(page_catalog(groups))
-    (OUT / "about.html").write_text(page_about(groups))
-    (OUT / "contact.html").write_text(page_contact(groups))
-    (OUT / "calculator.html").write_text(page_calculator(groups))
-    (OUT / "planner-embed.html").write_text(page_planner_embed())
-    (OUT / "checkout.html").write_text(page_checkout())
-    (OUT / "account.html").write_text(page_account())
+    write("index.html", page_home(groups))
+    write("catalog.html", page_catalog(groups))
+    write("about.html", page_about(groups))
+    write("contact.html", page_contact(groups))
+    write("calculator.html", page_calculator(groups))
+    write("checkout.html", page_checkout())
+    write("account.html", page_account())
     for g in groups:
-        (OUT / "peptides" / f"{g['slug']}.html").write_text(page_product(g, groups))
-    print(f"v2: 7 core pages + {len(groups)} product pages -> {OUT}")
+        write(f"peptides/{g['slug']}.html", page_product(g, groups))
+    # the admin's Calendar frames /planner-embed (vercel.json): always at the root
+    (ROOT / "planner-embed.html").write_text(page_planner_embed())
+    print(f"v2: 7 core pages + {len(groups)} product pages -> {OUT.relative_to(ROOT).as_posix() or '.'}/, planner-embed.html -> the repo root")
 
 
 if __name__ == "__main__":

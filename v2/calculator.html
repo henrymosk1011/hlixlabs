@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#050607">
+<title>dosage calculator · hlix</title>
+<meta name="description" content="peptide reconstitution and dosage calculator.">
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/assets/css/v2.css?v=1794301349">
+<script src="/assets/js/v2-boot.js?v=1794301349" data-base="/v2/"></script>
+</head>
+<body class="calc-page" data-page="calculator">
+<div class="progress" aria-hidden="true"><i></i></div>
+<header class="nav" data-nav>
+  <a class="nav__brand" href="/v2" aria-label="hlix home">hlix<i></i></a>
+  <nav class="nav__links" aria-label="primary"><a href="/v2/about">about</a><a href="/v2/catalog">catalog</a><a href="/v2/calculator" aria-current="page">calculator</a></nav>
+  <div class="nav__right">
+    <button class="nav__search" data-search-open aria-label="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search</span><kbd>/</kbd></button>
+    <button class="nav__theme" data-theme-toggle aria-label="switch to light theme"><span class="nav__theme-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="nav__theme-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span></button>
+    <a class="nav__account" href="/v2/account" aria-label="your account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><i aria-hidden="true"></i></a>
+    <button class="nav__cart" data-cart-open aria-label="view cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><span class="nav__cart-count" data-cart-count hidden>0</span></button>
+    <a class="btn btn--sm" href="/v2/contact" data-magnetic>contact</a>
+    <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
+  </div>
+</header>
+<div class="menu">
+  <nav class="menu__links">
+    <a style="--i:0" href="/v2/about"><span>01</span>about</a>
+    <a style="--i:1" href="/v2/catalog"><span>02</span>catalog</a>
+    <a style="--i:2" href="/v2/calculator"><span>03</span>calculator</a>
+    <a style="--i:3" href="/v2/contact"><span>04</span>contact</a>
+    <a style="--i:4" href="/v2/account"><span>05</span>account</a>
+  </nav>
+  <div class="menu__foot"><button data-search-open class="link-arrow">search products <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button><span>contact@hlixlabs.com</span></div>
+</div>
+<div class="search" data-search role="dialog" aria-label="search">
+  <button class="x" data-search-close aria-label="close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
+  <div class="search__in">
+    <div class="search__field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input data-search-input type="text" placeholder="search by name, keyword, or topic" autocomplete="off" spellcheck="false"></div>
+    <div data-search-hint>
+      <p class="search__hint">start typing a name, or search by keyword or topic</p>
+      <div class="search__try"><button data-try="hair">hair</button><button data-try="sleep">sleep</button><button data-try="fat loss">fat loss</button><button data-try="muscle growth">muscle growth</button><button data-try="recovery">recovery</button><button data-try="skin">skin</button></div>
+    </div>
+    <div data-search-list></div>
+  </div>
+</div>
+<div class="cart" data-cart role="dialog" aria-label="cart">
+  <div class="cart__head"><h2>cart</h2><button class="x" data-cart-close aria-label="close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+  <div class="cart__list" data-cart-list></div>
+  <p class="cart__empty" data-cart-empty hidden>your cart is empty.</p>
+  <div class="cart__foot" data-cart-foot hidden>
+    <div class="cart__subtotal"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
+    <a class="btn btn--solid btn--block" href="/v2/checkout" data-magnetic>checkout <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <p class="cart__note">no payment is collected here — we'll follow up by email with next steps.</p>
+  </div>
+</div>
+<main>
+
+<section class="phead"><div class="wrap">
+  <p class="kicker" data-reveal="fade">// dosage calculator</p>
+  <h1 class="phead__title" data-split>know your draw.</h1>
+</div></section>
+<div class="wrap">
+  <div class="calc" data-calc>
+    <div class="calc__in">
+      <fieldset class="step" data-group="vial" data-reveal><legend><span class="step__n">01</span><span class="step__t">peptide in vial</span><b class="step__e" data-echo="vial">5 mg</b></legend><div class="opts"><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt is-active" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="20">20 mg</button><button type="button" class="opt" data-val="30">30 mg</button><button type="button" class="opt" data-val="50">50 mg</button><button type="button" class="opt" data-val="100">100 mg</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" hidden></div></fieldset>
+      <fieldset class="step" data-group="water" data-reveal><legend><span class="step__n">02</span><span class="step__t">bacteriostatic water added</span><b class="step__e" data-echo="water">2 mL</b></legend><div class="opts"><button type="button" class="opt" data-val="0.5">0.5 ml</button><button type="button" class="opt" data-val="1">1 ml</button><button type="button" class="opt is-active" data-val="2">2 ml</button><button type="button" class="opt" data-val="2.5">2.5 ml</button><button type="button" class="opt" data-val="3">3 ml</button><button type="button" class="opt" data-val="5">5 ml</button><button type="button" class="opt" data-val="10">10 ml</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="ml" hidden></div></fieldset>
+      <fieldset class="step" data-group="dose" data-reveal><legend><span class="step__n">03</span><span class="step__t">dose per injection</span><b class="step__e" data-echo="dose">0.25 mg</b></legend><div class="opts"><button type="button" class="opt is-active" data-val="0.25">0.25 mg</button><button type="button" class="opt" data-val="0.5">0.5 mg</button><button type="button" class="opt" data-val="1">1 mg</button><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt" data-val="2.5">2.5 mg</button><button type="button" class="opt" data-val="3">3 mg</button><button type="button" class="opt" data-val="4">4 mg</button><button type="button" class="opt" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" hidden></div></fieldset>
+      <fieldset class="step" data-reveal><legend><span class="step__n">04</span><span class="step__t">how often</span></legend><div class="opts" data-freq-presets><button type="button" class="opt is-active" data-val="1">daily</button><button type="button" class="opt" data-val="2">every other day</button><button type="button" class="opt" data-val="7">weekly</button><button type="button" class="opt" data-val="30">monthly</button><button type="button" class="opt" data-val="custom">custom</button></div><div class="freq-custom" data-freq-custom hidden>
+        <span>every</span>
+        <input type="number" min="1" step="1" value="1" data-freq-n aria-label="interval amount">
+        <div class="opts" data-freq-unit><button type="button" class="opt is-active" data-val="days">days</button><button type="button" class="opt" data-val="weeks">weeks</button><button type="button" class="opt" data-val="months">months</button></div>
+      </div></fieldset>
+      <fieldset class="step" data-group="syringe" data-reveal><legend><span class="step__n">05</span><span class="step__t">syringe size</span><b class="step__e" data-echo="syringe">1 mL · 100 units</b></legend><div class="opts"><button type="button" class="opt" data-val="0.3">0.3 ml<small>/ 30u</small></button><button type="button" class="opt" data-val="0.5">0.5 ml<small>/ 50u</small></button><button type="button" class="opt is-active" data-val="1">1 ml<small>/ 100u</small></button><button type="button" class="opt" data-val="2">2 ml<small>/ 200u</small></button></div></fieldset>
+    </div>
+    <aside class="calc__out" data-reveal="fade">
+      <p class="out__k">draw to</p>
+      <div class="out__big"><b data-o="units">10</b><small>units</small></div>
+      <div class="syr" data-syr><svg viewBox="0 0 440 100" aria-hidden="true">
+  <defs>
+    <clipPath id="calc-clip"><rect x="75" y="31" width="260" height="38" rx="6"/></clipPath>
+    <linearGradient id="calc-liq" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1fd39c"/><stop offset="1" stop-color="#33e6b0"/></linearGradient>
+  </defs>
+  <line class="needle" x1="6" y1="50" x2="50" y2="50"/>
+  <polygon class="hub" points="50,42 72,46 72,54 50,58"/>
+  <rect class="barrel" x="75" y="30" width="260" height="40" rx="8"/>
+  <g clip-path="url(#calc-clip)"><rect class="fill" x="75" y="30" width="260" height="40" fill="url(#calc-liq)"/></g>
+  <g class="ticks"><line x1="75" y1="34" x2="75" y2="66"/><line x1="88" y1="40" x2="88" y2="60"/><line x1="101" y1="40" x2="101" y2="60"/><line x1="114" y1="40" x2="114" y2="60"/><line x1="127" y1="40" x2="127" y2="60"/><line x1="140" y1="34" x2="140" y2="66"/><line x1="153" y1="40" x2="153" y2="60"/><line x1="166" y1="40" x2="166" y2="60"/><line x1="179" y1="40" x2="179" y2="60"/><line x1="192" y1="40" x2="192" y2="60"/><line x1="205" y1="34" x2="205" y2="66"/><line x1="218" y1="40" x2="218" y2="60"/><line x1="231" y1="40" x2="231" y2="60"/><line x1="244" y1="40" x2="244" y2="60"/><line x1="257" y1="40" x2="257" y2="60"/><line x1="270" y1="34" x2="270" y2="66"/><line x1="283" y1="40" x2="283" y2="60"/><line x1="296" y1="40" x2="296" y2="60"/><line x1="309" y1="40" x2="309" y2="60"/><line x1="322" y1="40" x2="322" y2="60"/><line x1="335" y1="34" x2="335" y2="66"/></g>
+  <g class="plunger"><rect class="rod" x="75" y="45" width="70" height="10" rx="3"/><rect class="flange" x="131" y="35" width="14" height="30" rx="4"/><rect class="cap" x="71" y="24" width="8" height="52" rx="3"/></g>
+  <text class="tick" x="75" y="92">0</text><text class="tick" x="140" y="92">25</text><text class="tick" x="205" y="92">50</text><text class="tick" x="270" y="92">75</text><text class="tick" x="335" y="92">100</text>
+</svg></div>
+      <dl class="rows">
+        <div><dt>concentration</dt><dd><span data-o="conc">2.5</span> mg/ml</dd></div>
+        <div><dt>volume</dt><dd><span data-o="vol">0.1</span> ml</dd></div>
+      </dl>
+      <p class="warn" data-warn hidden></p>
+    </aside>
+  </div>
+  <div class="calc-extra">
+    <div class="sub" data-group="supplyUnit" data-reveal>
+      <h3>supply</h3>
+      <div class="opts"><button type="button" class="opt is-active" data-val="days">days</button><button type="button" class="opt" data-val="weeks">weeks</button><button type="button" class="opt" data-val="months">months</button><button type="button" class="opt" data-val="years">years</button></div>
+      <p>this vial covers about <b data-o="inj">20</b> <span data-o="freqlabel">injections, one a day</span>: roughly <b><span data-o="supply">20</span> <span data-o="supplyUnit">days</span></b>.</p>
+    </div>
+    <div class="sub" data-reveal>
+      <h3>plan for</h3>
+      <div class="plan"><input type="number" min="1" step="1" value="3" data-plan aria-label="amount"><div class="opts" data-group="planUnit"><button type="button" class="opt" data-val="weeks">weeks</button><button type="button" class="opt is-active" data-val="months">months</button><button type="button" class="opt" data-val="years">years</button></div></div>
+      <p>you'll need about <b><span data-o="vials">5</span> vials</b> to cover <span data-o="planN">3</span> <span data-o="planU">months</span>.</p>
+    </div>
+  </div>
+  <section class="planner">
+    <div class="planner__head">
+      <div><p class="kicker" data-reveal="fade">// dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
+      <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. the calendar drains as the vial does, so you can see what's left on any day, week or month.</p>
+    </div>
+    <div class="planner__sheet" data-planner data-reveal>
+    <fieldset class="step pl-vials" data-reveal>
+      <legend><span class="step__t">your vials</span><b class="step__e" data-pl-echo>5 mg</b></legend>
+      <div class="pl-tabs" data-pl-tabs></div>
+      <div class="pl-new" data-pl-new role="group" aria-label="new vial" hidden>
+        <p class="pl-new__t">new vial</p>
+        <div class="pl-new__grid">
+          <label class="pl-name"><span class="pl-k">name</span><input type="text" data-new-name maxlength="28" placeholder="e.g. BPC-157 #2" list="pl-names" autocomplete="off" spellcheck="false"></label>
+          <div class="pl-size"><span class="pl-k">size</span><div class="opts" data-new-size><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="15">15 mg</button><button type="button" class="opt" data-val="20">20 mg</button><button type="button" class="opt" data-val="30">30 mg</button><button type="button" class="opt" data-val="50">50 mg</button><button type="button" class="opt" data-val="100">100 mg</button><button type="button" class="opt" data-val="1000">1000 mg</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" hidden></div></div>
+          <div class="pl-new__doses"><span class="pl-k">doses</span><div class="opts" data-new-how><button type="button" class="opt" data-how="same">same as <span data-new-same></span></button><button type="button" class="opt" data-how="set">a dose</button><button type="button" class="opt" data-how="none">none yet</button></div>
+            <div class="pl-new__dose" data-new-dose-row hidden><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" data-new-dose aria-label="dose in mg"><div class="opts" data-new-every><button type="button" class="opt" data-val="1">daily</button><button type="button" class="opt" data-val="2">every other day</button><button type="button" class="opt" data-val="7">weekly</button></div></div>
+          </div>
+          <div class="pl-dates"><span class="pl-k">start → end</span><div class="pl-dates__row"><input type="date" data-new-start aria-label="start: the first dose"><span class="pl-dates__to" aria-hidden="true">→</span><input type="date" data-new-end aria-label="end: the last day it's used"><button type="button" class="pl-auto" data-new-end-auto hidden>auto</button></div><small class="pl-dates__hint" data-new-hint></small></div>
+        </div>
+        <div class="pl-new__acts"><button type="button" class="pl-cpick__ok" data-new-ok>add vial</button><button type="button" class="pl-cpick__x" data-new-x>cancel</button></div>
+      </div>
+      <div class="pl-set" data-pl-set>
+        <button type="button" class="pl-set__head" data-pl-set-toggle aria-expanded="false" aria-controls="pl-set-body"><i class="pl-set__dot"></i><span class="pl-set__sum" data-pl-set-sum>&nbsp;</span><b class="pl-set__go"><span data-pl-set-word>settings</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></b></button>
+        <div class="pl-set__body" id="pl-set-body" data-pl-set-body hidden>
+        <label class="pl-name"><span class="pl-k">name</span><input type="text" data-pl-name maxlength="28" placeholder="e.g. BPC-157" list="pl-names" autocomplete="off" spellcheck="false"></label>
+        <div class="pl-color"><span class="pl-k">color</span><div class="pl-swatches" data-pl-colors><button type="button" class="pl-sw" data-c="0" data-color="0" aria-label="green"></button><button type="button" class="pl-sw" data-c="1" data-color="1" aria-label="blue"></button><button type="button" class="pl-sw" data-c="2" data-color="2" aria-label="violet"></button><button type="button" class="pl-sw" data-c="3" data-color="3" aria-label="pink"></button><button type="button" class="pl-sw" data-c="4" data-color="4" aria-label="lime"></button><button type="button" class="pl-sw" data-c="5" data-color="5" aria-label="silver"></button><button type="button" class="pl-sw pl-sw--custom" data-pl-custom-open aria-label="custom color" aria-expanded="false" aria-controls="pl-cpick"></button></div></div>
+        <div class="pl-cpick" id="pl-cpick" data-pl-cpick role="group" aria-label="custom color" hidden><span class="pl-k">custom color</span><div class="pl-cpick__row"><input type="color" data-pl-custom value="#33e6b0" aria-label="pick a color"><input type="text" class="pl-cpick__hex" data-pl-hex maxlength="7" autocomplete="off" spellcheck="false" aria-label="color code, like #33e6b0"><button type="button" class="pl-cpick__ok" data-pl-cpick-ok>apply</button><button type="button" class="pl-cpick__x" data-pl-cpick-x>cancel</button></div></div>
+        <div class="pl-size"><span class="pl-k">size</span><div class="opts" data-pl-vial><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt is-active" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="15">15 mg</button><button type="button" class="opt" data-val="20">20 mg</button><button type="button" class="opt" data-val="30">30 mg</button><button type="button" class="opt" data-val="50">50 mg</button><button type="button" class="opt" data-val="100">100 mg</button><button type="button" class="opt" data-val="1000">1000 mg</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" hidden></div></div>
+        <div class="pl-dates"><span class="pl-k">start → end</span><div class="pl-dates__row"><input type="date" data-pl-start aria-label="start: the first dose"><span class="pl-dates__to" aria-hidden="true">→</span><input type="date" data-pl-end aria-label="end: the last day it's used"><button type="button" class="pl-auto" data-pl-end-auto hidden>auto</button></div><small class="pl-dates__hint" data-pl-hint></small></div>
+        <button type="button" class="pl-remove" data-pl-remove hidden>remove vial</button>
+        </div>
+      </div>
+      <datalist id="pl-names"></datalist>
+    </fieldset>
+    <div class="planner__body">
+      <div class="cal" data-cal data-reveal>
+        <div class="cal__head">
+          <h3 class="cal__month" data-cal-title>&nbsp;</h3>
+          <div class="cal__view"><div class="cal__seg" role="group" aria-label="months shown"><button type="button" data-cal-span="1" aria-pressed="true">month</button><button type="button" data-cal-span="3" aria-pressed="false">3 months</button></div><button type="button" class="cal__btn cal__look" data-cal-look><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg><span>dark</span></button></div>
+          <div class="cal__nav"><button type="button" class="cal__btn" data-cal-nav="-1" aria-label="previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg></button><button type="button" class="cal__btn cal__today" data-cal-today>today</button><button type="button" class="cal__btn" data-cal-nav="1" aria-label="next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg></button></div>
+        </div>
+        <div class="cal__months" data-cal-months></div>
+        <div class="cal__foot"><span data-cal-sum>&nbsp;</span><button type="button" class="cal__clear" data-cal-clear hidden>clear plan</button></div>
+        <div class="cal__ed" data-cal-ed hidden><div class="cal__ed-in"><div class="cal__ed-box" role="group" aria-label="dose for this day">
+          <div class="ed__head"><b data-ed-date></b><span class="ed__meta" data-ed-meta></span><button type="button" class="ed__x" data-ed-close aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+          <div class="ed__row" data-ed-vial-row hidden><span class="ed__k">vial</span><div class="opts" data-ed-vials></div></div>
+          <div class="ed__row"><span class="ed__k">dose</span><div class="opts" data-ed-dose><button type="button" class="opt" data-val="0.5">0.5 mg</button><button type="button" class="opt" data-val="1">1 mg</button><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt" data-val="2.5">2.5 mg</button><button type="button" class="opt" data-val="3">3 mg</button><button type="button" class="opt" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" hidden><button type="button" class="opt" data-val="0">none</button><button type="button" class="opt opt--stop" data-ed-stop>stop here</button></div></div>
+          <div class="ed__row"><span class="ed__k">repeat</span><div class="opts" data-ed-rep><button type="button" class="opt is-active" data-val="0">just this day</button><button type="button" class="opt" data-val="1">daily</button><button type="button" class="opt" data-val="2">every other day</button><button type="button" class="opt" data-val="7">weekly</button></div></div>
+          <p class="ed__hint" data-ed-hint hidden></p>
+        </div></div></div>
+      </div>
+      <aside class="pl-out" data-reveal="fade">
+        <div class="pl-out__head"><p class="out__k">left in vial</p><b data-pl-size>vial 1 · 5 mg</b></div>
+        <div class="pl-tiles"><div class="pl-t" data-pl-t="day"><p class="pl-t__k">day</p><p class="pl-t__d" data-pl-d>&nbsp;</p><div class="mv"><svg viewBox="0 0 40 84" aria-hidden="true">
+  <defs>
+    <clipPath id="mv-day-clip"><rect x="5.5" y="18.5" width="29" height="63" rx="6.5"/></clipPath>
+    <linearGradient id="mv-day-liq" x1="0" y1="0" x2="0" y2="1"><stop class="mv__s1" offset="0"/><stop class="mv__s2" offset="1"/></linearGradient>
+  </defs>
+  <rect class="mv__cap" x="10.5" y="2.5" width="19" height="10" rx="2.5"/>
+  <rect class="mv__neck" x="13.5" y="12.5" width="13" height="6" rx="1"/>
+  <g clip-path="url(#mv-day-clip)"><g class="mv__liq"><rect x="4" y="18" width="32" height="66" fill="url(#mv-day-liq)"/><rect class="mv__men" x="4" y="18" width="32" height="1.6"/></g></g>
+  <rect class="mv__body" x="5.5" y="18.5" width="29" height="63" rx="6.5"/>
+  <g class="mv__ticks"><line x1="31" y1="34" x2="35" y2="34"/><line x1="29" y1="50" x2="35" y2="50"/><line x1="31" y1="66" x2="35" y2="66"/></g>
+</svg></div><p class="pl-t__v"><b data-pl-v>5</b><small>mg</small></p><p class="pl-t__u" data-pl-u>nothing used</p></div><div class="pl-t" data-pl-t="week"><p class="pl-t__k">week</p><p class="pl-t__d" data-pl-d>&nbsp;</p><div class="mv"><svg viewBox="0 0 40 84" aria-hidden="true">
+  <defs>
+    <clipPath id="mv-week-clip"><rect x="5.5" y="18.5" width="29" height="63" rx="6.5"/></clipPath>
+    <linearGradient id="mv-week-liq" x1="0" y1="0" x2="0" y2="1"><stop class="mv__s1" offset="0"/><stop class="mv__s2" offset="1"/></linearGradient>
+  </defs>
+  <rect class="mv__cap" x="10.5" y="2.5" width="19" height="10" rx="2.5"/>
+  <rect class="mv__neck" x="13.5" y="12.5" width="13" height="6" rx="1"/>
+  <g clip-path="url(#mv-week-clip)"><g class="mv__liq"><rect x="4" y="18" width="32" height="66" fill="url(#mv-week-liq)"/><rect class="mv__men" x="4" y="18" width="32" height="1.6"/></g></g>
+  <rect class="mv__body" x="5.5" y="18.5" width="29" height="63" rx="6.5"/>
+  <g class="mv__ticks"><line x1="31" y1="34" x2="35" y2="34"/><line x1="29" y1="50" x2="35" y2="50"/><line x1="31" y1="66" x2="35" y2="66"/></g>
+</svg></div><p class="pl-t__v"><b data-pl-v>5</b><small>mg</small></p><p class="pl-t__u" data-pl-u>nothing used</p></div><div class="pl-t" data-pl-t="month"><p class="pl-t__k">month</p><p class="pl-t__d" data-pl-d>&nbsp;</p><div class="mv"><svg viewBox="0 0 40 84" aria-hidden="true">
+  <defs>
+    <clipPath id="mv-month-clip"><rect x="5.5" y="18.5" width="29" height="63" rx="6.5"/></clipPath>
+    <linearGradient id="mv-month-liq" x1="0" y1="0" x2="0" y2="1"><stop class="mv__s1" offset="0"/><stop class="mv__s2" offset="1"/></linearGradient>
+  </defs>
+  <rect class="mv__cap" x="10.5" y="2.5" width="19" height="10" rx="2.5"/>
+  <rect class="mv__neck" x="13.5" y="12.5" width="13" height="6" rx="1"/>
+  <g clip-path="url(#mv-month-clip)"><g class="mv__liq"><rect x="4" y="18" width="32" height="66" fill="url(#mv-month-liq)"/><rect class="mv__men" x="4" y="18" width="32" height="1.6"/></g></g>
+  <rect class="mv__body" x="5.5" y="18.5" width="29" height="63" rx="6.5"/>
+  <g class="mv__ticks"><line x1="31" y1="34" x2="35" y2="34"/><line x1="29" y1="50" x2="35" y2="50"/><line x1="31" y1="66" x2="35" y2="66"/></g>
+</svg></div><p class="pl-t__v"><b data-pl-v>5</b><small>mg</small></p><p class="pl-t__u" data-pl-u>nothing used</p></div></div>
+        <dl class="rows pl-rows">
+          <div><dt data-pl-out-k>runs dry</dt><dd data-pl-out>—</dd></div>
+          <div><dt>planned</dt><dd data-pl-plan>no doses yet</dd></div>
+        </dl>
+        <p class="warn" data-pl-warn hidden></p>
+        <div class="pl-all" data-pl-all hidden><p class="out__k">all vials · <span data-pl-all-day></span></p><div data-pl-all-list></div></div>
+      </aside>
+    </div>
+    </div>
+  </section>
+</div>
+<div class="dock" data-dock aria-hidden="true">
+  <div class="dock__row"><span>draw to</span><span class="dock__val"><b data-o="dock">10</b>units</span></div>
+  <div class="syr syr--dock" data-syr><svg viewBox="0 0 440 100" aria-hidden="true">
+  <defs>
+    <clipPath id="dock-clip"><rect x="75" y="31" width="260" height="38" rx="6"/></clipPath>
+    <linearGradient id="dock-liq" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1fd39c"/><stop offset="1" stop-color="#33e6b0"/></linearGradient>
+  </defs>
+  <line class="needle" x1="6" y1="50" x2="50" y2="50"/>
+  <polygon class="hub" points="50,42 72,46 72,54 50,58"/>
+  <rect class="barrel" x="75" y="30" width="260" height="40" rx="8"/>
+  <g clip-path="url(#dock-clip)"><rect class="fill" x="75" y="30" width="260" height="40" fill="url(#dock-liq)"/></g>
+  <g class="ticks"><line x1="75" y1="34" x2="75" y2="66"/><line x1="88" y1="40" x2="88" y2="60"/><line x1="101" y1="40" x2="101" y2="60"/><line x1="114" y1="40" x2="114" y2="60"/><line x1="127" y1="40" x2="127" y2="60"/><line x1="140" y1="34" x2="140" y2="66"/><line x1="153" y1="40" x2="153" y2="60"/><line x1="166" y1="40" x2="166" y2="60"/><line x1="179" y1="40" x2="179" y2="60"/><line x1="192" y1="40" x2="192" y2="60"/><line x1="205" y1="34" x2="205" y2="66"/><line x1="218" y1="40" x2="218" y2="60"/><line x1="231" y1="40" x2="231" y2="60"/><line x1="244" y1="40" x2="244" y2="60"/><line x1="257" y1="40" x2="257" y2="60"/><line x1="270" y1="34" x2="270" y2="66"/><line x1="283" y1="40" x2="283" y2="60"/><line x1="296" y1="40" x2="296" y2="60"/><line x1="309" y1="40" x2="309" y2="60"/><line x1="322" y1="40" x2="322" y2="60"/><line x1="335" y1="34" x2="335" y2="66"/></g>
+  <g class="plunger"><rect class="rod" x="75" y="45" width="70" height="10" rx="3"/><rect class="flange" x="131" y="35" width="14" height="30" rx="4"/><rect class="cap" x="71" y="24" width="8" height="52" rx="3"/></g>
+  <text class="tick" x="75" y="92">0</text><text class="tick" x="140" y="92">25</text><text class="tick" x="205" y="92">50</text><text class="tick" x="270" y="92">75</text><text class="tick" x="335" y="92">100</text>
+</svg></div>
+</div>
+</main>
+<footer class="foot">
+  <div class="wrap foot__top">
+    <div><p class="kicker">// hlix</p><p class="foot__lede">a research peptide catalog. every compound in stock, logged with its dose, spec and price.</p></div>
+    <div class="foot__col"><h4>catalog</h4><a href="/v2/catalog#metabolic">Metabolic Research</a><a href="/v2/catalog#growth">Growth & GH Secretagogues</a><a href="/v2/catalog#recovery">Healing & Recovery</a><a href="/v2/catalog#cognitive">Cognitive & Neuro Health</a><a href="/v2/catalog#longevity">Longevity & Anti-Aging</a><a href="/v2/catalog#hormonal">Hormonal & Sexual Health</a><a href="/v2/catalog#specialty">Specialty Research</a></div>
+    <div class="foot__col"><h4>site</h4><a href="/v2/about">about</a><a href="/v2/calculator">calculator</a><a href="/v2/contact">contact</a></div>
+    <div class="foot__col"><h4>contact</h4><a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a><span>research use only</span></div>
+  </div>
+  <div class="wrap foot__legal">
+    <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
+  </div>
+</footer>
+<div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
+<script src="/assets/js/search-index.js?v=1794301349"></script>
+<script src="/assets/js/v2-prices.js?v=1794301349"></script>
+<script src="/assets/js/v2.js?v=1794301349"></script>
+<script src="/assets/js/v2-cart.js?v=1794301349"></script>
+<script src="/assets/js/v2-calc.js?v=1794301349" defer></script><script src="/assets/js/v2-planner.js?v=1794301349" defer></script>
+<script src="/assets/js/v2-chat.js?v=1794301349"></script>
+</body>
+</html>
