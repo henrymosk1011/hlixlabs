@@ -699,7 +699,7 @@
     // stock for the selected size, from the admin's Inventory (v2-prices.js); every size can
     // be ordered, the line just says when it would ship
     var stockLine = $("[data-stock]", pdp);
-    var STOCK_TEXT = { in_stock: "in stock", on_the_way: "on the way", to_order: "out of stock \u00b7 ships in 1\u20132 weeks, ordered for you" };
+    var STOCK_TEXT = { in_stock: "in stock", on_the_way: "on the way", to_order: "out of stock \u00b7 ships in 2\u20133 weeks, ordered for you" };
     function stockOf(sku) { return window.HLIXPrices && window.HLIXPrices.stock ? window.HLIXPrices.stock(sku) : null; }
     // a size that's out of stock is ordered for the customer: the buttons say "pre-order"
     function buyLabel() { return stockOf(st.btn.getAttribute("data-sku")) === "to_order" ? "pre-order " : "add to cart "; }

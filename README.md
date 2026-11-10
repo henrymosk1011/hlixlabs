@@ -347,7 +347,7 @@ Stock follows the admin's Inventory. Every product card (catalog, home, "more in
 has a tag: **in stock** when any size has vials for sale on hand, **on the way** when some
 are on a supplier order no customer is waiting for, otherwise **out of stock** (in red,
 `--out` in `v3.css`). On a product page each size button says it too, under the price, and
-the line under the buy button says it for the size picked (**out of stock · ships in 1–2
+the line under the buy button says it for the size picked (**out of stock · ships in 2–3
 weeks, ordered for you**). Every size can still be ordered: for a size that's out of stock
 the button (and the phone's buy bar) says **pre-order** instead of "add to cart", and it goes
 in the cart the same way.
