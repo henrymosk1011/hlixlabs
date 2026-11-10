@@ -4,7 +4,7 @@
     {
       "name": "hlix-site",
       "runtimeExecutable": "python3",
-      "runtimeArgs": ["-m", "http.server", "8743"],
+      "runtimeArgs": ["scripts/serve.py", "8743"],
       "port": 8743
     }
   ]

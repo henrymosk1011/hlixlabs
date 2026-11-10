@@ -334,7 +334,7 @@
     }).slice(0, 9);
     if (!res.length) { sList.innerHTML = '<p class="search__hint">no matches for “' + esc(q) + '”.</p>'; return; }
     sList.innerHTML = res.map(function (r, i) {
-      return '<a class="sr" style="--i:' + i + '" href="' + cfg.base + "peptides/" + r.slug + '.html">' +
+      return '<a class="sr" style="--i:' + i + '" href="' + cfg.base + "peptides/" + r.slug + '">' +
         '<span class="sr__n">' + String(i + 1).padStart(2, "0") + "</span>" +
         '<span class="sr__t">' + esc(r.name) + "</span>" +
         '<span class="sr__c">' + esc(r.category) + "</span>" +

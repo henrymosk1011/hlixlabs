@@ -1420,7 +1420,7 @@
   // saves every change this sends back ("save"). nothing is read from or kept in this browser. the page's
   // height goes up too, so the admin can size the frame to fit. only the admin may frame this page
   // (vercel.json), and replies only ever go to the window that sent the plan, at its origin.
-  if (window.parent === window) { location.replace("calculator.html"); return; }
+  if (window.parent === window) { location.replace("calculator"); return; }
   var host = null, started = false;
   function tell(type, data) {
     if (!host) return;

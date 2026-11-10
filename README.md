@@ -222,10 +222,14 @@ Content-Security-Policy so browsers' built-in PDF viewers aren't blocked.
 
 No dependencies for the static site itself. From the project root:
 ```bash
-python3 -m http.server 8000
+python3 scripts/serve.py
 ```
-then open http://localhost:8000. The chat widget will render but can't reach
-a backend this way (see below) — that's expected locally.
+then open http://localhost:8743. Pages have no `.html` in their address, as on
+hlixlabs.com (`vercel.json` turns on Vercel's `cleanUrls`: `/catalog` serves
+`catalog.html`, and `/catalog.html` redirects to `/catalog`), and this little
+server does the same. The chat widget, checkout and accounts render but can't
+reach a backend this way (see below) — that's expected locally; `vercel dev`
+runs them too.
 
 ## Getting this onto GitHub
 

@@ -91,6 +91,7 @@ const actions = {
     const bad = passwordProblem(b.password, mail);
     if (bad) return send(res, 400, { error: bad });
     const name = str(b.name, PROFILE.name);
+    // account.html: the address on Supabase's allow list; Vercel forwards it to /account (the #tokens come along).
     const r = await S.auth(`signup?redirect_to=${encodeURIComponent(S.SITE_URL + "/account.html")}`, { body: { email: mail, password: b.password } });
     if (!r.ok) {
       const [status, error] = authError(r, "Your account couldn't be made. Check your email and password and try again.");

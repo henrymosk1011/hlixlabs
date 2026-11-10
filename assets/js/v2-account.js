@@ -31,7 +31,7 @@
   $$("[data-acct-form]").forEach(function (f) { forms[f.getAttribute("data-acct-form")] = f; });
 
   // Only places on this site, by name (never a URL from the address bar).
-  var NEXT = { checkout: "checkout.html" };
+  var NEXT = { checkout: "checkout" };
   var next = NEXT[new URLSearchParams(location.search).get("next") || ""] || "";
 
   function status(form, msg, isError) {

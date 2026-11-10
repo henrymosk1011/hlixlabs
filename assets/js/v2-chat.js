@@ -60,7 +60,7 @@
     return function (s) {
       return s.replace(re, function (match) {
         var slug = bySlug[match.toLowerCase()];
-        return slug ? '<a href="' + base + "peptides/" + slug + '.html">' + match + "</a>" : match;
+        return slug ? '<a href="' + base + "peptides/" + slug + '">' + match + "</a>" : match;
       });
     };
   })();

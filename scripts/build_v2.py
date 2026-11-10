@@ -129,27 +129,27 @@ def nav(p, page):
         cur = ' aria-current="page"' if key == page else ""
         return f'<a href="{p}{href}"{cur}>{label}</a>'
 
-    links = a("about.html", "about", "about") + a("catalog.html", "catalog", "catalog") + a("calculator.html", "calculator", "calculator")
+    links = a("about", "about", "about") + a("catalog", "catalog", "catalog") + a("calculator", "calculator", "calculator")
     return f'''<div class="progress" aria-hidden="true"><i></i></div>
 <header class="nav" data-nav>
-  <a class="nav__brand" href="{p}index.html" aria-label="hlix home">hlix<i></i></a>
+  <a class="nav__brand" href="{p or './'}" aria-label="hlix home">hlix<i></i></a>
   <nav class="nav__links" aria-label="primary">{links}</nav>
   <div class="nav__right">
     <button class="nav__search" data-search-open aria-label="search">{SEARCH}<span>search</span><kbd>/</kbd></button>
     <button class="nav__theme" data-theme-toggle aria-label="switch to light theme"><span class="nav__theme-sun">{SUN}</span><span class="nav__theme-moon">{MOON}</span></button>
-    <a class="nav__account" href="{p}account.html" aria-label="your account"{' aria-current="page"' if page == "account" else ""}>{USER}<i aria-hidden="true"></i></a>
+    <a class="nav__account" href="{p}account" aria-label="your account"{' aria-current="page"' if page == "account" else ""}>{USER}<i aria-hidden="true"></i></a>
     <button class="nav__cart" data-cart-open aria-label="view cart">{CART}<span class="nav__cart-count" data-cart-count hidden>0</span></button>
-    <a class="btn btn--sm" href="{p}contact.html" data-magnetic>contact</a>
+    <a class="btn btn--sm" href="{p}contact" data-magnetic>contact</a>
     <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
   </div>
 </header>
 <div class="menu">
   <nav class="menu__links">
-    <a style="--i:0" href="{p}about.html"><span>01</span>about</a>
-    <a style="--i:1" href="{p}catalog.html"><span>02</span>catalog</a>
-    <a style="--i:2" href="{p}calculator.html"><span>03</span>calculator</a>
-    <a style="--i:3" href="{p}contact.html"><span>04</span>contact</a>
-    <a style="--i:4" href="{p}account.html"><span>05</span>account</a>
+    <a style="--i:0" href="{p}about"><span>01</span>about</a>
+    <a style="--i:1" href="{p}catalog"><span>02</span>catalog</a>
+    <a style="--i:2" href="{p}calculator"><span>03</span>calculator</a>
+    <a style="--i:3" href="{p}contact"><span>04</span>contact</a>
+    <a style="--i:4" href="{p}account"><span>05</span>account</a>
   </nav>
   <div class="menu__foot"><button data-search-open class="link-arrow">search products {SEARCH}</button><span>{CONTACT_EMAIL}</span></div>
 </div>
@@ -170,7 +170,7 @@ def nav(p, page):
   <p class="cart__empty" data-cart-empty hidden>your cart is empty.</p>
   <div class="cart__foot" data-cart-foot hidden>
     <div class="cart__subtotal"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
-    <a class="btn btn--solid btn--block" href="{p}checkout.html" data-magnetic>checkout {ARROW}</a>
+    <a class="btn btn--solid btn--block" href="{p}checkout" data-magnetic>checkout {ARROW}</a>
     <p class="cart__note">no payment is collected here — we'll follow up by email with next steps.</p>
   </div>
 </div>'''
@@ -178,13 +178,13 @@ def nav(p, page):
 
 def footer(p, groups):
     cats = "".join(
-        f'<a href="{p}catalog.html#{s}">{l}</a>' for s, l, _ in b.CATEGORY_ORDER if s != "supplies"
+        f'<a href="{p}catalog#{s}">{l}</a>' for s, l, _ in b.CATEGORY_ORDER if s != "supplies"
     )
     return f'''<footer class="foot">
   <div class="wrap foot__top">
     <div><p class="kicker">// hlix</p><p class="foot__lede">a research peptide catalog. every compound in stock, logged with its dose, spec and price.</p></div>
     <div class="foot__col"><h4>catalog</h4>{cats}</div>
-    <div class="foot__col"><h4>site</h4><a href="{p}about.html">about</a><a href="{p}calculator.html">calculator</a><a href="{p}contact.html">contact</a></div>
+    <div class="foot__col"><h4>site</h4><a href="{p}about">about</a><a href="{p}calculator">calculator</a><a href="{p}contact">contact</a></div>
     <div class="foot__col"><h4>contact</h4><a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a><span>research use only</span></div>
   </div>
   <div class="wrap foot__legal">
@@ -246,7 +246,7 @@ def card(g, p, uid_prefix="c"):
     meta = f"{g['category_label']} · {len(g['variants'])} sizes" if multi else f"{g['category_label']} · {d['dose']}"
     color = CATEGORY_COLORS.get(g["category"], "#33e6b0")
     tags_attr = esc(",".join(t.lower() for t in g["tags"]))
-    return f'''<a class="pcard" href="{p}peptides/{g['slug']}.html" data-cat="{g['category']}" data-name="{esc(g['name'].lower())}" data-tags="{tags_attr}" style="--c:{color}" data-reveal>
+    return f'''<a class="pcard" href="{p}peptides/{g['slug']}" data-cat="{g['category']}" data-name="{esc(g['name'].lower())}" data-tags="{tags_attr}" style="--c:{color}" data-reveal>
   <div class="pcard__stage">{svg}</div>
   <div class="pcard__row"><h3>{esc(g['name'])}</h3><span class="pcard__price"{live_price_attrs(g)}>{price}</span></div>
   <p class="pcard__meta">{esc(meta)}</p>
@@ -285,7 +285,7 @@ def page_home(groups):
         multi = len(g["variants"]) > 1
         price = f"from {money(g['min_price'])}" if multi else money(d["price"])
         color = CATEGORY_COLORS.get(g["category"], "#33e6b0")
-        lcards += f'''<a class="lcard" href="peptides/{g['slug']}.html" style="--c:{color}">
+        lcards += f'''<a class="lcard" href="peptides/{g['slug']}" style="--c:{color}">
       <div class="lcard__stage">{svg}</div>
       <div class="lcard__meta"><span class="lcard__n">{i + 1:02d}</span><h3>{esc(g['name'])}</h3><span{live_price_attrs(g)}>{price}</span></div>
     </a>'''
@@ -300,7 +300,7 @@ def page_home(groups):
     crows = ""
     for i, (slug, label, _) in enumerate([c for c in b.CATEGORY_ORDER if c[0] != "supplies"]):
         n = sum(1 for g in groups if g["category"] == slug)
-        crows += f'''<a class="crow" href="catalog.html#{slug}" style="--c:{CATEGORY_COLORS[slug]};--d:{i}" data-reveal>
+        crows += f'''<a class="crow" href="catalog#{slug}" style="--c:{CATEGORY_COLORS[slug]};--d:{i}" data-reveal>
       <span class="crow__n">{i + 1:02d}</span><span class="crow__t">{esc(label)}</span><span class="crow__c">{n} compounds</span><span class="crow__a">{ARROW}</span>
     </a>'''
 
@@ -323,7 +323,7 @@ def page_home(groups):
     <h1 class="hero__title" data-split><span>research-grade.</span><br><span class="ol">cataloged.</span><br><span class="ac">clearly priced.</span></h1>
     <div class="hero__bar" data-reveal style="--d:6">
       <p class="hero__sub">every research peptide in stock: dose, spec and price in one place.</p>
-      <div class="hero__cta"><a class="btn btn--solid" href="catalog.html" data-magnetic>explore the catalog {ARROW}</a><a class="btn" href="calculator.html" data-magnetic>open calculator</a></div>
+      <div class="hero__cta"><a class="btn btn--solid" href="catalog" data-magnetic>explore the catalog {ARROW}</a><a class="btn" href="calculator" data-magnetic>open calculator</a></div>
     </div>
   </div>
   <div class="cue" aria-hidden="true">scroll</div>
@@ -345,7 +345,7 @@ def page_home(groups):
   <div class="lineup__pin">
     <div class="wrap lineup__head"><h2 class="lineup__title" data-split>the lineup.</h2><span class="lineup__count" data-reveal="fade">{len(featured):02d} of {total}, keep scrolling</span></div>
     <div class="lineup__track" data-htrack>{lcards}
-      <a class="lcard" href="catalog.html"><div class="lcard__stage" style="--c:#33e6b0"><span class="btn btn--solid">view all {total} {ARROW}</span></div><div class="lcard__meta"><h3>the full catalog</h3></div></a>
+      <a class="lcard" href="catalog"><div class="lcard__stage" style="--c:#33e6b0"><span class="btn btn--solid">view all {total} {ARROW}</span></div><div class="lcard__meta"><h3>the full catalog</h3></div></a>
     </div>
     <div class="lineup__bar"><i></i></div>
   </div>
@@ -380,7 +380,7 @@ def page_home(groups):
     <h2 class="calcband__title" data-split>know your draw.</h2>
     <div class="syr no-tr" data-syr data-syringe-scrub style="--fill:.1">{syringe_svg("tease")}</div>
     <p data-reveal>concentration, draw-to units, syringe capacity and how many vials you'll need, instantly, right in your browser.</p>
-    <a class="btn btn--solid" href="calculator.html" data-reveal data-magnetic>open the calculator {ARROW}</a>
+    <a class="btn btn--solid" href="calculator" data-reveal data-magnetic>open the calculator {ARROW}</a>
   </div>
 </section>'''
     return shell(title="hlix: research-grade, cataloged", desc=b.BASE_DESCRIPTION, page="home", body=body, groups=groups)
@@ -436,7 +436,7 @@ def page_catalog(groups):
 # -------------------------------------------------------------- product ---
 
 MONTHS = "jan feb mar apr may jun jul aug sep oct nov dec".split()
-COA_FALLBACK = '<p>a certificate of analysis is kept on file for this compound and available on request via the <a href="../contact.html" style="color:var(--accent)">contact page</a>.</p>'
+COA_FALLBACK = '<p>a certificate of analysis is kept on file for this compound and available on request via the <a href="../contact" style="color:var(--accent)">contact page</a>.</p>'
 
 
 def coa_blocks(g):
@@ -476,7 +476,7 @@ def page_product(g, groups):
     svg = vial_media(d, f"pdp-{g['slug']}", "l", "../../", eager=True)
     tags_html = (
         '<div class="pdp__tags">' +
-        "".join(f'<a class="tag-pill" href="../catalog.html?tag={esc(t.lower().replace(" ", "+"))}">{esc(t)}</a>' for t in g["tags"]) +
+        "".join(f'<a class="tag-pill" href="../catalog?tag={esc(t.lower().replace(" ", "+"))}">{esc(t)}</a>' for t in g["tags"]) +
         "</div>"
     ) if g["tags"] else ""
     variants = g["variants"]
@@ -506,7 +506,7 @@ def page_product(g, groups):
     body = f'''
 <div class="pdp" style="--c:{color}">
   <div class="wrap">
-    <nav class="crumbs" aria-label="breadcrumb"><a href="../index.html">home</a> / <a href="../catalog.html">catalog</a> / <a href="../catalog.html#{g['category']}">{esc(g['category_label'])}</a> / <span>{esc(g['name'])}</span></nav>
+    <nav class="crumbs" aria-label="breadcrumb"><a href="../">home</a> / <a href="../catalog">catalog</a> / <a href="../catalog#{g['category']}">{esc(g['category_label'])}</a> / <span>{esc(g['name'])}</span></nav>
     <div class="pdp__grid">
       <div class="pdp__media" data-reveal="scale"><div class="stage" data-zoom>{svg}<span class="stage__hint">click to enlarge</span></div></div>
       <div class="pdp__info">
@@ -531,7 +531,7 @@ def page_product(g, groups):
           </div>
           <button class="btn btn--solid" type="button" data-add-to-cart data-name="{esc(g['name'])}" data-slug="{g['slug']}" data-category="{esc(g['category_label'])}" data-magnetic>add to cart</button>
         </div>
-        <p class="pdp__added" data-added hidden>added to cart — <a href="../checkout.html">checkout</a> or keep browsing.</p>
+        <p class="pdp__added" data-added hidden>added to cart — <a href="../checkout">checkout</a> or keep browsing.</p>
         <p class="stock" data-reveal>in stock</p>
         <dl class="specs" data-reveal>
           <div><dt>category</dt><dd>{esc(g['category_label'])}</dd></div>
@@ -580,7 +580,7 @@ def page_about(groups):
 </div></section>
 <section class="sec calcband"><div class="wrap">
   <h2 class="calcband__title" data-split>see the catalog.</h2>
-  <a class="btn btn--solid" href="catalog.html" data-reveal data-magnetic>explore {len(groups)} compounds {ARROW}</a>
+  <a class="btn btn--solid" href="catalog" data-reveal data-magnetic>explore {len(groups)} compounds {ARROW}</a>
 </div></section>'''
     return shell(title="about", desc="about hlix: a research peptide catalog for laboratory and research use.", page="about", body=body, groups=groups)
 
@@ -951,12 +951,12 @@ def page_checkout():
 <div class="wrap checkout" data-checkout>
   <div class="checkout__items">
     <div class="cart__list" data-checkout-list></div>
-    <p class="cart__empty" data-checkout-empty hidden>your cart is empty. <a href="catalog.html">browse the catalog</a>.</p>
+    <p class="cart__empty" data-checkout-empty hidden>your cart is empty. <a href="catalog">browse the catalog</a>.</p>
     <div class="checkout__subtotal" data-checkout-subtotal-row hidden><span>subtotal</span><b data-checkout-subtotal>$0</b></div>
   </div>
   <form class="checkout__form" data-checkout-form>
-    <p class="checkout__acct" data-checkout-acct-out>have an account? <a href="account.html?next=checkout">sign in</a> to save your address and follow this order. or just order as a guest.</p>
-    <p class="checkout__acct" data-checkout-acct-in hidden>signed in as <b data-checkout-acct-email></b>. this order will show in <a href="account.html">your account</a>.</p>
+    <p class="checkout__acct" data-checkout-acct-out>have an account? <a href="account?next=checkout">sign in</a> to save your address and follow this order. or just order as a guest.</p>
+    <p class="checkout__acct" data-checkout-acct-in hidden>signed in as <b data-checkout-acct-email></b>. this order will show in <a href="account">your account</a>.</p>
     <fieldset>
       <legend>contact</legend>
       <label><span>full name</span><input name="name" type="text" required autocomplete="name" maxlength="120"></label>
@@ -991,8 +991,8 @@ def page_checkout():
     <p class="kicker" data-reveal="fade">// request received</p>
     <h1 class="phead__title" data-split>got it.</h1>
     <p class="phead__sub">your order request is in<span data-checkout-done-ref hidden></span>. we'll reply by email at <b data-checkout-done-email></b> with next steps, usually within 1–2 business days.</p>
-    <a class="btn btn--solid" href="account.html" data-checkout-done-acct hidden data-magnetic>see it in your account {ARROW}</a>
-    <a class="btn btn--solid" href="catalog.html" data-checkout-done-cat data-magnetic>back to catalog {ARROW}</a>
+    <a class="btn btn--solid" href="account" data-checkout-done-acct hidden data-magnetic>see it in your account {ARROW}</a>
+    <a class="btn btn--solid" href="catalog" data-checkout-done-cat data-magnetic>back to catalog {ARROW}</a>
   </div>
 </div>'''
     return shell(title="checkout", desc="review your cart and submit an order request.", page="checkout", body=body, groups=(), scripts=("v2-checkout.js",), body_class="checkout-page")
@@ -1058,7 +1058,7 @@ def page_account():
       <section class="acct__orders" aria-labelledby="acct-orders-h">
         <h2 class="acct__h" id="acct-orders-h">your orders</h2>
         <div data-acct-orders></div>
-        <p class="acct__empty" data-acct-orders-empty hidden>no orders yet. <a href="catalog.html">browse the catalog</a>.</p>
+        <p class="acct__empty" data-acct-orders-empty hidden>no orders yet. <a href="catalog">browse the catalog</a>.</p>
       </section>
       <div class="acct__side">
         <form class="checkout__form acct__form" data-acct-form="profile">
