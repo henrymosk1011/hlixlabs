@@ -189,8 +189,12 @@ ul, ol { padding: 0; list-style: none; }
 }
 .top.is-scrolled::before, .mega-open .top::before { border-color: var(--line); }
 .top__in { display: flex; align-items: center; gap: clamp(14px, 2vw, 28px); max-width: var(--max); height: var(--nav-h); margin-inline: auto; padding-inline: var(--pad); }
-.brand { display: inline-flex; align-items: flex-start; gap: 5px; font: 800 27px/1 var(--f-display); letter-spacing: -0.065em; }
-.brand i { width: 7px; height: 7px; margin-top: 5px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); animation: pulse 2.6s ease-in-out infinite; }
+.brand { display: inline-flex; align-items: baseline; gap: 5px; font: 800 27px/1 var(--f-display); letter-spacing: -0.065em; }
+/* The dot sits on the baseline, then rises by half the x-height (the font's own "ex") less half
+   its size, so its middle lines up with the middle of the "x" at any font size. "translate"
+   (not "bottom") keeps it from snapping to whole pixels, and leaves "transform" to the pulse. */
+.brand i { flex: none; position: relative; bottom: calc(0.5ex - 3.5px); width: 7px; height: 7px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 14px var(--accent); animation: pulse 2.6s ease-in-out infinite; }
+@supports (translate: 0 0) { .brand i { bottom: auto; translate: 0 calc(3.5px - 0.5ex); } }
 @keyframes pulse { 50% { opacity: 0.35; transform: scale(0.8); } }
 .top__nav { display: flex; align-items: center; gap: 2px; }
 .top__link {
