@@ -1081,6 +1081,7 @@ def page_account():
           {status}
         </form>
         <form class="checkout__form acct__form" data-acct-form="password">
+          <p class="acct__temp" data-acct-temp hidden>you're signed in with a temporary password from hlix. choose your own here: enter the temporary one as your current password.</p>
           <fieldset>
             <legend>change password</legend>
             <label><span>current password</span><input name="current" type="password" required autocomplete="current-password" maxlength="200"></label>

@@ -43,6 +43,7 @@ function authError(r, fallback, signingIn = false) {
   if (code === "weak_password") return [400, "Choose a stronger password: at least 10 characters, with letters and numbers."];
   if (code === "email_address_invalid" || code === "validation_failed") return [400, "That email address doesn't look right."];
   if (code === "email_not_confirmed") return [403, "Confirm your email first: open the link we sent you."];
+  if (code === "user_banned" || /banned/i.test(msg)) return [403, "This account is turned off. Write to contact@hlixlabs.com if you think that's a mistake."];
   if (code === "same_password") return [400, "That's your current password. Choose a new one."];
   if (code === "invalid_credentials" || (signingIn && r.status === 400)) return [401, "Email or password is incorrect."];
   if (r.status >= 400 && r.status < 500) return [400, fallback];
@@ -65,7 +66,8 @@ async function me(req, res) {
   const r = await S.rpc("shop_me", {}, token);
   if (r.status === 401 || r.status === 403) {
     S.clearSession(res);
-    return send(res, 200, { signedIn: false, emails: S.EMAILS_ON });
+    const off = /turned off/i.test(String((r.data && r.data.message) || ""));
+    return send(res, 200, { signedIn: false, emails: S.EMAILS_ON, ...(off ? { disabled: true } : {}) });
   }
   if (!r.ok || !r.data) return send(res, 502, { error: S.friendly(r, "Your account couldn't be loaded. Try again in a moment.") });
   const d = r.data;
@@ -79,6 +81,7 @@ async function me(req, res) {
   return send(res, 200, {
     signedIn: true, emails: S.EMAILS_ON,
     email: d.email, tier, prices, profile: d.profile, cart: d.cart, orders: d.orders,
+    tempPassword: d.temp_password === true,
     reset: !!S.cookies(req)[S.RS],
   });
 }
@@ -188,6 +191,7 @@ const actions = {
     }
     // Every other device signs in again with the new password.
     await S.auth("logout?scope=others", { token: use });
+    await S.rpc("shop_password_changed", {}, use); // no longer on a temporary password from hlix
     S.setCookie(res, S.RS, "", 0);
     return send(res, 200, { ok: true });
   },

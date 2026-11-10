@@ -310,13 +310,20 @@ account, 30 an hour in all). The admin repo's README has the Supabase settings
 accounts need ("Website accounts").
 
 **Family & friends.** An admin can mark an account as family & friends (on the
-client's page in the admin). That account pays hlix's cost: a pack of 10 at the
+user's page under Users in the admin). That account pays hlix's cost: a pack of 10 at the
 supplier pack price, a single vial at a tenth of it (rounded up to the cent),
 powder or ready to use alike. Product pages then show a "family & friends
 price" box with **single vial / pack of 10**, cart lines can be packs, and the
 account page says so. `GET /api/account` returns those prices (`prices`, a pack
 of 10 by SKU) only for that account; the database prices the order itself and
 refuses packs from anyone else (the admin's `0027_family_pricing.sql`).
+
+**Turned off / temporary passwords.** An admin can turn an account off (Users in
+the admin): it's signed out everywhere, can't sign in (the site says the account
+is turned off and to write to contact@hlixlabs.com), and every `shop_*` call is
+refused. An admin can also reset a password to a temporary one; the account page
+then asks them to choose their own (`tempPassword` in `GET /api/account`), and
+changing it clears the flag (the admin's `0028_users_admin.sql`).
 
 Vercel environment variables (all optional):
 

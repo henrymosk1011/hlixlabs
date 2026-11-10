@@ -175,11 +175,16 @@
     inView.hidden = !on;
     if (!on) {
       if (data.offline) status(forms.signin, "couldn't reach the server. check your connection and reload.", true);
+      if (data.disabled) status(forms.signin, "this account is turned off. write to contact@hlixlabs.com if you think that's a mistake.", true);
       return;
     }
     $("[data-acct-email]").textContent = data.email || "";
     var tier = $("[data-acct-tier]");
     if (tier) tier.hidden = data.tier !== "family";
+    // A temporary password from hlix: ask them to choose their own.
+    var temp = $("[data-acct-temp]");
+    if (temp) temp.hidden = !data.tempPassword;
+    forms.password.classList.toggle("is-urgent", !!data.tempPassword);
     forms.reset.hidden = !data.reset;
     var p = data.profile || {};
     ["name", "phone", "address1", "address2", "city", "state", "zip", "country"].forEach(function (k) {
@@ -219,6 +224,11 @@
         if (withCurrent) f.current.value = "";
         if (r.status === 401 && !withCurrent) return A.reload().then(render);
         status(f, r.ok ? "password changed. other devices will need to sign in again." : (r.data.error || "your password couldn't be changed.").toLowerCase(), !r.ok);
+        if (r.ok) {
+          var temp = $("[data-acct-temp]");
+          if (temp) temp.hidden = true;
+          forms.password.classList.remove("is-urgent");
+        }
         if (r.ok && !withCurrent) setTimeout(function () { f.hidden = true; }, 2500);
       });
     });
