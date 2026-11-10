@@ -1318,3 +1318,16 @@ a.tag-pill:hover { color: var(--accent); border-color: var(--accent); }
 @media (max-width: 900px) {
   .acct__grid { grid-template-columns: 1fr; }
 }
+
+/* family & friends pricing (product page, account) */
+.fam { margin: 6px 0 22px; padding: 16px 18px; border: 1px solid var(--accent); border-radius: var(--r); display: grid; gap: 10px; }
+.fam[hidden] { display: none; }
+.fam__label { color: var(--accent); font: 600 11px var(--f-mono); letter-spacing: 0.12em; text-transform: uppercase; }
+.fam__price b { font: 800 clamp(1.8rem, 3vw, 2.4rem) var(--f-display); letter-spacing: -0.03em; }
+.fam__price span { color: var(--dim); font: 500 13px var(--f-mono); }
+.fam__units { display: flex; gap: 8px; flex-wrap: wrap; }
+.fam__units button { padding: 9px 14px; border: 1px solid var(--line-2); border-radius: var(--r); color: var(--dim); font: 600 13px var(--f-display); transition: color 0.3s, border-color 0.3s, background 0.3s; }
+.fam__units button[aria-pressed="true"] { color: var(--accent-ink); background: var(--accent); border-color: var(--accent); }
+.price.is-regular .price__n { text-decoration: line-through; text-decoration-thickness: 2px; opacity: 0.45; }
+.acct__tier { display: inline-block; margin-left: 12px; padding: 3px 9px; border: 1px solid var(--accent); border-radius: 999px; color: var(--accent); font: 600 11px var(--f-mono); }
+.acct__tier[hidden] { display: none; }

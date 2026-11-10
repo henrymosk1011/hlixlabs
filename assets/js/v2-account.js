@@ -178,6 +178,8 @@
       return;
     }
     $("[data-acct-email]").textContent = data.email || "";
+    var tier = $("[data-acct-tier]");
+    if (tier) tier.hidden = data.tier !== "family";
     forms.reset.hidden = !data.reset;
     var p = data.profile || {};
     ["name", "phone", "address1", "address2", "city", "state", "zip", "country"].forEach(function (k) {

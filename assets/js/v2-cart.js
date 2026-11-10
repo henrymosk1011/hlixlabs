@@ -32,13 +32,13 @@
     return cart.slice(0, 50).map(function (it) {
       var q = Math.max(1, Math.min(999, parseInt(it.qty, 10) || 1));
       return {
-        sku: text(it.sku, 40), form: it.form === "powder" ? "powder" : "recon", qty: q,
+        sku: text(it.sku, 40), form: it.form === "powder" ? "powder" : "recon", unit: it.unit === "pack" ? "pack" : "vial", qty: q,
         name: text(it.name, 160), dose: text(it.dose, 40), slug: text(it.slug, 120), category: text(it.category, 80),
         unitPrice: Math.max(0, Number(it.unitPrice) || 0),
       };
     }).filter(function (it) { return it.sku; });
   }
-  function shape(cart) { return JSON.stringify(slim(cart).map(function (it) { return [it.sku, it.form, it.qty]; })); }
+  function shape(cart) { return JSON.stringify(slim(cart).map(function (it) { return [it.sku, it.form, it.unit, it.qty]; })); }
   function readSynced() { try { return localStorage.getItem(SYNCED); } catch (e) { return null; } }
   function setSynced(cart) { try { localStorage.setItem(SYNCED, shape(cart)); } catch (e) {} }
   // Same product and form in both: the bigger amount (never doubled up).
@@ -116,9 +116,13 @@
   };
   account.ready = signedIn() ? load(false) : Promise.resolve((account.data = { signedIn: false }));
   window.HLIXAccount = account;
-  function itemKey(it) { return it.sku + "|" + it.form; }
+  function itemKey(it) { return it.sku + "|" + it.form + "|" + (it.unit === "pack" ? "pack" : "vial"); }
   function subtotal(cart) { return cart.reduce(function (s, it) { return s + it.unitPrice * it.qty; }, 0); }
-  function moneyStr(n) { return "$" + Math.ceil(n - 1e-9); }
+  // Website prices are whole dollars; family & friends prices can have cents.
+  function moneyStr(n) {
+    var c = Math.round((Number(n) || 0) * 100);
+    return "$" + (c % 100 ? (c / 100).toFixed(2) : String(c / 100));
+  }
 
   window.HLIXCart = {
     get: getCart,
@@ -162,7 +166,7 @@
   function lineHtml(it, i) {
     return (
       '<div class="cart__item" data-cart-item>' +
-        '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : "powder") + '</span></div>' +
+        '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : "powder") + (it.unit === "pack" ? " · pack of 10" : "") + '</span></div>' +
         '<div class="cart__item-ctrl">' +
           '<div class="qty qty--sm"><button type="button" data-cart-dec="' + i + '" aria-label="decrease quantity">−</button><span data-cart-qty>' + it.qty + '</span><button type="button" data-cart-inc="' + i + '" aria-label="increase quantity">+</button></div>' +
           '<b class="cart__item-price">' + moneyStr(it.unitPrice * it.qty) + '</b>' +
@@ -236,7 +240,11 @@
       var sku = skuOut ? skuOut.textContent.trim() : addBtn.getAttribute("data-slug");
       var live = window.HLIXPrices ? window.HLIXPrices.unit(sku, form) : null;
       if (live !== null) unitPrice = live;
+      var unit = "vial";
+      var fam = familyPrice(sku, buyBy);
+      if (fam !== null) { unit = buyBy; unitPrice = fam; }
       addItem({
+        unit: unit,
         sku: sku,
         name: addBtn.getAttribute("data-name"),
         category: addBtn.getAttribute("data-category"),
@@ -252,15 +260,71 @@
     });
   }
 
-  // live prices (v2-prices.js): bring lines added at an older price up to date
-  d.addEventListener("hlix:prices", function () {
+  // ------------------------------------------------------------------
+  // family & friends pricing: an account an admin marked as family & friends gets
+  // hlix's cost (account.data.prices: a pack of 10, by SKU). A vial is a tenth of the
+  // pack, rounded up to the cent; powder and ready to use cost the same. The database
+  // prices every order itself; these are only what the pages show.
+  // ------------------------------------------------------------------
+  function familyPack(sku) {
+    var a = window.HLIXAccount && window.HLIXAccount.data;
+    var p = a && a.tier === "family" && a.prices ? Number(a.prices[sku]) : 0;
+    return p > 0 ? p : null;
+  }
+  function familyPrice(sku, unit) {
+    var p = familyPack(sku);
+    if (p === null) return null;
+    var cents = Math.round(p * 100);
+    return unit === "pack" ? cents / 100 : Math.ceil(cents / 10) / 100;
+  }
+
+  // Bring every line to its current price: family & friends prices for them, the live
+  // website price for everyone else (v2-prices.js). A pack keeps its price if there's none.
+  function reprice() {
     var cart = getCart(), changed = false;
     cart.forEach(function (it) {
-      var unit = window.HLIXPrices.unit(it.sku, it.form);
+      var unit = familyPrice(it.sku, it.unit);
+      if (unit === null && it.unit !== "pack" && window.HLIXPrices) unit = window.HLIXPrices.unit(it.sku, it.form);
       if (unit !== null && unit !== it.unitPrice) { it.unitPrice = unit; changed = true; }
     });
     if (changed) saveCart(cart, true); // only prices changed: nothing to save to the account
-  });
+  }
+  d.addEventListener("hlix:prices", reprice);
+  d.addEventListener("hlix:account", function () { reprice(); renderFamily(); });
+
+  // product page: the family & friends price, by the vial or the pack of 10
+  var famBox = $("[data-family]");
+  var buyBy = "vial";
+  function currentSku() {
+    var s = $("[data-sku-out]");
+    return s ? s.textContent.trim() : "";
+  }
+  function renderFamily() {
+    if (!famBox) return;
+    var sku = currentSku();
+    var on = familyPack(sku) !== null;
+    famBox.hidden = !on;
+    var regular = $(".pdp__info .price");
+    if (regular) regular.classList.toggle("is-regular", on);
+    if (!on) return;
+    $$("[data-unit]", famBox).forEach(function (b) {
+      b.setAttribute("aria-pressed", b.getAttribute("data-unit") === buyBy ? "true" : "false");
+    });
+    $("[data-family-price]", famBox).textContent = moneyStr(familyPrice(sku, buyBy));
+    $("[data-family-per]", famBox).textContent = buyBy === "pack" ? "/ pack of 10" : "/ vial";
+  }
+  if (famBox) {
+    $$("[data-unit]", famBox).forEach(function (b) {
+      b.addEventListener("click", function () {
+        buyBy = b.getAttribute("data-unit") === "pack" ? "pack" : "vial";
+        renderFamily();
+      });
+    });
+    // after v2.js has switched the size (its own listeners run first)
+    d.addEventListener("click", function (e) {
+      if (e.target.closest && e.target.closest("[data-variant]")) renderFamily();
+    });
+  }
 
   renderBadge(getCart());
   renderDrawer(getCart());

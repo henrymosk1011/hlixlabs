@@ -69,9 +69,16 @@ async function me(req, res) {
   }
   if (!r.ok || !r.data) return send(res, 502, { error: S.friendly(r, "Your account couldn't be loaded. Try again in a moment.") });
   const d = r.data;
+  const tier = d.tier === "family" ? "family" : "regular";
+  // Family & friends: their prices (a pack of 10, by SKU). The database only answers for them.
+  let prices = null;
+  if (tier === "family") {
+    const fp = await S.rpc("shop_family_prices", {}, token);
+    if (fp.ok && fp.data && typeof fp.data === "object" && !Array.isArray(fp.data)) prices = fp.data;
+  }
   return send(res, 200, {
     signedIn: true, emails: S.EMAILS_ON,
-    email: d.email, profile: d.profile, cart: d.cart, orders: d.orders,
+    email: d.email, tier, prices, profile: d.profile, cart: d.cart, orders: d.orders,
     reset: !!S.cookies(req)[S.RS],
   });
 }
@@ -205,7 +212,7 @@ const actions = {
       if (!it || typeof it !== "object") continue;
       const qty = Number(it.qty);
       const line = {
-        sku: str(it.sku, 40), form: it.form === "powder" ? "powder" : "recon",
+        sku: str(it.sku, 40), form: it.form === "powder" ? "powder" : "recon", unit: it.unit === "pack" ? "pack" : "vial",
         qty: Number.isInteger(qty) ? Math.max(1, Math.min(999, qty)) : 1,
         name: str(it.name, 160), dose: str(it.dose, 40), slug: str(it.slug, 120), category: str(it.category, 80),
       };

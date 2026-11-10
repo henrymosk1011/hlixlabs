@@ -8,7 +8,11 @@
   var d = document;
   function $(s, c) { return (c || d).querySelector(s); }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  function moneyStr(n) { return "$" + Math.ceil(n - 1e-9); }
+  // Website prices are whole dollars; family & friends prices can have cents.
+  function moneyStr(n) {
+    var c = Math.round((Number(n) || 0) * 100);
+    return "$" + (c % 100 ? (c / 100).toFixed(2) : String(c / 100));
+  }
 
   var checkout = $("[data-checkout]");
   if (!checkout || !window.HLIXCart) return;
@@ -30,7 +34,7 @@
     list.innerHTML = cart.map(function (it) {
       return (
         '<div class="cart__item">' +
-          '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : "powder") + ' · qty ' + esc(it.qty) + '</span></div>' +
+          '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : "powder") + ' · qty ' + esc(it.qty) + (it.unit === "pack" ? (Number(it.qty) === 1 ? " pack of 10" : " packs of 10") : "") + '</span></div>' +
           '<b class="cart__item-price">' + moneyStr(Number(it.unitPrice) * Number(it.qty) || 0) + '</b>' +
         '</div>'
       );

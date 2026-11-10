@@ -33,8 +33,10 @@ function esc(s) {
 function str(v, max) {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
 }
+// Website prices are whole dollars; family & friends prices (your cost) can have cents.
 function money(n) {
-  return "$" + Math.ceil(Number(n) - 1e-9);
+  const v = Math.round(Number(n) * 100) / 100;
+  return "$" + (Number.isInteger(v) ? String(v) : v.toFixed(2));
 }
 
 module.exports = async (req, res) => {
@@ -93,6 +95,7 @@ module.exports = async (req, res) => {
       name: str(it && it.name, MAX_LEN),
       dose: str(it && it.dose, MAX_LEN),
       form: str(it && it.form, 20),
+      unit: it && it.unit === "pack" ? "pack" : "vial",
       sku: str(it && it.sku, MAX_LEN),
       qty: Math.max(1, Math.min(999, parseInt(it && it.qty, 10) || 0)),
     }))
@@ -102,12 +105,18 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // Packs of 10 are only for signed-in family & friends accounts (the database checks).
+  if (!token && items.some((it) => it.unit === "pack")) {
+    res.status(400).json({ error: "Packs of 10 are for family & friends accounts. Sign in, or order by the vial." });
+    return;
+  }
+
   // Signed in: the database places it (and prices it), then hlix gets the email.
   let placed = null;
   if (token) {
     const r = await S.rpc("shop_place_order", {
       p: {
-        items: items.map((it) => ({ sku: it.sku, form: it.form === "powder" ? "powder" : "recon", qty: it.qty })),
+        items: items.map((it) => ({ sku: it.sku, form: it.form === "powder" ? "powder" : "recon", unit: it.unit, qty: it.qty })),
         ship: {
           name: customer.name, phone: customer.phone, address1: customer.address1, address2: customer.address2,
           city: customer.city, state: customer.state, zip: customer.zip, country: customer.country,
@@ -129,7 +138,7 @@ module.exports = async (req, res) => {
     customer.email = String(placed.email || "");
     items.length = 0;
     for (const it of placed.items || []) {
-      items.push({ name: str(it.name, MAX_LEN), dose: str(it.dose, MAX_LEN), form: it.form === "powder" ? "powder" : "recon", sku: str(it.sku, MAX_LEN), qty: Number(it.qty) || 0, unitPrice: Number(it.price) || 0 });
+      items.push({ name: str(it.name, MAX_LEN), dose: str(it.dose, MAX_LEN), form: it.form === "powder" ? "powder" : "recon", unit: it.unit === "pack" ? "pack" : "vial", sku: str(it.sku, MAX_LEN), qty: Number(it.qty) || 0, unitPrice: Number(it.price) || 0 });
     }
   }
 
@@ -159,11 +168,12 @@ module.exports = async (req, res) => {
 
   const subtotal = items.reduce((s, it) => s + it.unitPrice * it.qty, 0);
   const itemRows = items
-    .map((it) => `<tr><td>${esc(it.name)}</td><td>${esc(it.dose)}</td><td>${it.form === "recon" ? "ready to use" : "powder"}</td><td>${esc(it.sku)}</td><td>${it.qty}</td><td>${money(it.unitPrice * it.qty)}</td></tr>`)
+    .map((it) => `<tr><td>${esc(it.name)}</td><td>${esc(it.dose)}</td><td>${it.form === "recon" ? "ready to use" : "powder"}</td><td>${esc(it.sku)}</td><td>${it.qty}${it.unit === "pack" ? (it.qty === 1 ? " pack of 10" : " packs of 10") : ""}</td><td>${money(it.unitPrice * it.qty)}</td></tr>`)
     .join("");
   const html = `
     <h2>${placed ? `New website order #${esc(placed.ref)}` : "New order request"}</h2>
     ${placed ? "<p>Placed by a signed-in account. It's in the admin under Customer Orders (pending).</p>" : ""}
+    ${placed && placed.family ? "<p><strong>Family &amp; friends pricing</strong> (your cost).</p>" : ""}
     <table cellpadding="6" style="border-collapse:collapse">
       <tr><th align="left">item</th><th align="left">dose</th><th align="left">form</th><th align="left">sku</th><th align="left">qty</th><th align="left">line total</th></tr>
       ${itemRows}

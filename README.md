@@ -305,6 +305,15 @@ caller's own account, price orders themselves, and limit orders (5 a day per
 account, 30 an hour in all). The admin repo's README has the Supabase settings
 accounts need ("Website accounts").
 
+**Family & friends.** An admin can mark an account as family & friends (on the
+client's page in the admin). That account pays hlix's cost: a pack of 10 at the
+supplier pack price, a single vial at a tenth of it (rounded up to the cent),
+powder or ready to use alike. Product pages then show a "family & friends
+price" box with **single vial / pack of 10**, cart lines can be packs, and the
+account page says so. `GET /api/account` returns those prices (`prices`, a pack
+of 10 by SKU) only for that account; the database prices the order itself and
+refuses packs from anyone else (the admin's `0027_family_pricing.sql`).
+
 Vercel environment variables (all optional):
 
 - `SITE_URL` — where account emails link back to. Defaults to

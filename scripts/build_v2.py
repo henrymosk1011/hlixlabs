@@ -514,6 +514,14 @@ def page_product(g, groups):
         <h1 class="pdp__name" data-split>{esc(g['name'])}</h1>{coa_top}
         {tags_html}
         <div class="price" data-reveal><span class="price__n" data-price="{d['price']:.2f}" data-price-recon="{recon_price(d['price']):.2f}">{money(recon_price(d['price']))}</span><span class="price__u">/ vial</span></div>
+        <div class="fam" data-family hidden>
+          <p class="fam__label">family &amp; friends price</p>
+          <p class="fam__price"><b data-family-price></b> <span data-family-per>/ vial</span></p>
+          <div class="fam__units" role="group" aria-label="buy by the vial or the pack">
+            <button type="button" data-unit="vial" aria-pressed="true">single vial</button>
+            <button type="button" data-unit="pack" aria-pressed="false">pack of 10</button>
+          </div>
+        </div>
         <div data-reveal>{seg}</div>
         <div class="pdp__buy" data-reveal>
           <div class="qty" data-qty>
@@ -1035,7 +1043,7 @@ def page_account():
 
   <div class="acct__in" data-acct-in hidden>
     <div class="acct__who">
-      <p>signed in as <b data-acct-email></b></p>
+      <p>signed in as <b data-acct-email></b><span class="acct__tier" data-acct-tier hidden>family &amp; friends pricing</span></p>
       <button class="btn btn--sm" type="button" data-acct-signout>sign out</button>
     </div>
     <form class="checkout__form acct__form acct__reset" data-acct-form="reset" hidden>
