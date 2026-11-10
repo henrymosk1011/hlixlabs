@@ -12,9 +12,13 @@
 // NOTIFY_EMAIL (where orders are delivered) and RESEND_FROM_EMAIL (the
 // "from" address — must be on a domain verified in Resend, otherwise leave
 // it on the resend.dev sandbox sender below).
+//
+// With CUSTOMER_EMAILS=on, the customer also gets a confirmation (api/_lib/mail.js):
+// an account's order once it's saved, a guest's once hlix's copy has gone out.
 
 const { getPrices, unitPrice } = require("./_lib/prices");
 const S = require("./_lib/session");
+const M = require("./_lib/mail");
 
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || "henrymm@gmail.com";
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "hlix <onboarding@resend.dev>";
@@ -186,6 +190,12 @@ module.exports = async (req, res) => {
     <p style="color:#888">No payment was collected. Follow up with the customer to arrange payment.</p>
   `;
 
+  // The customer's own copy (only when CUSTOMER_EMAILS=on; never fails the order).
+  const confirm = () => M.confirmOrder(apiKey, {
+    email: customer.email, name: customer.name, items, subtotal,
+    ref: placed ? placed.ref : null, family: !!(placed && placed.family), account: !!placed,
+  });
+
   try {
     const response = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -207,15 +217,22 @@ module.exports = async (req, res) => {
       let why = "";
       try { const e = await response.json(); why = `${e.name || ""}: ${e.message || ""}`.slice(0, 300); } catch (e) { why = ""; }
       console.error("Resend API error", response.status, why);
-      if (placed) return void res.status(200).json({ ok: true, account: true, ref: placed.ref });
+      if (placed) {
+        await confirm();
+        return void res.status(200).json({ ok: true, account: true, ref: placed.ref });
+      }
       res.status(502).json({ error: "Upstream error." });
       return;
     }
 
+    await confirm();
     res.status(200).json(placed ? { ok: true, account: true, ref: placed.ref } : { ok: true });
   } catch (err) {
     console.error("order email failed", err && err.name);
-    if (placed) return void res.status(200).json({ ok: true, account: true, ref: placed.ref });
+    if (placed) {
+      await confirm();
+      return void res.status(200).json({ ok: true, account: true, ref: placed.ref });
+    }
     res.status(500).json({ error: "Something went wrong." });
   }
 };

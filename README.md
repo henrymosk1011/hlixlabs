@@ -377,6 +377,43 @@ Vercel environment variables (all optional):
 - `ACCOUNT_EMAILS=on` — once the Supabase project sends email through your own
   SMTP (Resend), so "forgot your password?" sends a reset link. Until then it
   asks people to write to contact@hlixlabs.com.
+- `CUSTOMER_EMAILS=on` — order confirmations to customers (below). Needs
+  hlixlabs.com verified in Resend and `RESEND_FROM_EMAIL` on it.
+- `REPLY_TO_EMAIL` — where customers' replies go. Defaults to
+  `contact@hlixlabs.com`.
+
+### Emails to customers
+
+**Order confirmation** (`api/_lib/mail.js`, sent by `api/order.js`): "request
+received." with the order # (accounts), each line with its form and quantity,
+the subtotal, "no payment has been taken" and, for accounts, a link to the
+account page. From `RESEND_FROM_EMAIL`, replies to `REPLY_TO_EMAIL`. An
+account's order gets one once it's saved; a guest's only once hlix's own copy
+has gone out (so nobody is told about an order hlix never got). A failed
+confirmation never fails the order.
+
+Anyone can type any address at checkout, so the email can't be used to mail
+strangers anything useful: nothing typed into the form goes in it except a first
+name that reads as a name ("hi there" otherwise), product names and prices come
+from the catalog or the database, and a guest address gets at most one
+confirmation a day (a Resend idempotency key).
+
+**Account emails** (confirm your email, reset your password) are sent by Supabase
+Auth, through Resend once its SMTP is set. The templates are in `emails/` (kept
+off the site by `.vercelignore`). To switch them on, after hlixlabs.com is
+verified in Resend:
+
+1. Resend: **API Keys**, create a *Sending access* key limited to hlixlabs.com.
+2. Supabase (project hlix): **Authentication**, **Emails**, **SMTP Settings**:
+   enable custom SMTP. Host `smtp.resend.com`, port `465`, username `resend`,
+   password the key from step 1, sender `contact@hlixlabs.com`, sender name `hlix`.
+3. **Authentication**, **Emails**, **Templates**: "Confirm signup", subject
+   `confirm your hlix account`, body `emails/supabase-confirm-signup.html`;
+   "Reset password", subject `reset your hlix password`, body
+   `emails/supabase-reset-password.html`.
+4. **Authentication**, **Sign In / Providers**, **Email**: turn on **Confirm
+   email**. Accounts made before stay confirmed.
+5. Vercel (project hlixlabs): `ACCOUNT_EMAILS=on`, then redeploy.
 
 ## Security
 
