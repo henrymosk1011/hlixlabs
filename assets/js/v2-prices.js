@@ -16,6 +16,7 @@
   "use strict";
   var d = document;
   var live = null;
+  var stock = null; // { SKU: "in_stock" | "on_the_way" | "to_order" } from the admin's Inventory
 
   function $$(s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); }
   function moneyStr(n) { return "$" + Math.ceil(n - 1e-9); }
@@ -23,6 +24,8 @@
   window.HLIXPrices = {
     // { powder, recon } (whole dollars) for a SKU, or null if not loaded / unknown
     get: function (sku) { return (live && live[sku]) || null; },
+    // "in_stock", "on_the_way" or "to_order" for a SKU, or null if not known
+    stock: function (sku) { return (stock && stock[sku]) || null; },
     unit: function (sku, form) {
       var p = this.get(sku);
       return p ? (form === "recon" ? p.recon : p.powder) : null;
@@ -66,6 +69,7 @@
     .then(function (data) {
       if (!data || !data.prices || typeof data.prices !== "object") return;
       live = data.prices;
+      if (data.stock && typeof data.stock === "object") stock = data.stock;
       // Wait for the other scripts (loaded after this one) to have registered
       // their "hlix:prices" listeners.
       if (d.readyState === "loading") d.addEventListener("DOMContentLoaded", apply);

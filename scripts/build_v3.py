@@ -737,7 +737,7 @@ def page_product(g, groups):
             <button type="button" class="btn btn--solid buy__btn" data-add data-name="{esc(g['name'])}" data-slug="{g['slug']}" data-category="{esc(g['category_label'])}">add to cart <span class="buy__sum" data-add-sum>· {money(pp)}</span></button>
           </div>
           <ul class="pdp__notes">
-            <li><i class="dot"></i>in stock</li>
+            <li class="stockline" data-stock hidden><i class="dot"></i><span data-stock-text></span></li>
             <li>{SHIELD}≥99% purity · hplc verified</li>
             <li>{MAIL}no payment online. we confirm your order by email</li>
           </ul>

@@ -666,6 +666,19 @@
       return f !== null ? { unit: buyBy, price: f } : { unit: "vial", price: unit(st.btn, st.form) };
     }
 
+    // stock for the selected size, from the admin's Inventory (v2-prices.js); every size can
+    // be ordered, the line just says when it would ship
+    var stockLine = $("[data-stock]", pdp);
+    var STOCK_TEXT = { in_stock: "in stock", on_the_way: "on the way", to_order: "ships in 1\u20132 weeks \u00b7 ordered for you" };
+    function renderStock() {
+      if (!stockLine) return;
+      var s = window.HLIXPrices && window.HLIXPrices.stock ? window.HLIXPrices.stock(st.btn.getAttribute("data-sku")) : null;
+      stockLine.hidden = !s;
+      if (!s) return;
+      stockLine.className = "stockline is-" + s;
+      $("[data-stock-text]", stockLine).textContent = STOCK_TEXT[s];
+    }
+
     function render() {
       renderFamily();
       var p = unit(st.btn, st.form);
@@ -686,6 +699,7 @@
       if (sum) sum.textContent = "· " + m(c.price * qty());
       if (c.price !== p) $$("[data-buybar] [data-price-out]").forEach(function (el) { el.textContent = m(c.price); });
       if (badge) { badge.textContent = formLabel(st.form); badge.classList.toggle("is-powder", st.form === "powder"); }
+      renderStock();
       $$("[data-pick]").forEach(function (r) { r.classList.toggle("is-active", r.getAttribute("data-pick") === st.btn.getAttribute("data-sku")); });
     }
     function pickSize(b) {

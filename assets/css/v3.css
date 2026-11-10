@@ -708,6 +708,9 @@ a.tool:hover { border-color: var(--line-2); transform: translateY(-3px); }
 .pdp__notes { display: grid; gap: 9px; margin-top: 20px; color: var(--dim); font: 500 12px var(--f-mono); }
 .pdp__notes li { display: flex; align-items: center; gap: 10px; }
 .pdp__notes svg { width: 15px; height: 15px; color: var(--dim); }
+.pdp__notes .stockline[hidden] { display: none; }
+.stockline.is-on_the_way .dot { background: var(--warn); box-shadow: 0 0 10px var(--warn); }
+.stockline.is-to_order .dot { background: var(--dim); box-shadow: none; animation: none; }
 .dot { display: inline-block; flex: none; width: 7px; height: 7px; margin: 0 4px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px var(--accent); animation: pulse 2.6s ease-in-out infinite; }
 
 .spec { margin-top: clamp(56px, 9vh, 110px); }

@@ -4,7 +4,7 @@
 // api/_lib/prices.js). Vercel's edge caches the answer for a few seconds, so
 // a price saved in the admin is on the site within about a minute.
 
-const { getPrices, powderPrice, reconPrice } = require("./_lib/prices");
+const { getPrices, getStock, powderPrice, reconPrice } = require("./_lib/prices");
 
 module.exports = async (req, res) => {
   if (req.method !== "GET" && req.method !== "HEAD") {
@@ -13,7 +13,8 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const { prices, live } = await getPrices();
+  // Stock (in_stock / on_the_way / to_order per SKU) comes along, from the admin's Inventory.
+  const [{ prices, live }, stock] = await Promise.all([getPrices(), getStock()]);
   const out = {};
   for (const [sku, base] of prices) out[sku] = { powder: powderPrice(base), recon: reconPrice(base) };
 
@@ -21,11 +22,11 @@ module.exports = async (req, res) => {
   // load, so they never hold on to an old price themselves. A fallback answer
   // (Supabase unreachable) isn't cached anywhere, so the site picks the live
   // prices back up on the very next request.
-  if (live) {
+  if (live && stock) {
     res.setHeader("Vercel-CDN-Cache-Control", "max-age=15, stale-while-revalidate=30");
     res.setHeader("Cache-Control", "no-cache");
   } else {
     res.setHeader("Cache-Control", "no-store");
   }
-  res.status(200).json({ live, prices: out });
+  res.status(200).json(stock ? { live, prices: out, stock } : { live, prices: out });
 };

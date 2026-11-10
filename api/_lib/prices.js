@@ -70,4 +70,32 @@ async function getPrices() {
   return cache;
 }
 
-module.exports = { getPrices, powderPrice, reconPrice, unitPrice, SUPABASE_URL, SUPABASE_KEY };
+// Stock per SKU from the admin's Inventory page, through public.storefront_stock()
+// (admin migration 0030): "in_stock", "on_the_way" or "to_order", never a number.
+// null when it can't be read, so the site says nothing rather than something wrong.
+let stockCache = null;
+const STOCK = new Set(["in_stock", "on_the_way", "to_order"]);
+async function getStock() {
+  if (stockCache && Date.now() - stockCache.at < TTL_MS) return stockCache.stock;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/storefront_stock`, {
+      method: "POST",
+      headers: { apikey: SUPABASE_KEY, "content-type": "application/json" },
+      body: "{}",
+      signal: AbortSignal.timeout(TIMEOUT_MS),
+    });
+    if (!res.ok) throw new Error(`storefront_stock returned HTTP ${res.status}`);
+    const rows = await res.json();
+    if (!Array.isArray(rows)) throw new Error("storefront_stock returned an unexpected body");
+    const known = new Set(catalog.map((p) => p.sku));
+    const stock = {};
+    for (const r of rows) if (r && known.has(r.sku) && STOCK.has(r.status)) stock[r.sku] = r.status;
+    stockCache = { at: Date.now(), stock };
+    return stock;
+  } catch (err) {
+    console.error("stock unavailable", err && err.message);
+    return null;
+  }
+}
+
+module.exports = { getPrices, getStock, powderPrice, reconPrice, unitPrice, SUPABASE_URL, SUPABASE_KEY };
