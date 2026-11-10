@@ -2,133 +2,193 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050607">
 <title>checkout · hlix</title>
 <meta name="description" content="review your cart and submit an order request.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/v2.css?v=1794298770">
-<script src="assets/js/v2-boot.js?v=1794298770" data-base=""></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/v3.css?v=1794301007">
+<script src="assets/js/v3-boot.js?v=1794301007" data-base="" data-assets=""></script>
 </head>
 <body class="checkout-page" data-page="checkout">
-<div class="progress" aria-hidden="true"><i></i></div>
-<header class="nav" data-nav>
-  <a class="nav__brand" href="./" aria-label="hlix home">hlix<i></i></a>
-  <nav class="nav__links" aria-label="primary"><a href="about">about</a><a href="catalog">catalog</a><a href="calculator">calculator</a></nav>
-  <div class="nav__right">
-    <button class="nav__search" data-search-open aria-label="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search</span><kbd>/</kbd></button>
-    <button class="nav__theme" data-theme-toggle aria-label="switch to light theme"><span class="nav__theme-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="nav__theme-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span></button>
-    <a class="nav__account" href="account" aria-label="your account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><i aria-hidden="true"></i></a>
-    <button class="nav__cart" data-cart-open aria-label="view cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><span class="nav__cart-count" data-cart-count hidden>0</span></button>
-    <a class="btn btn--sm" href="contact" data-magnetic>contact</a>
-    <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
+<a class="skip" href="#main">skip to content</a>
+<header class="top" data-top>
+  <div class="top__in">
+    <a class="brand" href="./" aria-label="hlix home">hlix<i></i></a>
+    <nav class="top__nav" aria-label="primary">
+      <button class="top__link top__shop" type="button" data-mega-toggle aria-expanded="false" aria-controls="mega">shop <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="top__link" href="calculator">calculator</a><a class="top__link" href="about">about</a><a class="top__link" href="contact">contact</a>
+    </nav>
+    <button class="top__search" type="button" data-search-open aria-label="search the catalog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search compounds or goals</span><kbd>/</kbd></button>
+    <div class="top__act">
+      <button class="ibtn" type="button" data-theme-toggle aria-label="switch theme"><span class="i-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="i-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span></button>
+      <a class="ibtn top__acct" href="account" aria-label="your account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><i class="top__in-dot" aria-hidden="true"></i></a>
+      <button class="ibtn top__cart" type="button" data-cart-open aria-label="open cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><b class="count" data-cart-count hidden>0</b></button>
+      <button class="ibtn top__menu" type="button" data-menu-open aria-label="open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+    </div>
+  </div>
+  <div class="mega" id="mega" data-mega>
+    <div class="mega__in">
+      <div class="mega__col">
+        <p class="label">categories</p>
+        <div class="mega__cats"><a href="catalog?cat=metabolic" style="--c:#33e6b0"><i></i><span>metabolic research</span><b>10</b></a><a href="catalog?cat=growth" style="--c:#6ea8ff"><i></i><span>growth &amp; gh secretagogues</span><b>18</b></a><a href="catalog?cat=recovery" style="--c:#ff9466"><i></i><span>healing &amp; recovery</span><b>13</b></a><a href="catalog?cat=cognitive" style="--c:#b48cff"><i></i><span>cognitive &amp; neuro health</span><b>5</b></a><a href="catalog?cat=longevity" style="--c:#ffd166"><i></i><span>longevity &amp; anti-aging</span><b>10</b></a><a href="catalog?cat=hormonal" style="--c:#ff6b9d"><i></i><span>hormonal &amp; sexual health</span><b>6</b></a><a href="catalog?cat=specialty" style="--c:#9aa5b1"><i></i><span>specialty research</span><b>4</b></a><a href="catalog?cat=supplies" style="--c:#8f98a3"><i></i><span>supplies</span><b>1</b></a></div>
+        <a class="mega__all" href="catalog">all 67 compounds <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="mega__col">
+        <p class="label">research goals</p>
+        <div class="mega__goals"><a href="catalog?tag=recovery">recovery<b>21</b></a><a href="catalog?tag=muscle+growth">muscle growth<b>20</b></a><a href="catalog?tag=bone+health">bone health<b>18</b></a><a href="catalog?tag=fat+loss">fat loss<b>18</b></a><a href="catalog?tag=anti-aging">anti-aging<b>15</b></a><a href="catalog?tag=metabolism">metabolism<b>13</b></a><a href="catalog?tag=liver">liver<b>12</b></a><a href="catalog?tag=blood+pressure">blood pressure<b>10</b></a><a href="catalog?tag=growth+hormone">growth hormone<b>10</b></a><a href="catalog?tag=skin">skin<b>10</b></a><a href="catalog?tag=weight+loss">weight loss<b>10</b></a><a href="catalog?tag=wound+healing">wound healing<b>10</b></a><a href="catalog?tag=heart">heart<b>9</b></a><a href="catalog?tag=immune">immune<b>9</b></a></div>
+      </div>
+      <div class="mega__col mega__lab">
+        <p class="label">published lab reports</p>
+        <a href="peptides/glp2-t#coa"><img src="assets/img/vials/hlx-tr5-recon-s.webp" alt="" width="48" height="60" loading="lazy"><span>glp2-t<small>2 reports</small></span></a><a href="peptides/glp3-r#coa"><img src="assets/img/vials/hlx-rt5-recon-s.webp" alt="" width="48" height="60" loading="lazy"><span>glp3-r<small>3 reports</small></span></a>
+        <a class="mega__tool" href="calculator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg><span>dosage calculator<small>draw-to units, supply, vials needed</small></span></a>
+      </div>
+    </div>
   </div>
 </header>
-<div class="menu">
-  <nav class="menu__links">
-    <a style="--i:0" href="about"><span>01</span>about</a>
-    <a style="--i:1" href="catalog"><span>02</span>catalog</a>
-    <a style="--i:2" href="calculator"><span>03</span>calculator</a>
-    <a style="--i:3" href="contact"><span>04</span>contact</a>
-    <a style="--i:4" href="account"><span>05</span>account</a>
-  </nav>
-  <div class="menu__foot"><button data-search-open class="link-arrow">search products <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button><span>contact@hlixlabs.com</span></div>
-</div>
-<div class="search" data-search role="dialog" aria-label="search">
-  <button class="x" data-search-close aria-label="close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-  <div class="search__in">
-    <div class="search__field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input data-search-input type="text" placeholder="search by name, keyword, or topic" autocomplete="off" spellcheck="false"></div>
-    <div data-search-hint>
-      <p class="search__hint">start typing a name, or search by keyword or topic</p>
-      <div class="search__try"><button data-try="hair">hair</button><button data-try="sleep">sleep</button><button data-try="fat loss">fat loss</button><button data-try="muscle growth">muscle growth</button><button data-try="recovery">recovery</button><button data-try="skin">skin</button></div>
-    </div>
-    <div data-search-list></div>
-  </div>
-</div>
-<div class="cart" data-cart role="dialog" aria-label="cart">
-  <div class="cart__head"><h2>cart</h2><button class="x" data-cart-close aria-label="close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-  <div class="cart__list" data-cart-list></div>
-  <p class="cart__empty" data-cart-empty hidden>your cart is empty.</p>
-  <div class="cart__foot" data-cart-foot hidden>
-    <div class="cart__subtotal"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
-    <a class="btn btn--solid btn--block" href="checkout" data-magnetic>checkout <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-    <p class="cart__note">no payment is collected here — we'll follow up by email with next steps.</p>
-  </div>
-</div>
-<main>
+<main id="main">
 
-<section class="phead"><div class="wrap">
-  <p class="kicker" data-reveal="fade">// checkout</p>
-  <h1 class="phead__title" data-split>review &amp; request.</h1>
-  <p class="phead__sub" data-reveal>no payment happens here — submit your order request and we'll follow up by email with next steps.</p>
-</div></section>
-<div class="wrap checkout" data-checkout>
-  <div class="checkout__items">
-    <div class="cart__list" data-checkout-list></div>
-    <p class="cart__empty" data-checkout-empty hidden>your cart is empty. <a href="catalog">browse the catalog</a>.</p>
-    <div class="checkout__subtotal" data-checkout-subtotal-row hidden><span>subtotal</span><b data-checkout-subtotal>$0</b></div>
+<section class="phead phead--tight">
+  <div class="wrap phead__grid">
+    <div>
+      <p class="label label--dot" data-reveal>checkout</p>
+      <h1 class="phead__title" data-reveal style="--d:1">review &amp; request.</h1>
+    </div>
+    <p class="phead__sub" data-reveal style="--d:2">no payment happens here. send your order request and we'll follow up by email with next steps.</p>
   </div>
-  <form class="checkout__form" data-checkout-form>
-    <p class="checkout__acct" data-checkout-acct-out>have an account? <a href="account?next=checkout">sign in</a> to save your address and follow this order. or just order as a guest.</p>
-    <p class="checkout__acct" data-checkout-acct-in hidden>signed in as <b data-checkout-acct-email></b>. this order will show in <a href="account">your account</a>.</p>
-    <fieldset>
-      <legend>contact</legend>
-      <label><span>full name</span><input name="name" type="text" required autocomplete="name" maxlength="120"></label>
-      <label><span>email</span><input name="email" type="email" required autocomplete="email" maxlength="254"></label>
-      <label><span>phone (optional)</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
-    </fieldset>
-    <fieldset>
-      <legend>shipping address</legend>
-      <label><span>address line 1</span><input name="address1" type="text" required autocomplete="address-line1"></label>
-      <label><span>address line 2 (optional)</span><input name="address2" type="text" autocomplete="address-line2"></label>
-      <div class="checkout__row">
-        <label><span>city</span><input name="city" type="text" required autocomplete="address-level2"></label>
-        <label><span>state / region</span><input name="state" type="text" required autocomplete="address-level1"></label>
+</section>
+<div class="wrap">
+  <div class="checkout" data-checkout>
+    <form class="checkout__form" data-checkout-form>
+      <p class="acctnote" data-checkout-acct-out><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>have an account? <a href="account?next=checkout">sign in</a> to save your address and follow this order, or just order as a guest.</span></p>
+      <p class="acctnote" data-checkout-acct-in hidden><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>signed in as <b data-checkout-acct-email></b>. this order will show in <a href="account">your account</a>.</span></p>
+      <fieldset class="cstep"><legend><span>01</span>contact</legend>
+        <div class="fields2">
+          <label class="field"><span>full name</span><input name="name" type="text" required autocomplete="name" maxlength="120"></label>
+          <label class="field"><span>email</span><input name="email" type="email" required autocomplete="email" maxlength="254"></label>
+        </div>
+        <label class="field"><span>phone (optional)</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
+      </fieldset>
+      <fieldset class="cstep"><legend><span>02</span>shipping address</legend>
+        <label class="field"><span>address line 1</span><input name="address1" type="text" required autocomplete="address-line1" maxlength="200"></label>
+        <label class="field"><span>address line 2 (optional)</span><input name="address2" type="text" autocomplete="address-line2" maxlength="200"></label>
+        <div class="fields2">
+          <label class="field"><span>city</span><input name="city" type="text" required autocomplete="address-level2" maxlength="120"></label>
+          <label class="field"><span>state / region</span><input name="state" type="text" required autocomplete="address-level1" maxlength="120"></label>
+        </div>
+        <div class="fields2">
+          <label class="field"><span>zip / postal code</span><input name="zip" type="text" required autocomplete="postal-code" maxlength="40"></label>
+          <label class="field"><span>country</span><input name="country" type="text" required autocomplete="country-name" value="United States" maxlength="120"></label>
+        </div>
+        <label class="check" data-checkout-save hidden><input type="checkbox" name="save" checked><span>save this address to my account</span></label>
+      </fieldset>
+      <fieldset class="cstep"><legend><span>03</span>notes <small>optional</small></legend>
+        <label class="field"><span>anything we should know?</span><textarea name="notes" rows="3" maxlength="2000"></textarea></label>
+      </fieldset>
+      <div class="checkout__submit">
+        <button class="btn btn--solid btn--lg" type="submit" data-checkout-submit>submit order request <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+        <p class="status" data-checkout-status hidden></p>
+        <p class="fine">submitting sends your request and cart to hlix. no payment method is collected or charged on this page. for laboratory research use only.</p>
       </div>
-      <div class="checkout__row">
-        <label><span>zip / postal code</span><input name="zip" type="text" required autocomplete="postal-code"></label>
-        <label><span>country</span><input name="country" type="text" required autocomplete="country-name" value="United States"></label>
+    </form>
+    <aside class="summary">
+      <div class="summary__in">
+        <div class="summary__head"><h2>your order</h2><button type="button" class="link" data-cart-open>edit</button></div>
+        <div class="summary__list" data-checkout-list></div>
+        <div class="summary__row"><span>subtotal</span><b data-checkout-subtotal>$0</b></div>
+        <p class="fine">shipping and payment are arranged by email once we've confirmed your request.</p>
       </div>
-    </fieldset>
-    <label class="checkout__save" data-checkout-save hidden><input type="checkbox" name="save" checked> <span>save this address to my account</span></label>
-    <fieldset>
-      <legend>notes (optional)</legend>
-      <label><span>anything we should know?</span><textarea name="notes" rows="3" maxlength="2000"></textarea></label>
-    </fieldset>
-    <div><button class="btn btn--solid" type="submit" data-checkout-submit data-magnetic>submit order request <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
-    <p class="cform__status" data-checkout-status hidden></p>
-    <p class="checkout__legal">submitting sends your request and cart contents to hlix. no payment method is collected or charged on this page. for laboratory research use only.</p>
-  </form>
-</div>
-<div class="checkout__done" data-checkout-done hidden>
-  <div class="wrap">
-    <p class="kicker" data-reveal="fade">// request received</p>
-    <h1 class="phead__title" data-split>got it.</h1>
-    <p class="phead__sub">your order request is in<span data-checkout-done-ref hidden></span>. we'll reply by email at <b data-checkout-done-email></b> with next steps, usually within 1–2 business days.</p>
-    <a class="btn btn--solid" href="account" data-checkout-done-acct hidden data-magnetic>see it in your account <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-    <a class="btn btn--solid" href="catalog" data-checkout-done-cat data-magnetic>back to catalog <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </aside>
+  </div>
+  <div class="checkout__empty" data-checkout-empty hidden>
+    <p class="empty__t">your cart is empty.</p>
+    <a class="btn btn--solid" href="catalog">browse the catalog <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+  </div>
+  <div class="checkout__done" data-checkout-done hidden>
+    <span class="done__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg></span>
+    <h2>request received.</h2>
+    <p>your order request is in<span data-checkout-done-ref hidden></span>. we'll reply by email at <b data-checkout-done-email></b> with next steps, usually within 1–2 business days.</p>
+    <a class="btn btn--solid" href="account" data-checkout-done-acct hidden>see it in your account <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    <a class="btn btn--solid" href="catalog" data-checkout-done-cat>back to the catalog <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
   </div>
 </div>
 </main>
 <footer class="foot">
-  <div class="wrap foot__top">
-    <div><p class="kicker">// hlix</p><p class="foot__lede">a research peptide catalog. every compound in stock, logged with its dose, spec and price.</p></div>
-    <div class="foot__col"><h4>catalog</h4><a href="catalog#metabolic">Metabolic Research</a><a href="catalog#growth">Growth & GH Secretagogues</a><a href="catalog#recovery">Healing & Recovery</a><a href="catalog#cognitive">Cognitive & Neuro Health</a><a href="catalog#longevity">Longevity & Anti-Aging</a><a href="catalog#hormonal">Hormonal & Sexual Health</a><a href="catalog#specialty">Specialty Research</a></div>
-    <div class="foot__col"><h4>site</h4><a href="about">about</a><a href="calculator">calculator</a><a href="contact">contact</a></div>
-    <div class="foot__col"><h4>contact</h4><a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a><span>research use only</span></div>
-  </div>
-  <div class="wrap foot__legal">
-    <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
+  <div class="wrap">
+    <div class="foot__grid">
+      <div class="foot__brand">
+        <a class="brand" href="./" aria-label="hlix home">hlix<i></i></a>
+        <p>a research peptide catalog. every compound logged with its dose, spec and price per vial.</p>
+        <button class="btn btn--ghost btn--sm" type="button" data-open-chat><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg> ask the hlix ai</button>
+      </div>
+      <div class="foot__col"><h4>shop</h4><a href="catalog?cat=metabolic">metabolic research</a><a href="catalog?cat=growth">growth &amp; gh secretagogues</a><a href="catalog?cat=recovery">healing &amp; recovery</a><a href="catalog?cat=cognitive">cognitive &amp; neuro health</a><a href="catalog?cat=longevity">longevity &amp; anti-aging</a><a href="catalog?cat=hormonal">hormonal &amp; sexual health</a><a href="catalog?cat=specialty">specialty research</a><a href="catalog?cat=supplies">supplies</a></div>
+      <div class="foot__col"><h4>tools</h4><a href="calculator">dosage calculator</a><a href="calculator#planner">dose planner</a><button type="button" data-search-open>search</button><button type="button" data-open-chat>ai assistant</button></div>
+      <div class="foot__col"><h4>hlix</h4><a href="about">about</a><a href="contact">contact</a><a href="account">your account</a><a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a></div>
+    </div>
+    <div class="foot__legal">
+      <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
+    </div>
   </div>
 </footer>
-<div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
-<script src="assets/js/search-index.js?v=1794298770"></script>
-<script src="assets/js/v2-prices.js?v=1794298770"></script>
-<script src="assets/js/v2.js?v=1794298770"></script>
-<script src="assets/js/v2-cart.js?v=1794298770"></script>
-<script src="assets/js/v2-checkout.js?v=1794298770" defer></script>
-<script src="assets/js/v2-chat.js?v=1794298770"></script>
+<nav class="tabbar" aria-label="quick actions">
+  <a href="catalog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>shop</span></a>
+  <button type="button" data-search-open><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search</span></button>
+  <a href="calculator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg><span>calculator</span></a>
+  <button type="button" data-open-chat><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg><span>ask ai</span></button>
+  <button type="button" data-cart-open><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><span>cart</span><b class="count" data-cart-count hidden>0</b></button>
+</nav>
+<div class="pal" data-pal role="dialog" aria-modal="true" aria-label="search">
+  <div class="pal__scrim" data-pal-close></div>
+  <div class="pal__box">
+    <label class="pal__field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input data-pal-input type="text" placeholder="search compounds, categories or goals" autocomplete="off" spellcheck="false" aria-label="search"><button type="button" class="pal__esc" data-pal-close>esc</button></label>
+    <div class="pal__body" data-pal-body></div>
+    <div class="pal__foot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
+  </div>
+</div>
+<div class="sheet" data-menu role="dialog" aria-modal="true" aria-label="menu">
+  <div class="sheet__scrim" data-menu-close></div>
+  <div class="sheet__box">
+    <div class="sheet__head"><span class="label">menu</span><button class="ibtn" type="button" data-menu-close aria-label="close menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <nav class="sheet__links">
+      <a href="./"><span>01</span>home</a>
+      <a href="catalog"><span>02</span>shop</a>
+      <a href="calculator"><span>03</span>calculator</a>
+      <a href="calculator#planner"><span>04</span>dose planner</a>
+      <a href="about"><span>05</span>about</a>
+      <a href="contact"><span>06</span>contact</a>
+      <a href="account"><span>07</span>account</a>
+    </nav>
+    <div class="sheet__foot">
+      <button class="pill" type="button" data-theme-toggle><span class="i-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="i-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span><span data-theme-label>light mode</span></button>
+      <a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a>
+    </div>
+  </div>
+</div>
+<div class="drawer" data-cart role="dialog" aria-modal="true" aria-label="cart">
+  <div class="drawer__scrim" data-cart-close></div>
+  <aside class="drawer__box">
+    <div class="drawer__head"><h2>cart <span data-cart-n></span></h2><button class="ibtn" type="button" data-cart-close aria-label="close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="drawer__list" data-cart-list></div>
+    <div class="drawer__empty" data-cart-empty hidden>
+      <p>your cart is empty.</p>
+      <a class="btn btn--ghost" href="catalog">browse the catalog <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <div class="drawer__foot" data-cart-foot hidden>
+      <div class="drawer__sub"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
+      <a class="btn btn--solid btn--block" href="checkout">request this order <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <p class="drawer__note">no payment is taken online. send the request and we'll confirm by email with next steps.</p>
+    </div>
+  </aside>
+</div>
+<div class="lb" data-lb aria-hidden="true"><button class="ibtn lb__x" type="button" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
+<div class="toast" data-toast role="status" aria-live="polite"></div>
+<script src="assets/js/search-index.js?v=1794301007"></script>
+<script src="assets/js/v2-prices.js?v=1794301007"></script>
+<script src="assets/js/v3-cart.js?v=1794301007"></script>
+<script src="assets/js/v3.js?v=1794301007"></script>
+<script src="assets/js/v3-checkout.js?v=1794301007" defer></script>
+<script src="assets/js/v2-chat.js?v=1794301007"></script>
 </body>
 </html>

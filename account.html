@@ -2,170 +2,221 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050607">
+<meta name="robots" content="noindex, nofollow">
 <title>account · hlix</title>
 <meta name="description" content="sign in to your hlix account: your orders, cart and shipping details.">
-<meta name="robots" content="noindex, nofollow">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/v2.css?v=1794298770">
-<script src="assets/js/v2-boot.js?v=1794298770" data-base=""></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/v3.css?v=1794301007">
+<script src="assets/js/v3-boot.js?v=1794301007" data-base="" data-assets=""></script>
 </head>
 <body class="account-page" data-page="account">
-<div class="progress" aria-hidden="true"><i></i></div>
-<header class="nav" data-nav>
-  <a class="nav__brand" href="./" aria-label="hlix home">hlix<i></i></a>
-  <nav class="nav__links" aria-label="primary"><a href="about">about</a><a href="catalog">catalog</a><a href="calculator">calculator</a></nav>
-  <div class="nav__right">
-    <button class="nav__search" data-search-open aria-label="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search</span><kbd>/</kbd></button>
-    <button class="nav__theme" data-theme-toggle aria-label="switch to light theme"><span class="nav__theme-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="nav__theme-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span></button>
-    <a class="nav__account" href="account" aria-label="your account" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><i aria-hidden="true"></i></a>
-    <button class="nav__cart" data-cart-open aria-label="view cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><span class="nav__cart-count" data-cart-count hidden>0</span></button>
-    <a class="btn btn--sm" href="contact" data-magnetic>contact</a>
-    <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
+<a class="skip" href="#main">skip to content</a>
+<header class="top" data-top>
+  <div class="top__in">
+    <a class="brand" href="./" aria-label="hlix home">hlix<i></i></a>
+    <nav class="top__nav" aria-label="primary">
+      <button class="top__link top__shop" type="button" data-mega-toggle aria-expanded="false" aria-controls="mega">shop <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="top__link" href="calculator">calculator</a><a class="top__link" href="about">about</a><a class="top__link" href="contact">contact</a>
+    </nav>
+    <button class="top__search" type="button" data-search-open aria-label="search the catalog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search compounds or goals</span><kbd>/</kbd></button>
+    <div class="top__act">
+      <button class="ibtn" type="button" data-theme-toggle aria-label="switch theme"><span class="i-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="i-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span></button>
+      <a class="ibtn top__acct" href="account" aria-label="your account" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><i class="top__in-dot" aria-hidden="true"></i></a>
+      <button class="ibtn top__cart" type="button" data-cart-open aria-label="open cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><b class="count" data-cart-count hidden>0</b></button>
+      <button class="ibtn top__menu" type="button" data-menu-open aria-label="open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+    </div>
+  </div>
+  <div class="mega" id="mega" data-mega>
+    <div class="mega__in">
+      <div class="mega__col">
+        <p class="label">categories</p>
+        <div class="mega__cats"><a href="catalog?cat=metabolic" style="--c:#33e6b0"><i></i><span>metabolic research</span><b>10</b></a><a href="catalog?cat=growth" style="--c:#6ea8ff"><i></i><span>growth &amp; gh secretagogues</span><b>18</b></a><a href="catalog?cat=recovery" style="--c:#ff9466"><i></i><span>healing &amp; recovery</span><b>13</b></a><a href="catalog?cat=cognitive" style="--c:#b48cff"><i></i><span>cognitive &amp; neuro health</span><b>5</b></a><a href="catalog?cat=longevity" style="--c:#ffd166"><i></i><span>longevity &amp; anti-aging</span><b>10</b></a><a href="catalog?cat=hormonal" style="--c:#ff6b9d"><i></i><span>hormonal &amp; sexual health</span><b>6</b></a><a href="catalog?cat=specialty" style="--c:#9aa5b1"><i></i><span>specialty research</span><b>4</b></a><a href="catalog?cat=supplies" style="--c:#8f98a3"><i></i><span>supplies</span><b>1</b></a></div>
+        <a class="mega__all" href="catalog">all 67 compounds <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="mega__col">
+        <p class="label">research goals</p>
+        <div class="mega__goals"><a href="catalog?tag=recovery">recovery<b>21</b></a><a href="catalog?tag=muscle+growth">muscle growth<b>20</b></a><a href="catalog?tag=bone+health">bone health<b>18</b></a><a href="catalog?tag=fat+loss">fat loss<b>18</b></a><a href="catalog?tag=anti-aging">anti-aging<b>15</b></a><a href="catalog?tag=metabolism">metabolism<b>13</b></a><a href="catalog?tag=liver">liver<b>12</b></a><a href="catalog?tag=blood+pressure">blood pressure<b>10</b></a><a href="catalog?tag=growth+hormone">growth hormone<b>10</b></a><a href="catalog?tag=skin">skin<b>10</b></a><a href="catalog?tag=weight+loss">weight loss<b>10</b></a><a href="catalog?tag=wound+healing">wound healing<b>10</b></a><a href="catalog?tag=heart">heart<b>9</b></a><a href="catalog?tag=immune">immune<b>9</b></a></div>
+      </div>
+      <div class="mega__col mega__lab">
+        <p class="label">published lab reports</p>
+        <a href="peptides/glp2-t#coa"><img src="assets/img/vials/hlx-tr5-recon-s.webp" alt="" width="48" height="60" loading="lazy"><span>glp2-t<small>2 reports</small></span></a><a href="peptides/glp3-r#coa"><img src="assets/img/vials/hlx-rt5-recon-s.webp" alt="" width="48" height="60" loading="lazy"><span>glp3-r<small>3 reports</small></span></a>
+        <a class="mega__tool" href="calculator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg><span>dosage calculator<small>draw-to units, supply, vials needed</small></span></a>
+      </div>
+    </div>
   </div>
 </header>
-<div class="menu">
-  <nav class="menu__links">
-    <a style="--i:0" href="about"><span>01</span>about</a>
-    <a style="--i:1" href="catalog"><span>02</span>catalog</a>
-    <a style="--i:2" href="calculator"><span>03</span>calculator</a>
-    <a style="--i:3" href="contact"><span>04</span>contact</a>
-    <a style="--i:4" href="account"><span>05</span>account</a>
-  </nav>
-  <div class="menu__foot"><button data-search-open class="link-arrow">search products <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button><span>contact@hlixlabs.com</span></div>
-</div>
-<div class="search" data-search role="dialog" aria-label="search">
-  <button class="x" data-search-close aria-label="close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-  <div class="search__in">
-    <div class="search__field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input data-search-input type="text" placeholder="search by name, keyword, or topic" autocomplete="off" spellcheck="false"></div>
-    <div data-search-hint>
-      <p class="search__hint">start typing a name, or search by keyword or topic</p>
-      <div class="search__try"><button data-try="hair">hair</button><button data-try="sleep">sleep</button><button data-try="fat loss">fat loss</button><button data-try="muscle growth">muscle growth</button><button data-try="recovery">recovery</button><button data-try="skin">skin</button></div>
-    </div>
-    <div data-search-list></div>
-  </div>
-</div>
-<div class="cart" data-cart role="dialog" aria-label="cart">
-  <div class="cart__head"><h2>cart</h2><button class="x" data-cart-close aria-label="close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-  <div class="cart__list" data-cart-list></div>
-  <p class="cart__empty" data-cart-empty hidden>your cart is empty.</p>
-  <div class="cart__foot" data-cart-foot hidden>
-    <div class="cart__subtotal"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
-    <a class="btn btn--solid btn--block" href="checkout" data-magnetic>checkout <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-    <p class="cart__note">no payment is collected here — we'll follow up by email with next steps.</p>
-  </div>
-</div>
-<main>
+<main id="main">
 
-<section class="phead acct-head"><div class="wrap">
-  <p class="kicker" data-reveal="fade">// account</p>
-  <h1 class="phead__title" data-split>your account.</h1>
-  <p class="phead__sub" data-reveal>keep your cart on every device, save your shipping address and follow your orders.</p>
-</div></section>
+<section class="phead phead--tight">
+  <div class="wrap phead__grid">
+    <div>
+      <p class="label label--dot" data-reveal>account</p>
+      <h1 class="phead__title" data-reveal style="--d:1">your account.</h1>
+    </div>
+    <p class="phead__sub" data-reveal style="--d:2">keep your cart on every device, save your shipping address and follow your orders.</p>
+  </div>
+</section>
 <div class="wrap acct" data-acct>
   <p class="acct__loading" data-acct-loading>loading…</p>
 
   <div class="acct__out" data-acct-out hidden>
-    <div class="acct__tabs" role="tablist" aria-label="sign in or make an account">
-      <button type="button" role="tab" id="tab-signin" aria-controls="form-signin" aria-selected="true" data-acct-tab="signin">sign in</button>
-      <button type="button" role="tab" id="tab-signup" aria-controls="form-signup" aria-selected="false" data-acct-tab="signup">create account</button>
+    <div class="form-card acct__card">
+      <div class="acct__tabs" role="tablist" aria-label="sign in or make an account">
+        <button type="button" role="tab" id="tab-signin" aria-controls="form-signin" aria-selected="true" data-acct-tab="signin">sign in</button>
+        <button type="button" role="tab" id="tab-signup" aria-controls="form-signup" aria-selected="false" tabindex="-1" data-acct-tab="signup">create account</button>
+      </div>
+      <form class="acct__form" id="form-signin" role="tabpanel" aria-labelledby="tab-signin" data-acct-form="signin">
+        <label class="field"><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
+        <label class="field"><span>password</span><input name="password" type="password" required autocomplete="current-password" maxlength="200"></label>
+        <div class="acct__actions"><button class="btn btn--solid" type="submit">sign in <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><button type="button" class="acct__link" data-acct-go="forgot">forgot your password?</button></div>
+        <p class="status" data-acct-status hidden role="status" aria-live="polite"></p>
+      </form>
+      <form class="acct__form" id="form-signup" role="tabpanel" aria-labelledby="tab-signup" data-acct-form="signup" hidden>
+        <label class="field"><span>name</span><input name="name" type="text" autocomplete="name" maxlength="120"></label>
+        <label class="field"><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
+        <label class="field"><span>password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
+        <div class="acct__actions"><button class="btn btn--solid" type="submit">create account <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+        <p class="status" data-acct-status hidden role="status" aria-live="polite"></p>
+        <p class="fine">your password is stored scrambled (hashed): nobody at hlix can see it. we use your email only for your orders.</p>
+      </form>
+      <form class="acct__form" data-acct-form="forgot" hidden>
+        <p class="dim">enter your email and we'll send you a link to set a new password.</p>
+        <label class="field"><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
+        <div class="acct__actions"><button class="btn btn--solid" type="submit">send the link <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><button type="button" class="acct__link" data-acct-go="signin">back to sign in</button></div>
+        <p class="status" data-acct-status hidden role="status" aria-live="polite"></p>
+      </form>
     </div>
-    <form class="checkout__form acct__form" id="form-signin" role="tabpanel" aria-labelledby="tab-signin" data-acct-form="signin">
-      <label><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
-      <label><span>password</span><input name="password" type="password" required autocomplete="current-password" maxlength="200"></label>
-      <div class="acct__actions"><button class="btn btn--solid" type="submit" data-magnetic>sign in <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><button type="button" class="acct__link" data-acct-go="forgot">forgot your password?</button></div>
-      <p class="cform__status" data-acct-status hidden role="status" aria-live="polite"></p>
-    </form>
-    <form class="checkout__form acct__form" id="form-signup" role="tabpanel" aria-labelledby="tab-signup" data-acct-form="signup" hidden>
-      <label><span>name</span><input name="name" type="text" autocomplete="name" maxlength="120"></label>
-      <label><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
-      <label><span>password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
-      <div class="acct__actions"><button class="btn btn--solid" type="submit" data-magnetic>create account <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
-      <p class="cform__status" data-acct-status hidden role="status" aria-live="polite"></p>
-      <p class="checkout__legal">your password is stored scrambled (hashed): nobody at hlix can see it. we use your email only for your orders.</p>
-    </form>
-    <form class="checkout__form acct__form" data-acct-form="forgot" hidden>
-      <p class="acct__note">enter your email and we'll send you a link to set a new password.</p>
-      <label><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
-      <div class="acct__actions"><button class="btn btn--solid" type="submit">send the link <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button><button type="button" class="acct__link" data-acct-go="signin">back to sign in</button></div>
-      <p class="cform__status" data-acct-status hidden role="status" aria-live="polite"></p>
-    </form>
+    <ul class="acct__perks"><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><span><b>your cart, everywhere</b>saved to your account, on every device you sign in on.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg><span><b>your address, saved</b>checkout fills it in for you.</span></li><li><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h6M9 9h1"/></svg><span><b>your orders, in one place</b>what you asked for, where it stands, and tracking once it ships.</span></li></ul>
   </div>
 
   <div class="acct__in" data-acct-in hidden>
     <div class="acct__who">
-      <p>signed in as <b data-acct-email></b><span class="acct__tier" data-acct-tier hidden>family &amp; friends pricing</span></p>
-      <button class="btn btn--sm" type="button" data-acct-signout>sign out</button>
+      <p><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>signed in as <b data-acct-email></b></span><span class="acct__tier" data-acct-tier hidden>family &amp; friends pricing</span></p>
+      <button class="btn btn--ghost btn--sm" type="button" data-acct-signout>sign out</button>
     </div>
-    <form class="checkout__form acct__form acct__reset" data-acct-form="reset" hidden>
-      <fieldset>
-        <legend>set a new password</legend>
-        <label><span>new password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
-      </fieldset>
-      <div class="acct__actions"><button class="btn btn--solid" type="submit">save password <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
-      <p class="cform__status" data-acct-status hidden role="status" aria-live="polite"></p>
+    <form class="form-card acct__form acct__reset" data-acct-form="reset" hidden>
+      <h2>set a new password</h2>
+      <label class="field"><span>new password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
+      <div class="acct__actions"><button class="btn btn--solid" type="submit">save password <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+      <p class="status" data-acct-status hidden role="status" aria-live="polite"></p>
     </form>
     <div class="acct__grid">
       <section class="acct__orders" aria-labelledby="acct-orders-h">
         <h2 class="acct__h" id="acct-orders-h">your orders</h2>
         <div data-acct-orders></div>
-        <p class="acct__empty" data-acct-orders-empty hidden>no orders yet. <a href="catalog">browse the catalog</a>.</p>
+        <div class="acct__empty" data-acct-orders-empty hidden><p>no orders yet.</p><a class="btn btn--ghost btn--sm" href="catalog">browse the catalog <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></div>
       </section>
       <div class="acct__side">
-        <form class="checkout__form acct__form" data-acct-form="profile">
-          <fieldset>
-            <legend>shipping details</legend>
-            <label><span>full name</span><input name="name" type="text" autocomplete="name" maxlength="120"></label>
-            <label><span>phone</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
-            <label><span>address line 1</span><input name="address1" type="text" autocomplete="address-line1" maxlength="200"></label>
-            <label><span>address line 2</span><input name="address2" type="text" autocomplete="address-line2" maxlength="200"></label>
-            <div class="checkout__row">
-              <label><span>city</span><input name="city" type="text" autocomplete="address-level2" maxlength="120"></label>
-              <label><span>state / region</span><input name="state" type="text" autocomplete="address-level1" maxlength="120"></label>
-            </div>
-            <div class="checkout__row">
-              <label><span>zip / postal code</span><input name="zip" type="text" autocomplete="postal-code" maxlength="40"></label>
-              <label><span>country</span><input name="country" type="text" autocomplete="country-name" maxlength="120"></label>
-            </div>
-          </fieldset>
-          <div class="acct__actions"><button class="btn btn--sm" type="submit">save details</button></div>
-          <p class="cform__status" data-acct-status hidden role="status" aria-live="polite"></p>
+        <form class="form-card acct__form" data-acct-form="profile">
+          <h2>shipping details</h2>
+          <div class="fields2">
+            <label class="field"><span>full name</span><input name="name" type="text" autocomplete="name" maxlength="120"></label>
+            <label class="field"><span>phone</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
+          </div>
+          <label class="field"><span>address line 1</span><input name="address1" type="text" autocomplete="address-line1" maxlength="200"></label>
+          <label class="field"><span>address line 2</span><input name="address2" type="text" autocomplete="address-line2" maxlength="200"></label>
+          <div class="fields2">
+            <label class="field"><span>city</span><input name="city" type="text" autocomplete="address-level2" maxlength="120"></label>
+            <label class="field"><span>state / region</span><input name="state" type="text" autocomplete="address-level1" maxlength="120"></label>
+          </div>
+          <div class="fields2">
+            <label class="field"><span>zip / postal code</span><input name="zip" type="text" autocomplete="postal-code" maxlength="40"></label>
+            <label class="field"><span>country</span><input name="country" type="text" autocomplete="country-name" maxlength="120"></label>
+          </div>
+          <div class="acct__actions"><button class="btn btn--solid btn--sm" type="submit">save details</button></div>
+          <p class="status" data-acct-status hidden role="status" aria-live="polite"></p>
         </form>
-        <form class="checkout__form acct__form" data-acct-form="password">
-          <fieldset>
-            <legend>change password</legend>
-            <label><span>current password</span><input name="current" type="password" required autocomplete="current-password" maxlength="200"></label>
-            <label><span>new password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
-          </fieldset>
-          <div class="acct__actions"><button class="btn btn--sm" type="submit">change password</button></div>
-          <p class="cform__status" data-acct-status hidden role="status" aria-live="polite"></p>
+        <form class="form-card acct__form" data-acct-form="password">
+          <h2>change password</h2>
+          <label class="field"><span>current password</span><input name="current" type="password" required autocomplete="current-password" maxlength="200"></label>
+          <label class="field"><span>new password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
+          <div class="acct__actions"><button class="btn btn--ghost btn--sm" type="submit">change password</button></div>
+          <p class="status" data-acct-status hidden role="status" aria-live="polite"></p>
         </form>
-        <p class="acct__fine"><button type="button" class="acct__link" data-acct-signout-all>sign out on every device</button></p>
+        <p><button type="button" class="acct__link" data-acct-signout-all>sign out on every device</button></p>
       </div>
     </div>
   </div>
 </div>
 </main>
 <footer class="foot">
-  <div class="wrap foot__top">
-    <div><p class="kicker">// hlix</p><p class="foot__lede">a research peptide catalog. every compound in stock, logged with its dose, spec and price.</p></div>
-    <div class="foot__col"><h4>catalog</h4><a href="catalog#metabolic">Metabolic Research</a><a href="catalog#growth">Growth & GH Secretagogues</a><a href="catalog#recovery">Healing & Recovery</a><a href="catalog#cognitive">Cognitive & Neuro Health</a><a href="catalog#longevity">Longevity & Anti-Aging</a><a href="catalog#hormonal">Hormonal & Sexual Health</a><a href="catalog#specialty">Specialty Research</a></div>
-    <div class="foot__col"><h4>site</h4><a href="about">about</a><a href="calculator">calculator</a><a href="contact">contact</a></div>
-    <div class="foot__col"><h4>contact</h4><a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a><span>research use only</span></div>
-  </div>
-  <div class="wrap foot__legal">
-    <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
+  <div class="wrap">
+    <div class="foot__grid">
+      <div class="foot__brand">
+        <a class="brand" href="./" aria-label="hlix home">hlix<i></i></a>
+        <p>a research peptide catalog. every compound logged with its dose, spec and price per vial.</p>
+        <button class="btn btn--ghost btn--sm" type="button" data-open-chat><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg> ask the hlix ai</button>
+      </div>
+      <div class="foot__col"><h4>shop</h4><a href="catalog?cat=metabolic">metabolic research</a><a href="catalog?cat=growth">growth &amp; gh secretagogues</a><a href="catalog?cat=recovery">healing &amp; recovery</a><a href="catalog?cat=cognitive">cognitive &amp; neuro health</a><a href="catalog?cat=longevity">longevity &amp; anti-aging</a><a href="catalog?cat=hormonal">hormonal &amp; sexual health</a><a href="catalog?cat=specialty">specialty research</a><a href="catalog?cat=supplies">supplies</a></div>
+      <div class="foot__col"><h4>tools</h4><a href="calculator">dosage calculator</a><a href="calculator#planner">dose planner</a><button type="button" data-search-open>search</button><button type="button" data-open-chat>ai assistant</button></div>
+      <div class="foot__col"><h4>hlix</h4><a href="about">about</a><a href="contact">contact</a><a href="account">your account</a><a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a></div>
+    </div>
+    <div class="foot__legal">
+      <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
+    </div>
   </div>
 </footer>
-<div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
-<script src="assets/js/search-index.js?v=1794298770"></script>
-<script src="assets/js/v2-prices.js?v=1794298770"></script>
-<script src="assets/js/v2.js?v=1794298770"></script>
-<script src="assets/js/v2-cart.js?v=1794298770"></script>
-<script src="assets/js/v2-account.js?v=1794298770" defer></script>
-<script src="assets/js/v2-chat.js?v=1794298770"></script>
+<nav class="tabbar" aria-label="quick actions">
+  <a href="catalog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>shop</span></a>
+  <button type="button" data-search-open><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search</span></button>
+  <a href="calculator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg><span>calculator</span></a>
+  <button type="button" data-open-chat><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg><span>ask ai</span></button>
+  <button type="button" data-cart-open><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><span>cart</span><b class="count" data-cart-count hidden>0</b></button>
+</nav>
+<div class="pal" data-pal role="dialog" aria-modal="true" aria-label="search">
+  <div class="pal__scrim" data-pal-close></div>
+  <div class="pal__box">
+    <label class="pal__field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input data-pal-input type="text" placeholder="search compounds, categories or goals" autocomplete="off" spellcheck="false" aria-label="search"><button type="button" class="pal__esc" data-pal-close>esc</button></label>
+    <div class="pal__body" data-pal-body></div>
+    <div class="pal__foot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
+  </div>
+</div>
+<div class="sheet" data-menu role="dialog" aria-modal="true" aria-label="menu">
+  <div class="sheet__scrim" data-menu-close></div>
+  <div class="sheet__box">
+    <div class="sheet__head"><span class="label">menu</span><button class="ibtn" type="button" data-menu-close aria-label="close menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <nav class="sheet__links">
+      <a href="./"><span>01</span>home</a>
+      <a href="catalog"><span>02</span>shop</a>
+      <a href="calculator"><span>03</span>calculator</a>
+      <a href="calculator#planner"><span>04</span>dose planner</a>
+      <a href="about"><span>05</span>about</a>
+      <a href="contact"><span>06</span>contact</a>
+      <a href="account"><span>07</span>account</a>
+    </nav>
+    <div class="sheet__foot">
+      <button class="pill" type="button" data-theme-toggle><span class="i-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="i-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span><span data-theme-label>light mode</span></button>
+      <a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a>
+    </div>
+  </div>
+</div>
+<div class="drawer" data-cart role="dialog" aria-modal="true" aria-label="cart">
+  <div class="drawer__scrim" data-cart-close></div>
+  <aside class="drawer__box">
+    <div class="drawer__head"><h2>cart <span data-cart-n></span></h2><button class="ibtn" type="button" data-cart-close aria-label="close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="drawer__list" data-cart-list></div>
+    <div class="drawer__empty" data-cart-empty hidden>
+      <p>your cart is empty.</p>
+      <a class="btn btn--ghost" href="catalog">browse the catalog <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <div class="drawer__foot" data-cart-foot hidden>
+      <div class="drawer__sub"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
+      <a class="btn btn--solid btn--block" href="checkout">request this order <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <p class="drawer__note">no payment is taken online. send the request and we'll confirm by email with next steps.</p>
+    </div>
+  </aside>
+</div>
+<div class="lb" data-lb aria-hidden="true"><button class="ibtn lb__x" type="button" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
+<div class="toast" data-toast role="status" aria-live="polite"></div>
+<script src="assets/js/search-index.js?v=1794301007"></script>
+<script src="assets/js/v2-prices.js?v=1794301007"></script>
+<script src="assets/js/v3-cart.js?v=1794301007"></script>
+<script src="assets/js/v3.js?v=1794301007"></script>
+<script src="assets/js/v2-account.js?v=1794301007" defer></script>
+<script src="assets/js/v2-chat.js?v=1794301007"></script>
 </body>
 </html>

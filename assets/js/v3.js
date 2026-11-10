@@ -1,6 +1,7 @@
-// hlix v3 — the redesign preview's ui (no dependencies). shares the cart storage,
-// live prices (v2-prices.js), chat (v2-chat.js), calculator (v2-calc.js) and dose
-// planner (v2-planner.js) with the main site; this file is only the new interface.
+// hlix — the main site's ui (the v3 design; no dependencies): menus, search, catalog
+// filters, the product page's picker. The cart and accounts are v3-cart.js; live prices
+// (v2-prices.js), chat (v2-chat.js), the calculator (v2-calc.js) and the dose planner
+// (v2-planner.js) are shared with the archived /v2/ design.
 (function () {
   "use strict";
 
@@ -177,12 +178,13 @@
     return { label: a.querySelector("span").textContent, href: a.getAttribute("href"), n: a.querySelector("b").textContent };
   });
   var PAGES = [
-    { t: "catalog", s: "every compound", href: "catalog.html" },
-    { t: "dosage calculator", s: "draw-to units, supply, vials needed", href: "calculator.html" },
-    { t: "dose planner", s: "map doses on a calendar", href: "calculator.html#planner" },
-    { t: "about", s: "the standard", href: "about.html" },
-    { t: "contact", s: "get in touch", href: "contact.html" },
-    { t: "checkout", s: "review & request your order", href: "checkout.html" }
+    { t: "catalog", s: "every compound", href: "catalog" },
+    { t: "dosage calculator", s: "draw-to units, supply, vials needed", href: "calculator" },
+    { t: "dose planner", s: "map doses on a calendar", href: "calculator#planner" },
+    { t: "about", s: "the standard", href: "about" },
+    { t: "contact", s: "get in touch", href: "contact" },
+    { t: "checkout", s: "review & request your order", href: "checkout" },
+    { t: "account", s: "sign in, your orders", href: "account" }
   ];
   var TAGS = (function () {
     var c = {};
@@ -192,8 +194,8 @@
   var RECENT_KEY = "hlix_recent";
   function recent() { try { return JSON.parse(localStorage.getItem(RECENT_KEY) || "[]"); } catch (e) { return []; } }
   function thumb(it) { return cfg.assets + "assets/img/vials/" + String((it.skus && it.skus[0]) || "").toLowerCase() + "-recon-s.webp"; }
-  function productUrl(it) { return cfg.base + "peptides/" + it.slug + ".html"; }
-  function tagUrl(t) { return cfg.base + "catalog.html?tag=" + encodeURIComponent(t).replace(/%20/g, "+"); }
+  function productUrl(it) { return cfg.base + "peptides/" + it.slug; }
+  function tagUrl(t) { return cfg.base + "catalog?tag=" + encodeURIComponent(t).replace(/%20/g, "+"); }
   function priceText(it) { return (it.multi ? "from " : "") + money(it.priceFrom); }
   function hi(text, q) {
     var i = q ? text.toLowerCase().indexOf(q) : -1;
@@ -266,7 +268,7 @@
     if (r.goals.length) html += group("research goals", goalChips(r.goals.slice(0, opts.compact ? 4 : 8), r.q));
     if (!opts.compact && r.cats.length) html += group("categories", r.cats.map(function (c) { return rowIcon(c.href.indexOf("http") === 0 ? c.href : c.href, ICON.grid, hi(c.label, r.q), c.n + " compounds"); }).join(""));
     if (!opts.compact && r.pages.length) html += group("pages", r.pages.map(function (p) { return rowIcon(cfg.base + p.href, ICON.page, hi(p.t, r.q), esc(p.s)); }).join(""));
-    if (r.products.length > max) html += group("", rowIcon(cfg.base + "catalog.html?q=" + encodeURIComponent(r.q), ICON.page, "see all " + r.products.length + " results", "in the catalog"));
+    if (r.products.length > max) html += group("", rowIcon(cfg.base + "catalog?q=" + encodeURIComponent(r.q), ICON.page, "see all " + r.products.length + " results", "in the catalog"));
     if (!html) html = '<p class="pal__none">nothing matches “' + esc(q.trim()) + '”. try a goal like “recovery”, or <button type="button" data-open-chat>ask the ai</button>.</p>';
     el.innerHTML = html;
     $$("[data-open-chat]", el).forEach(function (b) { b.addEventListener("click", openChat); });
@@ -301,14 +303,16 @@
     open("pal");
     if (typeof q === "string") palIn.value = q;
     renderInto(palBody, palIn.value);
-    setTimeout(function () { palIn.focus(); palIn.select(); }, 40);
+    // focus now (the palette is visible as soon as pal-open is set), so fast typing isn't lost
+    palIn.focus();
+    palIn.select();
   }
   if (pal) {
     bind("[data-search-open]", function () { openPal(); });
     bind("[data-pal-close]", function () { close("pal"); });
     palIn.addEventListener("input", function () { renderInto(palBody, palIn.value); });
     palBody.addEventListener("touchstart", function () { palIn.blur(); }, { passive: true });
-    navKeys(palIn, palBody, function () { if (palIn.value.trim()) window.location.href = cfg.base + "catalog.html?q=" + encodeURIComponent(palIn.value.trim()); });
+    navKeys(palIn, palBody, function () { if (palIn.value.trim()) window.location.href = cfg.base + "catalog?q=" + encodeURIComponent(palIn.value.trim()); });
   }
 
   var hs = $("[data-hero-search]");
@@ -631,9 +635,37 @@
     }
     function perMg(price) {
       var amt = num(st.btn, "data-amt");
-      return st.btn.getAttribute("data-unit") === "mg" && amt > 0 ? "$" + (price / amt).toFixed(2) + " / mg" : "";
+      return st.btn.getAttribute("data-dunit") === "mg" && amt > 0 ? "$" + (price / amt).toFixed(2) + " / mg" : "";
     }
+    // family & friends pricing (v3-cart.js): hlix's cost by the vial or the pack of 10,
+    // for accounts an admin marked as family & friends; the regular price shows crossed out
+    var fam = $("[data-family]", pdp);
+    var regular = $("[data-regular]", pdp);
+    var buyBy = "vial";
+    function famPrice(unitName) {
+      return window.HLIXCart && window.HLIXCart.familyPrice ? window.HLIXCart.familyPrice(st.btn.getAttribute("data-sku"), unitName || buyBy) : null;
+    }
+    function renderFamily() {
+      if (!fam) return;
+      var on = famPrice("vial") !== null;
+      fam.hidden = !on;
+      if (regular) regular.classList.toggle("is-regular", on);
+      if (!on) return;
+      $$("[data-unit]", fam).forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-unit") === buyBy ? "true" : "false"); });
+      $("[data-family-price]", fam).textContent = window.HLIXCart.money(famPrice());
+      $("[data-family-per]", fam).textContent = buyBy === "pack" ? "/ pack of 10" : "/ vial";
+    }
+    if (fam) $$("[data-unit]", fam).forEach(function (b) {
+      b.addEventListener("click", function () { buyBy = b.getAttribute("data-unit") === "pack" ? "pack" : "vial"; render(); });
+    });
+    // what one of what's being added costs: the family price when there is one
+    function charge() {
+      var f = famPrice();
+      return f !== null ? { unit: buyBy, price: f } : { unit: "vial", price: unit(st.btn, st.form) };
+    }
+
     function render() {
+      renderFamily();
       var p = unit(st.btn, st.form);
       if (priceMain) {
         var from = shownPrice === null ? p : shownPrice;
@@ -647,8 +679,10 @@
       setAll("[data-form-out]", formLabel(st.form));
       sizes.forEach(function (b) { var tp = $("[data-tile-price]", b); if (tp) tp.textContent = money(unit(b, st.form)); });
       $$("[data-form-price]").forEach(function (el) { el.textContent = money(unit(st.btn, el.getAttribute("data-form-price"))); });
+      var c = charge(), m = window.HLIXCart ? window.HLIXCart.money : money;
       var sum = $("[data-add-sum]");
-      if (sum) sum.textContent = "· " + money(p * qty());
+      if (sum) sum.textContent = "· " + m(c.price * qty());
+      if (c.price !== p) $$("[data-buybar] [data-price-out]").forEach(function (el) { el.textContent = m(c.price); });
       if (badge) { badge.textContent = formLabel(st.form); badge.classList.toggle("is-powder", st.form === "powder"); }
       $$("[data-pick]").forEach(function (r) { r.classList.toggle("is-active", r.getAttribute("data-pick") === st.btn.getAttribute("data-sku")); });
     }
@@ -700,6 +734,7 @@
       if (!window.HLIXCart) return;
       var sku = st.btn.getAttribute("data-sku");
       var live = window.HLIXPrices ? window.HLIXPrices.unit(sku, st.form) : null;
+      var c = charge();
       var n = qty();
       window.HLIXCart.add({
         sku: sku,
@@ -708,10 +743,11 @@
         slug: addBtn.getAttribute("data-slug"),
         dose: st.btn.getAttribute("data-dose"),
         form: st.form,
-        unitPrice: live !== null ? live : unit(st.btn, st.form),
+        unit: c.unit,
+        unitPrice: famPrice() !== null ? c.price : live !== null ? live : c.price,
         qty: n
       });
-      toast("added " + esc(name.toLowerCase()) + " · " + esc(st.btn.getAttribute("data-dose")) + (n > 1 ? " ×" + n : ""), { label: "view cart", run: function () { open("cart"); } });
+      toast("added " + esc(name.toLowerCase()) + " · " + esc(st.btn.getAttribute("data-dose")) + (c.unit === "pack" ? " · pack of 10" : "") + (n > 1 ? " ×" + n : ""), { label: "view cart", run: function () { open("cart"); } });
       addBtn.classList.add("is-done");
       addBtn.firstChild.textContent = "added ";
       clearTimeout(doneT);
@@ -750,10 +786,13 @@
       $$("[data-cell-mg]").forEach(function (td) {
         var b = sizes.filter(function (x) { return x.getAttribute("data-sku") === td.getAttribute("data-cell-mg"); })[0];
         var amt = b ? num(b, "data-amt") : 0;
-        if (b && b.getAttribute("data-unit") === "mg" && amt > 0) td.textContent = "$" + (unit(b, "powder") / amt).toFixed(2) + " / mg";
+        if (b && b.getAttribute("data-dunit") === "mg" && amt > 0) td.textContent = "$" + (unit(b, "powder") / amt).toFixed(2) + " / mg";
       });
       render();
     });
+
+    d.addEventListener("hlix:account", function () { render(); });
+    if (window.HLIXAccount && window.HLIXAccount.ready) window.HLIXAccount.ready.then(function () { render(); });
 
     // recently viewed, for the search palette
     try {

@@ -1,8 +1,8 @@
 /* ============================================================
-   hlix v3 — the redesign preview served from /v3/.
-   same look as the main site (dark, mint, lowercase, heavy display
-   type, mono details); new layout: search-first home, sidebar
-   catalog, sticky buy panel, mobile tab bar, command palette.
+   hlix v3 — the main site's design (scripts/build_v3.py).
+   dark, mint, lowercase, heavy display type, mono details:
+   search-first home, sidebar catalog, sticky buy panel,
+   accounts, mobile tab bar, command palette.
    token names match v2.css so the shared dose planner styles
    (v3-planner.css, generated from v2.css) work unchanged.
    ============================================================ */
@@ -822,6 +822,73 @@ a.cinfo:hover, button.cinfo:hover { border-color: var(--line-2); }
 .checkout__done p { max-width: 46ch; color: var(--dim); }
 .done__icon { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); }
 .done__icon svg { width: 30px; height: 30px; }
+.acctnote { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1px solid var(--line-2); border-radius: var(--r-lg); color: var(--dim); font: 500 13px/1.6 var(--f-mono); }
+.acctnote svg { width: 18px; height: 18px; margin-top: 2px; color: var(--accent); }
+.acctnote a { color: var(--fg); text-decoration: underline; text-decoration-color: var(--accent); text-underline-offset: 3px; }
+.acctnote b { color: var(--fg); font-weight: 500; overflow-wrap: anywhere; text-transform: none; }
+.check { display: flex; align-items: center; gap: 10px; color: var(--dim); font: 500 13px var(--f-mono); cursor: pointer; }
+.check input { width: 18px; height: 18px; margin: 0; accent-color: var(--accent); }
+.field input[readonly] { color: var(--dim); background: var(--surface-tint); }
+
+/* ------------------------------------------------------------
+   account (v2-account.js drives the [data-acct-*] hooks and
+   builds the order cards: acct__order, acct__items, acct__pay…)
+   ------------------------------------------------------------ */
+.top__acct i { position: absolute; top: -2px; right: -2px; display: none; width: 10px; height: 10px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 2px var(--bg); }
+.signed-in .top__acct i { display: block; }
+.top__acct[aria-current] { color: var(--fg); border-color: var(--fg); }
+.acct { padding-bottom: clamp(56px, 10vh, 120px); }
+.acct__loading { color: var(--dim); font: 500 13px var(--f-mono); }
+.acct__out { display: grid; grid-template-columns: minmax(0, 560px) minmax(0, 1fr); gap: clamp(20px, 4vw, 64px); align-items: start; }
+.acct__card { gap: 18px; }
+.acct__form { display: grid; gap: 16px; }
+.acct__form h2 { font: 800 clamp(1.4rem, 2vw, 1.8rem) var(--f-display); letter-spacing: -0.04em; }
+.acct__tabs { display: flex; gap: 4px; padding: 4px; border: 1px solid var(--line-2); border-radius: 999px; }
+.acct__tabs button { flex: 1; height: 42px; border-radius: 999px; color: var(--dim); font: 600 15px var(--f-display); transition: background-color 0.25s, color 0.25s; }
+.acct__tabs button[aria-selected="true"] { background: var(--fg); color: var(--bg); }
+.acct__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.acct__link { color: var(--dim); font: 500 12.5px var(--f-mono); text-decoration: underline; text-underline-offset: 3px; transition: color 0.2s; }
+.acct__link:hover { color: var(--accent); }
+.acct__perks { display: grid; gap: 10px; padding-top: 6px; }
+.acct__perks li { display: flex; align-items: flex-start; gap: 14px; padding: 18px 0; border-top: 1px solid var(--line); }
+.acct__perks svg { width: 20px; height: 20px; margin-top: 2px; color: var(--accent); }
+.acct__perks b { display: block; margin-bottom: 2px; color: var(--fg); font: 700 clamp(1.15rem, 1.6vw, 1.4rem) var(--f-display); letter-spacing: -0.03em; }
+.acct__perks span { color: var(--dim); }
+.acct__who { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: clamp(20px, 3vh, 32px); padding: 16px 20px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); color: var(--dim); font: 500 13px var(--f-mono); }
+.acct__who p { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.acct__who svg { width: 18px; height: 18px; color: var(--accent); }
+.acct__who b { color: var(--fg); font-weight: 500; overflow-wrap: anywhere; text-transform: none; }
+.acct__tier { padding: 4px 10px; border-radius: 999px; background: var(--accent); color: var(--accent-ink); font: 600 11px var(--f-mono); }
+.acct__reset { max-width: 560px; margin-bottom: 24px; border-color: var(--accent); }
+.acct__grid { display: grid; grid-template-columns: minmax(0, 1.3fr) minmax(320px, 1fr); gap: clamp(20px, 4vw, 56px); align-items: start; }
+.acct__side { display: grid; gap: 14px; }
+.acct__h { margin-bottom: 14px; font: 800 clamp(1.6rem, 2.6vw, 2.2rem) var(--f-display); letter-spacing: -0.045em; }
+.acct__empty { display: grid; justify-items: start; gap: 14px; padding: 28px; border: 1px dashed var(--line-2); border-radius: var(--r-lg); color: var(--dim); }
+.acct__order { display: grid; gap: 12px; margin-bottom: 10px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); }
+.acct__order.is-cancelled { opacity: 0.55; }
+.acct__order-head { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; color: var(--dim); font: 500 12.5px var(--f-mono); }
+.acct__order-head b { color: var(--fg); font: 700 17px var(--f-display); letter-spacing: -0.02em; text-transform: none; }
+.acct__pill { margin-left: auto; padding: 4px 10px; border: 1px solid var(--line-2); border-radius: 999px; font: 600 11px var(--f-mono); }
+.acct__pill--fulfilled { border-color: var(--accent); color: var(--accent); }
+.acct__items { display: grid; gap: 6px; }
+.acct__items li { display: flex; justify-content: space-between; gap: 16px; font-size: 15px; }
+.acct__items li span:last-child { color: var(--dim); font: 500 13px var(--f-mono); }
+.acct__order-foot { display: flex; align-items: baseline; justify-content: space-between; gap: 16px; padding-top: 12px; border-top: 1px dashed var(--line-2); color: var(--dim); font: 500 12px var(--f-mono); }
+.acct__order-foot b { color: var(--fg); font: 800 20px var(--f-display); letter-spacing: -0.03em; }
+.acct__pay, .acct__track { color: var(--dim); font: 500 12px var(--f-mono); }
+.acct__pay.is-paid { color: var(--accent); }
+.acct__track span { color: var(--fg); overflow-wrap: anywhere; text-transform: none; user-select: all; }
+
+/* family & friends pricing (product page) */
+.pdp__price.is-regular b { color: var(--dim); font-size: clamp(1.8rem, 2.6vw, 2.4rem); text-decoration: line-through; text-decoration-thickness: 2px; }
+.fam { display: grid; gap: 10px; margin-top: 14px; padding: 16px 18px; border: 1px solid var(--accent); border-radius: var(--r-lg); background: rgba(var(--accent-rgb), 0.06); }
+.fam__top { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.fam__top .label { color: var(--accent); }
+.fam__price b { color: var(--accent); font: 800 clamp(2.2rem, 3.4vw, 3rem)/1 var(--f-display); letter-spacing: -0.05em; }
+.fam__price span { color: var(--dim); font: 500 13px var(--f-mono); }
+.fam__units { display: flex; padding: 3px; border: 1px solid var(--line-2); border-radius: 999px; }
+.fam__units button { height: 32px; padding: 0 13px; border-radius: 999px; color: var(--dim); font: 500 12px var(--f-mono); transition: background-color 0.2s, color 0.2s; }
+.fam__units button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 
 /* ------------------------------------------------------------
    calculator (v2-calc.js drives the [data-*] hooks); the generic
@@ -1016,6 +1083,7 @@ a.cinfo:hover, button.cinfo:hover { border-color: var(--line-2); }
   .coa__links { grid-column: 1 / -1; justify-items: start; }
   .phead__grid, .split, .contact, .checkout { grid-template-columns: 1fr; }
   .summary { position: static; order: -1; }
+  .acct__out, .acct__grid { grid-template-columns: 1fr; }
   .calc { grid-template-columns: 1fr; }
   .calc__out { position: static; }
   .foot__grid { grid-template-columns: 1fr 1fr; }

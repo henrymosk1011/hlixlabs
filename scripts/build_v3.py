@@ -1,21 +1,25 @@
 #!/usr/bin/env python3
 """
-Generates the v3 redesign into /v3/: a new layout and UI/UX for the whole
-site (search-first home, filterable catalog with a sidebar, sort and list
-view, a sticky buy panel on product pages, a mobile tab bar, a command-
-palette search) in the same minimal, bold, lowercase, dark + mint look.
+Generates the main site (the v3 design) at the repo root: a search-first home,
+a catalog with a filter sidebar, sort and list view, product pages with a
+sticky buy panel, accounts, a mobile tab bar and a command-palette search, in
+the minimal, bold, lowercase, dark + mint look.
 
     python3 scripts/build_v3.py
 
-It shares everything that isn't layout with the main site: the catalog data,
+Pages: index, catalog, about, contact, calculator, checkout, account and one
+per product under peptides/. Its own files are assets/css/v3.css and
+assets/js/v3-boot.js, v3.js, v3-cart.js, v3-checkout.js. It shares the rest
+with the archived v2 design (/v2/, scripts/build_v2.py): the catalog data,
 vial photos, lab reports, search index, live prices (v2-prices.js), the chat
-backend (v2-chat.js), the calculator math (v2-calc.js) and the dose planner
-(v2-planner.js). Its own files are assets/css/v3.css, assets/js/v3*.js, and
-assets/css/v3-planner.css, which this script copies out of v2.css on every
-build so the planner keeps one stylesheet. Nothing outside v3/ and
-assets/css/v3-planner.css is written.
+(v2-chat.js), the calculator math (v2-calc.js), the dose planner (v2-planner.js
+and planner_section()) and the account page logic (v2-account.js). The dose
+planner's styles stay in v2.css: this script copies that section into
+assets/css/v3-planner.css on every build, so there's one planner stylesheet.
 
-/v3/ is a preview: noindex, and nothing on the main site links to it.
+Every link is a clean address (/catalog, /peptides/bpc-157): vercel.json's
+cleanUrls serves the .html files at them. No inline scripts (the CSP allows
+script files from this site only): v3-boot.js is each page's first script.
 """
 import json
 import shutil
@@ -27,8 +31,8 @@ import build_v2 as v2
 from vial_svg import CATEGORY_COLORS
 
 ROOT = b.ROOT
-OUT = ROOT / "v3"
-DEPTH = 1                      # how many folders OUT sits below the site root
+OUT = ROOT
+DEPTH = 0                      # how many folders OUT sits below the site root
 VER = str(int(time.time()))
 CONTACT_EMAIL = b.CONTACT_EMAIL
 COA = json.loads((ROOT / "data" / "coa.json").read_text())
@@ -68,6 +72,7 @@ CLOCK = b.icon("clock")
 PIN = b.icon("pin")
 TAG = svg('<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.3"/>')
 FLASK = b.icon("flask")
+USER = b.icon("user")
 CALENDAR = svg('<rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>')
 
 ACTIVE_CLS = ' class="is-active"'
@@ -150,11 +155,11 @@ def topbar(p, a, page, groups):
 
     cats = cat_list(groups)
     mega_cats = "".join(
-        f'<a href="{p}catalog.html?cat={s}" style="--c:{CATEGORY_COLORS.get(s, "#33e6b0")}"><i></i><span>{esc(l.lower())}</span><b>{n}</b></a>'
+        f'<a href="{p}catalog?cat={s}" style="--c:{CATEGORY_COLORS.get(s, "#33e6b0")}"><i></i><span>{esc(l.lower())}</span><b>{n}</b></a>'
         for s, l, n in cats
     )
     goals = "".join(
-        f'<a href="{p}catalog.html?tag={esc(t.replace(" ", "+"))}">{esc(t)}<b>{n}</b></a>' for t, n in tag_counts(groups)[:14]
+        f'<a href="{p}catalog?tag={esc(t.replace(" ", "+"))}">{esc(t)}<b>{n}</b></a>' for t, n in tag_counts(groups)[:14]
     )
     by_slug = {g["slug"]: g for g in groups}
     reported = []
@@ -162,21 +167,22 @@ def topbar(p, a, page, groups):
         if c["product"] in by_slug and c["product"] not in reported:
             reported.append(c["product"])
     lab = "".join(
-        f'<a href="{p}peptides/{s}.html#coa"><img src="{img_src(by_slug[s]["default"], a)}" alt="" width="48" height="60" loading="lazy"><span>{esc(by_slug[s]["name"].lower())}<small>{len(certs_for(by_slug[s]))} reports</small></span></a>'
+        f'<a href="{p}peptides/{s}#coa"><img src="{img_src(by_slug[s]["default"], a)}" alt="" width="48" height="60" loading="lazy"><span>{esc(by_slug[s]["name"].lower())}<small>{len(certs_for(by_slug[s]))} reports</small></span></a>'
         for s in reported[:3]
     )
     shop_cur = ' aria-current="page"' if page in ("catalog", "product") else ""
     return f'''<a class="skip" href="#main">skip to content</a>
 <header class="top" data-top>
   <div class="top__in">
-    <a class="brand" href="{p}index.html" aria-label="hlix home">hlix<i></i></a>
+    <a class="brand" href="{p or './'}" aria-label="hlix home">hlix<i></i></a>
     <nav class="top__nav" aria-label="primary">
       <button class="top__link top__shop" type="button" data-mega-toggle aria-expanded="false" aria-controls="mega"{shop_cur}>shop {CHEV}</button>
-      {link("calculator.html", "calculator", "calculator")}{link("about.html", "about", "about")}{link("contact.html", "contact", "contact")}
+      {link("calculator", "calculator", "calculator")}{link("about", "about", "about")}{link("contact", "contact", "contact")}
     </nav>
     <button class="top__search" type="button" data-search-open aria-label="search the catalog">{SEARCH}<span>search compounds or goals</span><kbd>/</kbd></button>
     <div class="top__act">
       <button class="ibtn" type="button" data-theme-toggle aria-label="switch theme"><span class="i-sun">{SUN}</span><span class="i-moon">{MOON}</span></button>
+      <a class="ibtn top__acct" href="{p}account" aria-label="your account"{' aria-current="page"' if page == "account" else ""}>{USER}<i class="top__in-dot" aria-hidden="true"></i></a>
       <button class="ibtn top__cart" type="button" data-cart-open aria-label="open cart">{CART}<b class="count" data-cart-count hidden>0</b></button>
       <button class="ibtn top__menu" type="button" data-menu-open aria-label="open menu" aria-expanded="false">{MENU}</button>
     </div>
@@ -186,7 +192,7 @@ def topbar(p, a, page, groups):
       <div class="mega__col">
         <p class="label">categories</p>
         <div class="mega__cats">{mega_cats}</div>
-        <a class="mega__all" href="{p}catalog.html">all {len(groups)} compounds {ARROW}</a>
+        <a class="mega__all" href="{p}catalog">all {len(groups)} compounds {ARROW}</a>
       </div>
       <div class="mega__col">
         <p class="label">research goals</p>
@@ -195,7 +201,7 @@ def topbar(p, a, page, groups):
       <div class="mega__col mega__lab">
         <p class="label">published lab reports</p>
         {lab}
-        <a class="mega__tool" href="{p}calculator.html">{CALC}<span>dosage calculator<small>draw-to units, supply, vials needed</small></span></a>
+        <a class="mega__tool" href="{p}calculator">{CALC}<span>dosage calculator<small>draw-to units, supply, vials needed</small></span></a>
       </div>
     </div>
   </div>
@@ -216,12 +222,13 @@ def overlays(p, a):
   <div class="sheet__box">
     <div class="sheet__head"><span class="label">menu</span><button class="ibtn" type="button" data-menu-close aria-label="close menu">{CLOSE}</button></div>
     <nav class="sheet__links">
-      <a href="{p}index.html"><span>01</span>home</a>
-      <a href="{p}catalog.html"><span>02</span>shop</a>
-      <a href="{p}calculator.html"><span>03</span>calculator</a>
-      <a href="{p}calculator.html#planner"><span>04</span>dose planner</a>
-      <a href="{p}about.html"><span>05</span>about</a>
-      <a href="{p}contact.html"><span>06</span>contact</a>
+      <a href="{p or './'}"><span>01</span>home</a>
+      <a href="{p}catalog"><span>02</span>shop</a>
+      <a href="{p}calculator"><span>03</span>calculator</a>
+      <a href="{p}calculator#planner"><span>04</span>dose planner</a>
+      <a href="{p}about"><span>05</span>about</a>
+      <a href="{p}contact"><span>06</span>contact</a>
+      <a href="{p}account"><span>07</span>account</a>
     </nav>
     <div class="sheet__foot">
       <button class="pill" type="button" data-theme-toggle><span class="i-sun">{SUN}</span><span class="i-moon">{MOON}</span><span data-theme-label>light mode</span></button>
@@ -236,11 +243,11 @@ def overlays(p, a):
     <div class="drawer__list" data-cart-list></div>
     <div class="drawer__empty" data-cart-empty hidden>
       <p>your cart is empty.</p>
-      <a class="btn btn--ghost" href="{p}catalog.html">browse the catalog {ARROW}</a>
+      <a class="btn btn--ghost" href="{p}catalog">browse the catalog {ARROW}</a>
     </div>
     <div class="drawer__foot" data-cart-foot hidden>
       <div class="drawer__sub"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
-      <a class="btn btn--solid btn--block" href="{p}checkout.html">request this order {ARROW}</a>
+      <a class="btn btn--solid btn--block" href="{p}checkout">request this order {ARROW}</a>
       <p class="drawer__note">no payment is taken online. send the request and we'll confirm by email with next steps.</p>
     </div>
   </aside>
@@ -253,27 +260,27 @@ def tabbar(p, page):
     def cur(k):
         return ' aria-current="page"' if k == page else ""
     return f'''<nav class="tabbar" aria-label="quick actions">
-  <a href="{p}catalog.html"{cur("catalog")}>{GRID}<span>shop</span></a>
+  <a href="{p}catalog"{cur("catalog")}>{GRID}<span>shop</span></a>
   <button type="button" data-search-open>{SEARCH}<span>search</span></button>
-  <a href="{p}calculator.html"{cur("calculator")}>{CALC}<span>calculator</span></a>
+  <a href="{p}calculator"{cur("calculator")}>{CALC}<span>calculator</span></a>
   <button type="button" data-open-chat>{SPARK}<span>ask ai</span></button>
   <button type="button" data-cart-open>{CART}<span>cart</span><b class="count" data-cart-count hidden>0</b></button>
 </nav>'''
 
 
 def footer(p, groups):
-    cats = "".join(f'<a href="{p}catalog.html?cat={s}">{esc(l.lower())}</a>' for s, l, _ in cat_list(groups))
+    cats = "".join(f'<a href="{p}catalog?cat={s}">{esc(l.lower())}</a>' for s, l, _ in cat_list(groups))
     return f'''<footer class="foot">
   <div class="wrap">
     <div class="foot__grid">
       <div class="foot__brand">
-        <a class="brand" href="{p}index.html" aria-label="hlix home">hlix<i></i></a>
+        <a class="brand" href="{p or './'}" aria-label="hlix home">hlix<i></i></a>
         <p>a research peptide catalog. every compound logged with its dose, spec and price per vial.</p>
         <button class="btn btn--ghost btn--sm" type="button" data-open-chat>{SPARK} ask the hlix ai</button>
       </div>
       <div class="foot__col"><h4>shop</h4>{cats}</div>
-      <div class="foot__col"><h4>tools</h4><a href="{p}calculator.html">dosage calculator</a><a href="{p}calculator.html#planner">dose planner</a><button type="button" data-search-open>search</button><button type="button" data-open-chat>ai assistant</button></div>
-      <div class="foot__col"><h4>hlix</h4><a href="{p}about.html">about</a><a href="{p}contact.html">contact</a><a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a></div>
+      <div class="foot__col"><h4>tools</h4><a href="{p}calculator">dosage calculator</a><a href="{p}calculator#planner">dose planner</a><button type="button" data-search-open>search</button><button type="button" data-open-chat>ai assistant</button></div>
+      <div class="foot__col"><h4>hlix</h4><a href="{p}about">about</a><a href="{p}contact">contact</a><a href="{p}account">your account</a><a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a></div>
     </div>
     <div class="foot__legal">
       <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
@@ -282,14 +289,15 @@ def footer(p, groups):
 </footer>'''
 
 
+ROBOTS = '<meta name="robots" content="noindex, nofollow">\n'
 FONTS = '''<link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">'''
 
 
-def shell(*, title, desc, page, body, groups, depth=0, scripts=(), body_class="", css=()):
-    p = "../" * depth               # v3 root (pages)
-    a = "../" * (depth + DEPTH)     # site root (assets)
+def shell(*, title, desc, page, body, groups, depth=0, scripts=(), body_class="", css=(), noindex=False):
+    p = "../" * depth               # site root, for pages
+    a = "../" * (depth + DEPTH)     # site root, for files (the same, unless OUT is a subfolder)
     links = "".join(f'<link rel="stylesheet" href="{a}assets/css/{c}?v={VER}">' for c in css)
     js = "".join(f'<script src="{a}assets/js/{s}?v={VER}" defer></script>' for s in scripts)
     return f'''<!DOCTYPE html>
@@ -298,12 +306,11 @@ def shell(*, title, desc, page, body, groups, depth=0, scripts=(), body_class=""
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050607">
-<meta name="robots" content="noindex, nofollow">
-<title>{title} · hlix</title>
+{ROBOTS if noindex else ""}<title>{title} · hlix</title>
 <meta name="description" content="{esc(desc)}">
 {FONTS}
 {links}<link rel="stylesheet" href="{a}assets/css/v3.css?v={VER}">
-<script>(function(){{var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");try{{var t=localStorage.getItem("hlix-theme");if(t==="light"||t==="dark")h.setAttribute("data-theme",t);}}catch(e){{}}window.HLIX2={{base:"{p}"}};window.HLIX3={{base:"{p}",assets:"{a}"}};}})();</script>
+<script src="{a}assets/js/v3-boot.js?v={VER}" data-base="{p}" data-assets="{a}"></script>
 </head>
 <body class="{body_class}" data-page="{page}">
 {topbar(p, a, page, groups)}
@@ -315,8 +322,8 @@ def shell(*, title, desc, page, body, groups, depth=0, scripts=(), body_class=""
 {overlays(p, a)}
 <script src="{a}assets/js/search-index.js?v={VER}"></script>
 <script src="{a}assets/js/v2-prices.js?v={VER}"></script>
-<script src="{a}assets/js/v3.js?v={VER}"></script>
 <script src="{a}assets/js/v3-cart.js?v={VER}"></script>
+<script src="{a}assets/js/v3.js?v={VER}"></script>
 {js}
 <script src="{a}assets/js/v2-chat.js?v={VER}"></script>
 </body>
@@ -340,7 +347,7 @@ def card(g, p, a, i=0):
     media = v2.vial_media(d, f"c-{g['slug']}", "s", a)
     hover = (f'<img class="card__alt" alt="" width="480" height="600" data-hover-src="{img_src(d, a, "powder")}">'
              if v2.has_photo(d) else "")
-    return f'''<a class="card" href="{p}peptides/{g['slug']}.html" style="--c:{color(g)}" data-card data-cat="{g['category']}" data-name="{esc(g['name'].lower())}" data-tags="{tags_attr}" data-skus="{esc(skus)}" data-price="{g['min_price']:.2f}" data-sizes="{len(g['variants'])}" data-order="{i}">
+    return f'''<a class="card" href="{p}peptides/{g['slug']}" style="--c:{color(g)}" data-card data-cat="{g['category']}" data-name="{esc(g['name'].lower())}" data-tags="{tags_attr}" data-skus="{esc(skus)}" data-price="{g['min_price']:.2f}" data-sizes="{len(g['variants'])}" data-order="{i}">
   <div class="card__media">{media}{hover}<span class="card__view">view {ARROW}</span></div>
   <div class="card__body">
     <p class="card__cat"><i></i>{esc(g['category_label'].lower())}</p>
@@ -382,14 +389,14 @@ def page_home(groups):
         cut = v2.hero_cutout_path(d)
         src = f"{a}assets/img/vials/hero-cutout/{cut.name}" if cut else img_src(d, a, "recon", "l")
         multi = len(g["variants"]) > 1
-        slides += f'''<a class="spot__slide{" is-on" if i == 0 else ""}" href="peptides/{g['slug']}.html" style="--c:{color(g)}" data-slide aria-hidden="{"false" if i == 0 else "true"}"{"" if i == 0 else ' tabindex="-1"'}>
+        slides += f'''<a class="spot__slide{" is-on" if i == 0 else ""}" href="peptides/{g['slug']}" style="--c:{color(g)}" data-slide aria-hidden="{"false" if i == 0 else "true"}"{"" if i == 0 else ' tabindex="-1"'}>
         <img src="{src}" alt="{esc(g['name'])} research vial" width="1280" height="1600"{"" if i == 0 else ' loading="lazy"'}>
         <span class="spot__meta"><span class="spot__cat"><i></i>{esc(g['category_label'].lower())}</span><b>{esc(g['name'])}</b><span class="spot__sz">{len(g['variants'])} size{"s" if multi else ""} · <span{live_price_attrs(g)}>{price_from(g)}</span></span></span>
       </a>'''
         cur_attr = ' aria-current="true"' if i == 0 else ""
         dots += f'<button type="button" data-dot="{i}" aria-label="show {esc(g["name"].lower())}"{cur_attr}><i></i></button>'
 
-    chips = "".join(f'<a href="catalog.html?tag={t.replace(" ", "+")}">{t}</a>' for t in POPULAR_GOALS)
+    chips = "".join(f'<a href="catalog?tag={t.replace(" ", "+")}">{t}</a>' for t in POPULAR_GOALS)
 
     # category bento: metabolic large, then the rest
     order = ["metabolic", "growth", "recovery", "cognitive", "longevity", "hormonal", "specialty", "supplies"]
@@ -409,20 +416,20 @@ def page_home(groups):
         desc = next(dsc for s, _, dsc in b.CATEGORY_ORDER if s == slug)
         big = " tile--big" if slug == "metabolic" else ""
         desc_html = f'<p class="tile__d">{esc(desc.lower())}</p>' if big else ""
-        tiles += f'''<a class="tile{big}" href="catalog.html?cat={slug}" style="--c:{CATEGORY_COLORS.get(slug)}" data-reveal>
+        tiles += f'''<a class="tile{big}" href="catalog?cat={slug}" style="--c:{CATEGORY_COLORS.get(slug)}" data-reveal>
         <span class="tile__n">{i + 1:02d}</span>
         <span class="tile__t">{esc(label.lower())}</span>{desc_html}
         <span class="tile__c">{n} compound{"s" if n != 1 else ""} {ARROW}</span>
         <img src="{img_src(g['default'], a)}" alt="" width="480" height="600" loading="lazy">
       </a>'''
-    tiles += f'''<a class="tile tile--all" href="catalog.html" data-reveal>
+    tiles += f'''<a class="tile tile--all" href="catalog" data-reveal>
         <span class="tile__n">all</span>
         <span class="tile__t">the full catalog</span>
         <span class="tile__c">{total} compounds · {sizes} sizes {ARROW}</span>
       </a>'''
 
     goals = "".join(
-        f'<a class="goal" href="catalog.html?tag={esc(t.replace(" ", "+"))}" style="--w:{min(1, n / 21):.2f}">{esc(t)}<sup>{n}</sup></a>'
+        f'<a class="goal" href="catalog?tag={esc(t.replace(" ", "+"))}" style="--w:{min(1, n / 21):.2f}">{esc(t)}<sup>{n}</sup></a>'
         for t, n in tag_counts(groups)[:22]
     )
 
@@ -448,7 +455,7 @@ def page_home(groups):
       <p class="label label--dot" data-reveal>research peptide catalog</p>
       <h1 class="hero__title" data-reveal style="--d:1">research-grade.<br><span class="ac">clearly priced.</span></h1>
       <p class="hero__sub" data-reveal style="--d:2">{total} compounds and {sizes} vial sizes, each priced per single vial. search by name, or by what you're researching.</p>
-      <form class="hsearch" action="catalog.html" data-hero-search data-reveal style="--d:3" role="search">
+      <form class="hsearch" action="catalog" data-hero-search data-reveal style="--d:3" role="search">
         {SEARCH}<input name="q" type="search" placeholder="try “recovery” or “bpc 157”" autocomplete="off" spellcheck="false" aria-label="search the catalog" data-hero-input>
         <button class="btn btn--solid" type="submit">search</button>
         <div class="hsearch__drop" data-hero-drop hidden></div>
@@ -481,7 +488,7 @@ def page_home(groups):
 
 <section class="sec" id="categories">
   <div class="wrap">
-    {sec_head("01", "shop by category.", "eight shelves, from metabolic research to bench supplies.", f'<a class="link" href="catalog.html">view all {ARROW}</a>')}
+    {sec_head("01", "shop by category.", "eight shelves, from metabolic research to bench supplies.", f'<a class="link" href="catalog">view all {ARROW}</a>')}
     <div class="bento">{tiles}</div>
   </div>
 </section>
@@ -495,7 +502,7 @@ def page_home(groups):
 
 <section class="sec" id="featured">
   <div class="wrap">
-    {sec_head("03", "featured.", "", f'<a class="link" href="catalog.html">all {total} compounds {ARROW}</a>')}
+    {sec_head("03", "featured.", "", f'<a class="link" href="catalog">all {total} compounds {ARROW}</a>')}
     <div class="pgrid pgrid--4">{fcards}</div>
   </div>
 </section>
@@ -504,14 +511,14 @@ def page_home(groups):
   <div class="wrap">
     {sec_head("04", "tools for the bench.", "free, in your browser, nothing to sign up for.")}
     <div class="tools">
-      <a class="tool tool--calc" href="calculator.html" data-reveal>
+      <a class="tool tool--calc" href="calculator" data-reveal>
         <span class="label">{CALC} dosage calculator</span>
         <h3>know your draw.</h3>
         <p>vial size, water added and dose in; draw-to units, concentration and how long a vial lasts out.</p>
         <div class="syr tool__syr" data-syr-demo>{v2.syringe_svg("home")}</div>
         <span class="link">open the calculator {ARROW}</span>
       </a>
-      <a class="tool tool--plan" href="calculator.html#planner" data-reveal style="--d:1">
+      <a class="tool tool--plan" href="calculator#planner" data-reveal style="--d:1">
         <span class="label">{CALENDAR} dose planner</span>
         <h3>map the vial.</h3>
         <p>log doses on a calendar and watch each vial drain, day by day.</p>
@@ -616,7 +623,7 @@ def coa_section(g, a):
     certs = certs_for(g)
     if not certs:
         return ('<p>a certificate of analysis is kept on file for this compound and is available on request. '
-                '<a class="link" href="../contact.html">ask for it ' + ARROW + '</a></p>')
+                '<a class="link" href="../contact">ask for it ' + ARROW + '</a></p>')
     items = "".join(
         f'''<li class="coa">
           <div class="coa__date"><b>{when(c)}</b><span>{esc(c["lab"].lower())}</span></div>
@@ -652,7 +659,7 @@ def page_product(g, groups):
 
     tiles = "".join(
         f'<button type="button" role="radio" class="size{" is-active" if v is d else ""}" aria-checked="{"true" if v is d else "false"}" '
-        f'data-variant data-sku="{esc(v["sku"])}" data-dose="{esc(v["dose"])}" data-amt="{esc(v["dose_amount"] or "")}" data-unit="{esc(v["dose_unit"])}" '
+        f'data-variant data-sku="{esc(v["sku"])}" data-dose="{esc(v["dose"])}" data-amt="{esc(v["dose_amount"] or "")}" data-dunit="{esc(v["dose_unit"])}" '
         f'data-price="{v["price"]:.2f}" data-price-recon="{recon_price(v["price"]):.2f}" data-img="{v["sku"].lower()}">'
         f'<b>{esc(v["dose"])}</b><span data-tile-price>{money(recon_price(v["price"]))}</span></button>'
         for v in variants
@@ -665,7 +672,7 @@ def page_product(g, groups):
         coa_line = (f'<p class="pdp__coa">{CHECK}<span><b>{esc(c["purity"])} purity</b> · {esc(c["lab"].lower())} · {when(c)} · '
                     f'<a href="{a}assets/coa/{c["file"]}" target="_blank" rel="noopener">view report</a>{more}</span></p>')
 
-    tags = "".join(f'<a class="chip" href="{p}catalog.html?tag={esc(t.lower().replace(" ", "+"))}">{esc(t)}</a>' for t in g["tags"])
+    tags = "".join(f'<a class="chip" href="{p}catalog?tag={esc(t.lower().replace(" ", "+"))}">{esc(t)}</a>' for t in g["tags"])
     sizes_all = ", ".join(v["dose"] for v in variants)
 
     table = ""
@@ -688,7 +695,7 @@ def page_product(g, groups):
     if related:
         rel = f'''<section class="sec related">
   <div class="wrap">
-    {sec_head("", f"more in {esc(g['category_label'].lower())}.", "", f'<a class="link" href="{p}catalog.html?cat={g["category"]}">see all {ARROW}</a>')}
+    {sec_head("", f"more in {esc(g['category_label'].lower())}.", "", f'<a class="link" href="{p}catalog?cat={g["category"]}">see all {ARROW}</a>')}
     <div class="rail">{"".join(card(x, p, a, i) for i, x in enumerate(related))}</div>
   </div>
 </section>'''
@@ -696,7 +703,7 @@ def page_product(g, groups):
     body = f'''
 <div class="pdp" style="--c:{color(g)}" data-pdp data-slug="{g['slug']}">
   <div class="wrap">
-    <nav class="crumbs" aria-label="breadcrumb"><a href="{p}index.html">home</a><span>/</span><a href="{p}catalog.html">shop</a><span>/</span><a href="{p}catalog.html?cat={g['category']}">{esc(g['category_label'].lower())}</a><span>/</span><b>{esc(g['name'])}</b></nav>
+    <nav class="crumbs" aria-label="breadcrumb"><a href="{p or './'}">home</a><span>/</span><a href="{p}catalog">shop</a><span>/</span><a href="{p}catalog?cat={g['category']}">{esc(g['category_label'].lower())}</a><span>/</span><b>{esc(g['name'])}</b></nav>
     <div class="pdp__grid">
       <div class="pdp__gallery">
         <div class="stage" data-zoom>{main}<span class="stage__form" data-form-badge>ready to use</span><span class="stage__zoom" aria-hidden="true">{ZOOM}</span></div>
@@ -707,7 +714,12 @@ def page_product(g, groups):
           <p class="pdp__cat"><i></i>{esc(g['category_label'].lower())}</p>
           <h1 class="pdp__name">{esc(g['name'])}</h1>
           {coa_line}
-          <div class="pdp__price"><b class="price__n" data-price-out>{money(rp)}</b><span>/ vial</span><small data-permg>{per_mg(rp, d)}</small></div>
+          <div class="pdp__price" data-regular><b class="price__n" data-price-out>{money(rp)}</b><span>/ vial</span><small data-permg>{per_mg(rp, d)}</small></div>
+          <div class="fam" data-family hidden>
+            <div class="fam__top"><p class="label">family &amp; friends price</p>
+              <div class="fam__units" role="group" aria-label="buy by the vial or the pack"><button type="button" data-unit="vial" aria-pressed="true">single vial</button><button type="button" data-unit="pack" aria-pressed="false">pack of 10</button></div></div>
+            <p class="fam__price"><b data-family-price></b> <span data-family-per>/ vial</span></p>
+          </div>
           <div class="pick">
             <div class="pick__head"><span class="label">size</span><b data-dose-out>{esc(d['dose'])}</b></div>
             <div class="sizes" role="radiogroup" aria-label="vial size">{tiles}</div>
@@ -826,7 +838,7 @@ def page_about(groups):
 <section class="cta">
   <div class="wrap cta__in" data-reveal>
     <h2>see the catalog.</h2>
-    <div class="cta__btns"><a class="btn btn--solid btn--lg" href="catalog.html">explore {total} compounds {ARROW}</a><a class="btn btn--ghost btn--lg" href="contact.html">get in touch</a></div>
+    <div class="cta__btns"><a class="btn btn--solid btn--lg" href="catalog">explore {total} compounds {ARROW}</a><a class="btn btn--ghost btn--lg" href="contact">get in touch</a></div>
   </div>
 </section>'''
     return shell(title="about", desc="about hlix: a research peptide catalog for laboratory and research use.", page="about", body=body, groups=groups, body_class="about")
@@ -974,31 +986,35 @@ def page_checkout(groups):
 <div class="wrap">
   <div class="checkout" data-checkout>
     <form class="checkout__form" data-checkout-form>
+      <p class="acctnote" data-checkout-acct-out>{USER}<span>have an account? <a href="account?next=checkout">sign in</a> to save your address and follow this order, or just order as a guest.</span></p>
+      <p class="acctnote" data-checkout-acct-in hidden>{USER}<span>signed in as <b data-checkout-acct-email></b>. this order will show in <a href="account">your account</a>.</span></p>
       <fieldset class="cstep"><legend><span>01</span>contact</legend>
         <div class="fields2">
-          <label class="field"><span>full name</span><input name="name" type="text" required autocomplete="name"></label>
-          <label class="field"><span>email</span><input name="email" type="email" required autocomplete="email"></label>
+          <label class="field"><span>full name</span><input name="name" type="text" required autocomplete="name" maxlength="120"></label>
+          <label class="field"><span>email</span><input name="email" type="email" required autocomplete="email" maxlength="254"></label>
         </div>
+        <label class="field"><span>phone (optional)</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
       </fieldset>
       <fieldset class="cstep"><legend><span>02</span>shipping address</legend>
-        <label class="field"><span>address line 1</span><input name="address1" type="text" required autocomplete="address-line1"></label>
-        <label class="field"><span>address line 2 (optional)</span><input name="address2" type="text" autocomplete="address-line2"></label>
+        <label class="field"><span>address line 1</span><input name="address1" type="text" required autocomplete="address-line1" maxlength="200"></label>
+        <label class="field"><span>address line 2 (optional)</span><input name="address2" type="text" autocomplete="address-line2" maxlength="200"></label>
         <div class="fields2">
-          <label class="field"><span>city</span><input name="city" type="text" required autocomplete="address-level2"></label>
-          <label class="field"><span>state / region</span><input name="state" type="text" required autocomplete="address-level1"></label>
+          <label class="field"><span>city</span><input name="city" type="text" required autocomplete="address-level2" maxlength="120"></label>
+          <label class="field"><span>state / region</span><input name="state" type="text" required autocomplete="address-level1" maxlength="120"></label>
         </div>
         <div class="fields2">
-          <label class="field"><span>zip / postal code</span><input name="zip" type="text" required autocomplete="postal-code"></label>
-          <label class="field"><span>country</span><input name="country" type="text" required autocomplete="country-name" value="United States"></label>
+          <label class="field"><span>zip / postal code</span><input name="zip" type="text" required autocomplete="postal-code" maxlength="40"></label>
+          <label class="field"><span>country</span><input name="country" type="text" required autocomplete="country-name" value="United States" maxlength="120"></label>
         </div>
+        <label class="check" data-checkout-save hidden><input type="checkbox" name="save" checked><span>save this address to my account</span></label>
       </fieldset>
       <fieldset class="cstep"><legend><span>03</span>notes <small>optional</small></legend>
-        <label class="field"><span>anything we should know?</span><textarea name="notes" rows="3"></textarea></label>
+        <label class="field"><span>anything we should know?</span><textarea name="notes" rows="3" maxlength="2000"></textarea></label>
       </fieldset>
       <div class="checkout__submit">
         <button class="btn btn--solid btn--lg" type="submit" data-checkout-submit>submit order request {ARROW}</button>
         <p class="status" data-checkout-status hidden></p>
-        <p class="fine">submitting sends your request and cart to hlix by email. no payment method is collected or charged on this page. for laboratory research use only.</p>
+        <p class="fine">submitting sends your request and cart to hlix. no payment method is collected or charged on this page. for laboratory research use only.</p>
       </div>
     </form>
     <aside class="summary">
@@ -1012,17 +1028,129 @@ def page_checkout(groups):
   </div>
   <div class="checkout__empty" data-checkout-empty hidden>
     <p class="empty__t">your cart is empty.</p>
-    <a class="btn btn--solid" href="catalog.html">browse the catalog {ARROW}</a>
+    <a class="btn btn--solid" href="catalog">browse the catalog {ARROW}</a>
   </div>
   <div class="checkout__done" data-checkout-done hidden>
     <span class="done__icon">{CHECK}</span>
     <h2>request received.</h2>
-    <p>we'll reply by email at <b data-checkout-done-email></b> with next steps, usually within 1–2 business days.</p>
-    <a class="btn btn--solid" href="catalog.html">back to the catalog {ARROW}</a>
+    <p>your order request is in<span data-checkout-done-ref hidden></span>. we'll reply by email at <b data-checkout-done-email></b> with next steps, usually within 1–2 business days.</p>
+    <a class="btn btn--solid" href="account" data-checkout-done-acct hidden>see it in your account {ARROW}</a>
+    <a class="btn btn--solid" href="catalog" data-checkout-done-cat>back to the catalog {ARROW}</a>
   </div>
 </div>'''
     return shell(title="checkout", desc="review your cart and submit an order request.", page="checkout", body=body, groups=groups,
                  scripts=("v3-checkout.js",), body_class="checkout-page")
+
+
+# -------------------------------------------------------------- account ---
+
+def page_account(groups):
+    """Sign in or make an account, then: your orders, saved shipping details, password. Run by the
+    shared assets/js/v2-account.js (its data-acct-* hooks) against /api/account, through
+    window.HLIXAccount (v3-cart.js); the session is in cookies no script can read."""
+    status = '<p class="status" data-acct-status hidden role="status" aria-live="polite"></p>'
+    perks = "".join(
+        f'<li>{icon}<span><b>{t}</b>{d}</span></li>'
+        for icon, t, d in [
+            (CART, "your cart, everywhere", "saved to your account, on every device you sign in on."),
+            (PIN, "your address, saved", "checkout fills it in for you."),
+            (DOC, "your orders, in one place", "what you asked for, where it stands, and tracking once it ships."),
+        ]
+    )
+    body = f'''
+<section class="phead phead--tight">
+  <div class="wrap phead__grid">
+    <div>
+      <p class="label label--dot" data-reveal>account</p>
+      <h1 class="phead__title" data-reveal style="--d:1">your account.</h1>
+    </div>
+    <p class="phead__sub" data-reveal style="--d:2">keep your cart on every device, save your shipping address and follow your orders.</p>
+  </div>
+</section>
+<div class="wrap acct" data-acct>
+  <p class="acct__loading" data-acct-loading>loading…</p>
+
+  <div class="acct__out" data-acct-out hidden>
+    <div class="form-card acct__card">
+      <div class="acct__tabs" role="tablist" aria-label="sign in or make an account">
+        <button type="button" role="tab" id="tab-signin" aria-controls="form-signin" aria-selected="true" data-acct-tab="signin">sign in</button>
+        <button type="button" role="tab" id="tab-signup" aria-controls="form-signup" aria-selected="false" tabindex="-1" data-acct-tab="signup">create account</button>
+      </div>
+      <form class="acct__form" id="form-signin" role="tabpanel" aria-labelledby="tab-signin" data-acct-form="signin">
+        <label class="field"><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
+        <label class="field"><span>password</span><input name="password" type="password" required autocomplete="current-password" maxlength="200"></label>
+        <div class="acct__actions"><button class="btn btn--solid" type="submit">sign in {ARROW}</button><button type="button" class="acct__link" data-acct-go="forgot">forgot your password?</button></div>
+        {status}
+      </form>
+      <form class="acct__form" id="form-signup" role="tabpanel" aria-labelledby="tab-signup" data-acct-form="signup" hidden>
+        <label class="field"><span>name</span><input name="name" type="text" autocomplete="name" maxlength="120"></label>
+        <label class="field"><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
+        <label class="field"><span>password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
+        <div class="acct__actions"><button class="btn btn--solid" type="submit">create account {ARROW}</button></div>
+        {status}
+        <p class="fine">your password is stored scrambled (hashed): nobody at hlix can see it. we use your email only for your orders.</p>
+      </form>
+      <form class="acct__form" data-acct-form="forgot" hidden>
+        <p class="dim">enter your email and we'll send you a link to set a new password.</p>
+        <label class="field"><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
+        <div class="acct__actions"><button class="btn btn--solid" type="submit">send the link {ARROW}</button><button type="button" class="acct__link" data-acct-go="signin">back to sign in</button></div>
+        {status}
+      </form>
+    </div>
+    <ul class="acct__perks">{perks}</ul>
+  </div>
+
+  <div class="acct__in" data-acct-in hidden>
+    <div class="acct__who">
+      <p>{USER}<span>signed in as <b data-acct-email></b></span><span class="acct__tier" data-acct-tier hidden>family &amp; friends pricing</span></p>
+      <button class="btn btn--ghost btn--sm" type="button" data-acct-signout>sign out</button>
+    </div>
+    <form class="form-card acct__form acct__reset" data-acct-form="reset" hidden>
+      <h2>set a new password</h2>
+      <label class="field"><span>new password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
+      <div class="acct__actions"><button class="btn btn--solid" type="submit">save password {ARROW}</button></div>
+      {status}
+    </form>
+    <div class="acct__grid">
+      <section class="acct__orders" aria-labelledby="acct-orders-h">
+        <h2 class="acct__h" id="acct-orders-h">your orders</h2>
+        <div data-acct-orders></div>
+        <div class="acct__empty" data-acct-orders-empty hidden><p>no orders yet.</p><a class="btn btn--ghost btn--sm" href="catalog">browse the catalog {ARROW}</a></div>
+      </section>
+      <div class="acct__side">
+        <form class="form-card acct__form" data-acct-form="profile">
+          <h2>shipping details</h2>
+          <div class="fields2">
+            <label class="field"><span>full name</span><input name="name" type="text" autocomplete="name" maxlength="120"></label>
+            <label class="field"><span>phone</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
+          </div>
+          <label class="field"><span>address line 1</span><input name="address1" type="text" autocomplete="address-line1" maxlength="200"></label>
+          <label class="field"><span>address line 2</span><input name="address2" type="text" autocomplete="address-line2" maxlength="200"></label>
+          <div class="fields2">
+            <label class="field"><span>city</span><input name="city" type="text" autocomplete="address-level2" maxlength="120"></label>
+            <label class="field"><span>state / region</span><input name="state" type="text" autocomplete="address-level1" maxlength="120"></label>
+          </div>
+          <div class="fields2">
+            <label class="field"><span>zip / postal code</span><input name="zip" type="text" autocomplete="postal-code" maxlength="40"></label>
+            <label class="field"><span>country</span><input name="country" type="text" autocomplete="country-name" maxlength="120"></label>
+          </div>
+          <div class="acct__actions"><button class="btn btn--solid btn--sm" type="submit">save details</button></div>
+          {status}
+        </form>
+        <form class="form-card acct__form" data-acct-form="password">
+          <h2>change password</h2>
+          <label class="field"><span>current password</span><input name="current" type="password" required autocomplete="current-password" maxlength="200"></label>
+          <label class="field"><span>new password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
+          <div class="acct__actions"><button class="btn btn--ghost btn--sm" type="submit">change password</button></div>
+          {status}
+        </form>
+        <p><button type="button" class="acct__link" data-acct-signout-all>sign out on every device</button></p>
+      </div>
+    </div>
+  </div>
+</div>'''
+    return shell(title="account", desc="sign in to your hlix account: your orders, cart and shipping details.", page="account", body=body, groups=groups,
+                 scripts=("v2-account.js",), body_class="account-page", noindex=True)
 
 
 # ------------------------------------------------------------- planner css ---
@@ -1060,9 +1188,10 @@ def main():
     (OUT / "contact.html").write_text(page_contact(groups))
     (OUT / "calculator.html").write_text(page_calculator(groups))
     (OUT / "checkout.html").write_text(page_checkout(groups))
+    (OUT / "account.html").write_text(page_account(groups))
     for g in groups:
         (OUT / "peptides" / f"{g['slug']}.html").write_text(page_product(g, groups))
-    print(f"v3: 6 pages + {len(groups)} product pages -> {OUT.relative_to(ROOT)}/")
+    print(f"v3: 7 pages + {len(groups)} product pages -> {'the repo root' if OUT == ROOT else OUT.relative_to(ROOT).as_posix() + '/'}")
 
 
 if __name__ == "__main__":

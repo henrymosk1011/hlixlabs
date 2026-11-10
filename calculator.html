@@ -2,84 +2,81 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050607">
 <title>dosage calculator · hlix</title>
-<meta name="description" content="peptide reconstitution and dosage calculator.">
+<meta name="description" content="peptide reconstitution and dosage calculator, with a dose planner.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/v2.css?v=1794298770">
-<script src="assets/js/v2-boot.js?v=1794298770" data-base=""></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="assets/css/v3-planner.css?v=1794301007"><link rel="stylesheet" href="assets/css/v3.css?v=1794301007">
+<script src="assets/js/v3-boot.js?v=1794301007" data-base="" data-assets=""></script>
 </head>
 <body class="calc-page" data-page="calculator">
-<div class="progress" aria-hidden="true"><i></i></div>
-<header class="nav" data-nav>
-  <a class="nav__brand" href="./" aria-label="hlix home">hlix<i></i></a>
-  <nav class="nav__links" aria-label="primary"><a href="about">about</a><a href="catalog">catalog</a><a href="calculator" aria-current="page">calculator</a></nav>
-  <div class="nav__right">
-    <button class="nav__search" data-search-open aria-label="search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search</span><kbd>/</kbd></button>
-    <button class="nav__theme" data-theme-toggle aria-label="switch to light theme"><span class="nav__theme-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="nav__theme-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span></button>
-    <a class="nav__account" href="account" aria-label="your account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><i aria-hidden="true"></i></a>
-    <button class="nav__cart" data-cart-open aria-label="view cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><span class="nav__cart-count" data-cart-count hidden>0</span></button>
-    <a class="btn btn--sm" href="contact" data-magnetic>contact</a>
-    <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
+<a class="skip" href="#main">skip to content</a>
+<header class="top" data-top>
+  <div class="top__in">
+    <a class="brand" href="./" aria-label="hlix home">hlix<i></i></a>
+    <nav class="top__nav" aria-label="primary">
+      <button class="top__link top__shop" type="button" data-mega-toggle aria-expanded="false" aria-controls="mega">shop <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
+      <a class="top__link" href="calculator" aria-current="page">calculator</a><a class="top__link" href="about">about</a><a class="top__link" href="contact">contact</a>
+    </nav>
+    <button class="top__search" type="button" data-search-open aria-label="search the catalog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search compounds or goals</span><kbd>/</kbd></button>
+    <div class="top__act">
+      <button class="ibtn" type="button" data-theme-toggle aria-label="switch theme"><span class="i-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="i-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span></button>
+      <a class="ibtn top__acct" href="account" aria-label="your account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><i class="top__in-dot" aria-hidden="true"></i></a>
+      <button class="ibtn top__cart" type="button" data-cart-open aria-label="open cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><b class="count" data-cart-count hidden>0</b></button>
+      <button class="ibtn top__menu" type="button" data-menu-open aria-label="open menu" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h16M4 16h16"/></svg></button>
+    </div>
+  </div>
+  <div class="mega" id="mega" data-mega>
+    <div class="mega__in">
+      <div class="mega__col">
+        <p class="label">categories</p>
+        <div class="mega__cats"><a href="catalog?cat=metabolic" style="--c:#33e6b0"><i></i><span>metabolic research</span><b>10</b></a><a href="catalog?cat=growth" style="--c:#6ea8ff"><i></i><span>growth &amp; gh secretagogues</span><b>18</b></a><a href="catalog?cat=recovery" style="--c:#ff9466"><i></i><span>healing &amp; recovery</span><b>13</b></a><a href="catalog?cat=cognitive" style="--c:#b48cff"><i></i><span>cognitive &amp; neuro health</span><b>5</b></a><a href="catalog?cat=longevity" style="--c:#ffd166"><i></i><span>longevity &amp; anti-aging</span><b>10</b></a><a href="catalog?cat=hormonal" style="--c:#ff6b9d"><i></i><span>hormonal &amp; sexual health</span><b>6</b></a><a href="catalog?cat=specialty" style="--c:#9aa5b1"><i></i><span>specialty research</span><b>4</b></a><a href="catalog?cat=supplies" style="--c:#8f98a3"><i></i><span>supplies</span><b>1</b></a></div>
+        <a class="mega__all" href="catalog">all 67 compounds <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      </div>
+      <div class="mega__col">
+        <p class="label">research goals</p>
+        <div class="mega__goals"><a href="catalog?tag=recovery">recovery<b>21</b></a><a href="catalog?tag=muscle+growth">muscle growth<b>20</b></a><a href="catalog?tag=bone+health">bone health<b>18</b></a><a href="catalog?tag=fat+loss">fat loss<b>18</b></a><a href="catalog?tag=anti-aging">anti-aging<b>15</b></a><a href="catalog?tag=metabolism">metabolism<b>13</b></a><a href="catalog?tag=liver">liver<b>12</b></a><a href="catalog?tag=blood+pressure">blood pressure<b>10</b></a><a href="catalog?tag=growth+hormone">growth hormone<b>10</b></a><a href="catalog?tag=skin">skin<b>10</b></a><a href="catalog?tag=weight+loss">weight loss<b>10</b></a><a href="catalog?tag=wound+healing">wound healing<b>10</b></a><a href="catalog?tag=heart">heart<b>9</b></a><a href="catalog?tag=immune">immune<b>9</b></a></div>
+      </div>
+      <div class="mega__col mega__lab">
+        <p class="label">published lab reports</p>
+        <a href="peptides/glp2-t#coa"><img src="assets/img/vials/hlx-tr5-recon-s.webp" alt="" width="48" height="60" loading="lazy"><span>glp2-t<small>2 reports</small></span></a><a href="peptides/glp3-r#coa"><img src="assets/img/vials/hlx-rt5-recon-s.webp" alt="" width="48" height="60" loading="lazy"><span>glp3-r<small>3 reports</small></span></a>
+        <a class="mega__tool" href="calculator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg><span>dosage calculator<small>draw-to units, supply, vials needed</small></span></a>
+      </div>
+    </div>
   </div>
 </header>
-<div class="menu">
-  <nav class="menu__links">
-    <a style="--i:0" href="about"><span>01</span>about</a>
-    <a style="--i:1" href="catalog"><span>02</span>catalog</a>
-    <a style="--i:2" href="calculator"><span>03</span>calculator</a>
-    <a style="--i:3" href="contact"><span>04</span>contact</a>
-    <a style="--i:4" href="account"><span>05</span>account</a>
-  </nav>
-  <div class="menu__foot"><button data-search-open class="link-arrow">search products <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg></button><span>contact@hlixlabs.com</span></div>
-</div>
-<div class="search" data-search role="dialog" aria-label="search">
-  <button class="x" data-search-close aria-label="close search"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
-  <div class="search__in">
-    <div class="search__field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input data-search-input type="text" placeholder="search by name, keyword, or topic" autocomplete="off" spellcheck="false"></div>
-    <div data-search-hint>
-      <p class="search__hint">start typing a name, or search by keyword or topic</p>
-      <div class="search__try"><button data-try="hair">hair</button><button data-try="sleep">sleep</button><button data-try="fat loss">fat loss</button><button data-try="muscle growth">muscle growth</button><button data-try="recovery">recovery</button><button data-try="skin">skin</button></div>
-    </div>
-    <div data-search-list></div>
-  </div>
-</div>
-<div class="cart" data-cart role="dialog" aria-label="cart">
-  <div class="cart__head"><h2>cart</h2><button class="x" data-cart-close aria-label="close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-  <div class="cart__list" data-cart-list></div>
-  <p class="cart__empty" data-cart-empty hidden>your cart is empty.</p>
-  <div class="cart__foot" data-cart-foot hidden>
-    <div class="cart__subtotal"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
-    <a class="btn btn--solid btn--block" href="checkout" data-magnetic>checkout <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
-    <p class="cart__note">no payment is collected here — we'll follow up by email with next steps.</p>
-  </div>
-</div>
-<main>
+<main id="main">
 
-<section class="phead"><div class="wrap">
-  <p class="kicker" data-reveal="fade">// dosage calculator</p>
-  <h1 class="phead__title" data-split>know your draw.</h1>
-</div></section>
-<div class="wrap">
+<section class="phead phead--tight">
+  <div class="wrap phead__grid">
+    <div>
+      <p class="label label--dot kicker" data-reveal>tools</p>
+      <h1 class="phead__title" data-reveal style="--d:1">dosage calculator.</h1>
+    </div>
+    <div data-reveal style="--d:2">
+      <p class="phead__sub">set the vial, the water and the dose; read the draw. then map doses on the planner below.</p>
+      <nav class="jump"><a href="#calc" class="pill is-on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg> calculator</a><a href="#planner" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg> dose planner</a></nav>
+    </div>
+  </div>
+</section>
+<div class="wrap" id="calc">
   <div class="calc" data-calc>
     <div class="calc__in">
-      <fieldset class="step" data-group="vial" data-reveal><legend><span class="step__n">01</span><span class="step__t">peptide in vial</span><b class="step__e" data-echo="vial">5 mg</b></legend><div class="opts"><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt is-active" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="20">20 mg</button><button type="button" class="opt" data-val="30">30 mg</button><button type="button" class="opt" data-val="50">50 mg</button><button type="button" class="opt" data-val="100">100 mg</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" hidden></div></fieldset>
-      <fieldset class="step" data-group="water" data-reveal><legend><span class="step__n">02</span><span class="step__t">bacteriostatic water added</span><b class="step__e" data-echo="water">2 mL</b></legend><div class="opts"><button type="button" class="opt" data-val="0.5">0.5 ml</button><button type="button" class="opt" data-val="1">1 ml</button><button type="button" class="opt is-active" data-val="2">2 ml</button><button type="button" class="opt" data-val="2.5">2.5 ml</button><button type="button" class="opt" data-val="3">3 ml</button><button type="button" class="opt" data-val="5">5 ml</button><button type="button" class="opt" data-val="10">10 ml</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="ml" hidden></div></fieldset>
-      <fieldset class="step" data-group="dose" data-reveal><legend><span class="step__n">03</span><span class="step__t">dose per injection</span><b class="step__e" data-echo="dose">0.25 mg</b></legend><div class="opts"><button type="button" class="opt is-active" data-val="0.25">0.25 mg</button><button type="button" class="opt" data-val="0.5">0.5 mg</button><button type="button" class="opt" data-val="1">1 mg</button><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt" data-val="2.5">2.5 mg</button><button type="button" class="opt" data-val="3">3 mg</button><button type="button" class="opt" data-val="4">4 mg</button><button type="button" class="opt" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" hidden></div></fieldset>
-      <fieldset class="step" data-reveal><legend><span class="step__n">04</span><span class="step__t">how often</span></legend><div class="opts" data-freq-presets><button type="button" class="opt is-active" data-val="1">daily</button><button type="button" class="opt" data-val="2">every other day</button><button type="button" class="opt" data-val="7">weekly</button><button type="button" class="opt" data-val="30">monthly</button><button type="button" class="opt" data-val="custom">custom</button></div><div class="freq-custom" data-freq-custom hidden>
-        <span>every</span>
-        <input type="number" min="1" step="1" value="1" data-freq-n aria-label="interval amount">
-        <div class="opts" data-freq-unit><button type="button" class="opt is-active" data-val="days">days</button><button type="button" class="opt" data-val="weeks">weeks</button><button type="button" class="opt" data-val="months">months</button></div>
-      </div></fieldset>
-      <fieldset class="step" data-group="syringe" data-reveal><legend><span class="step__n">05</span><span class="step__t">syringe size</span><b class="step__e" data-echo="syringe">1 mL · 100 units</b></legend><div class="opts"><button type="button" class="opt" data-val="0.3">0.3 ml<small>/ 30u</small></button><button type="button" class="opt" data-val="0.5">0.5 ml<small>/ 50u</small></button><button type="button" class="opt is-active" data-val="1">1 ml<small>/ 100u</small></button><button type="button" class="opt" data-val="2">2 ml<small>/ 200u</small></button></div></fieldset>
+      <fieldset class="step" data-group="vial"><legend><span class="step__n">01</span><span class="step__t">peptide in vial</span><b class="step__e" data-echo="vial"></b></legend><div class="opts"><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt is-active" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="20">20 mg</button><button type="button" class="opt" data-val="30">30 mg</button><button type="button" class="opt" data-val="50">50 mg</button><button type="button" class="opt" data-val="100">100 mg</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" hidden></div></fieldset>
+      <fieldset class="step" data-group="water"><legend><span class="step__n">02</span><span class="step__t">bacteriostatic water</span><b class="step__e" data-echo="water"></b></legend><div class="opts"><button type="button" class="opt" data-val="0.5">0.5 ml</button><button type="button" class="opt" data-val="1">1 ml</button><button type="button" class="opt is-active" data-val="2">2 ml</button><button type="button" class="opt" data-val="2.5">2.5 ml</button><button type="button" class="opt" data-val="3">3 ml</button><button type="button" class="opt" data-val="5">5 ml</button><button type="button" class="opt" data-val="10">10 ml</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="ml" hidden></div></fieldset>
+      <fieldset class="step" data-group="dose"><legend><span class="step__n">03</span><span class="step__t">dose per injection</span><b class="step__e" data-echo="dose"></b></legend><div class="opts"><button type="button" class="opt is-active" data-val="0.25">0.25 mg</button><button type="button" class="opt" data-val="0.5">0.5 mg</button><button type="button" class="opt" data-val="1">1 mg</button><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt" data-val="2.5">2.5 mg</button><button type="button" class="opt" data-val="3">3 mg</button><button type="button" class="opt" data-val="4">4 mg</button><button type="button" class="opt" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="custom">custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" hidden></div></fieldset>
+      <fieldset class="step"><legend><span class="step__n">04</span><span class="step__t">how often</span></legend><div class="opts" data-freq-presets><button type="button" class="opt is-active" data-val="1">daily</button><button type="button" class="opt" data-val="2">every other day</button><button type="button" class="opt" data-val="7">weekly</button><button type="button" class="opt" data-val="30">monthly</button><button type="button" class="opt" data-val="custom">custom</button></div>
+        <div class="freq-custom" data-freq-custom hidden><span>every</span><input type="number" min="1" step="1" value="1" data-freq-n aria-label="interval amount"><div class="opts" data-freq-unit><button type="button" class="opt is-active" data-val="days">days</button><button type="button" class="opt" data-val="weeks">weeks</button><button type="button" class="opt" data-val="months">months</button></div></div></fieldset>
+      <fieldset class="step" data-group="syringe"><legend><span class="step__n">05</span><span class="step__t">syringe size</span><b class="step__e" data-echo="syringe"></b></legend><div class="opts"><button type="button" class="opt" data-val="0.3">0.3 ml<small>/ 30u</small></button><button type="button" class="opt" data-val="0.5">0.5 ml<small>/ 50u</small></button><button type="button" class="opt is-active" data-val="1">1 ml<small>/ 100u</small></button><button type="button" class="opt" data-val="2">2 ml<small>/ 200u</small></button></div></fieldset>
     </div>
-    <aside class="calc__out" data-reveal="fade">
-      <p class="out__k">draw to</p>
-      <div class="out__big"><b data-o="units">10</b><small>units</small></div>
-      <div class="syr" data-syr><svg viewBox="0 0 440 100" aria-hidden="true">
+    <aside class="calc__out">
+      <div class="readout">
+        <p class="label">draw to</p>
+        <div class="out__big"><b data-o="units">10</b><small>units</small></div>
+        <div class="syr" data-syr><svg viewBox="0 0 440 100" aria-hidden="true">
   <defs>
     <clipPath id="calc-clip"><rect x="75" y="31" width="260" height="38" rx="6"/></clipPath>
     <linearGradient id="calc-liq" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1fd39c"/><stop offset="1" stop-color="#33e6b0"/></linearGradient>
@@ -92,28 +89,29 @@
   <g class="plunger"><rect class="rod" x="75" y="45" width="70" height="10" rx="3"/><rect class="flange" x="131" y="35" width="14" height="30" rx="4"/><rect class="cap" x="71" y="24" width="8" height="52" rx="3"/></g>
   <text class="tick" x="75" y="92">0</text><text class="tick" x="140" y="92">25</text><text class="tick" x="205" y="92">50</text><text class="tick" x="270" y="92">75</text><text class="tick" x="335" y="92">100</text>
 </svg></div>
-      <dl class="rows">
-        <div><dt>concentration</dt><dd><span data-o="conc">2.5</span> mg/ml</dd></div>
-        <div><dt>volume</dt><dd><span data-o="vol">0.1</span> ml</dd></div>
-      </dl>
-      <p class="warn" data-warn hidden></p>
+        <dl class="rows">
+          <div><dt>concentration</dt><dd><span data-o="conc">2.5</span> mg/ml</dd></div>
+          <div><dt>volume</dt><dd><span data-o="vol">0.1</span> ml</dd></div>
+        </dl>
+        <p class="warn" data-warn hidden></p>
+      </div>
+      <div class="readout readout--sub" data-group="supplyUnit">
+        <div class="readout__head"><p class="label">one vial lasts</p><div class="opts opts--sm"><button type="button" class="opt is-active" data-val="days">days</button><button type="button" class="opt" data-val="weeks">weeks</button><button type="button" class="opt" data-val="months">months</button><button type="button" class="opt" data-val="years">years</button></div></div>
+        <p class="readout__big"><b data-o="supply">20</b> <span data-o="supplyUnit">days</span></p>
+        <p class="dim">about <b data-o="inj">20</b> <span data-o="freqlabel">injections, one a day</span>.</p>
+      </div>
+      <div class="readout readout--sub">
+        <div class="readout__head"><p class="label">vials needed</p><div class="plan"><input type="number" min="1" step="1" value="3" data-plan aria-label="plan length"><div class="opts opts--sm" data-group="planUnit"><button type="button" class="opt" data-val="weeks">weeks</button><button type="button" class="opt is-active" data-val="months">months</button><button type="button" class="opt" data-val="years">years</button></div></div></div>
+        <p class="readout__big"><b data-o="vials">5</b> vials</p>
+        <p class="dim">to cover <span data-o="planN">3</span> <span data-o="planU">months</span>.</p>
+      </div>
     </aside>
   </div>
-  <div class="calc-extra">
-    <div class="sub" data-group="supplyUnit" data-reveal>
-      <h3>supply</h3>
-      <div class="opts"><button type="button" class="opt is-active" data-val="days">days</button><button type="button" class="opt" data-val="weeks">weeks</button><button type="button" class="opt" data-val="months">months</button><button type="button" class="opt" data-val="years">years</button></div>
-      <p>this vial covers about <b data-o="inj">20</b> <span data-o="freqlabel">injections, one a day</span>: roughly <b><span data-o="supply">20</span> <span data-o="supplyUnit">days</span></b>.</p>
-    </div>
-    <div class="sub" data-reveal>
-      <h3>plan for</h3>
-      <div class="plan"><input type="number" min="1" step="1" value="3" data-plan aria-label="amount"><div class="opts" data-group="planUnit"><button type="button" class="opt" data-val="weeks">weeks</button><button type="button" class="opt is-active" data-val="months">months</button><button type="button" class="opt" data-val="years">years</button></div></div>
-      <p>you'll need about <b><span data-o="vials">5</span> vials</b> to cover <span data-o="planN">3</span> <span data-o="planU">months</span>.</p>
-    </div>
-  </div>
+</div>
+<div class="wrap" id="planner">
   <section class="planner">
     <div class="planner__head">
-      <div><p class="kicker" data-reveal="fade">// dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
+      <div><p class="label label--dot" data-reveal>dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
       <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. the calendar drains as the vial does, so you can see what's left on any day, week or month.</p>
     </div>
     <div class="planner__sheet" data-planner data-reveal>
@@ -208,38 +206,82 @@
 </div>
 <div class="dock" data-dock aria-hidden="true">
   <div class="dock__row"><span>draw to</span><span class="dock__val"><b data-o="dock">10</b>units</span></div>
-  <div class="syr syr--dock" data-syr><svg viewBox="0 0 440 100" aria-hidden="true">
-  <defs>
-    <clipPath id="dock-clip"><rect x="75" y="31" width="260" height="38" rx="6"/></clipPath>
-    <linearGradient id="dock-liq" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#1fd39c"/><stop offset="1" stop-color="#33e6b0"/></linearGradient>
-  </defs>
-  <line class="needle" x1="6" y1="50" x2="50" y2="50"/>
-  <polygon class="hub" points="50,42 72,46 72,54 50,58"/>
-  <rect class="barrel" x="75" y="30" width="260" height="40" rx="8"/>
-  <g clip-path="url(#dock-clip)"><rect class="fill" x="75" y="30" width="260" height="40" fill="url(#dock-liq)"/></g>
-  <g class="ticks"><line x1="75" y1="34" x2="75" y2="66"/><line x1="88" y1="40" x2="88" y2="60"/><line x1="101" y1="40" x2="101" y2="60"/><line x1="114" y1="40" x2="114" y2="60"/><line x1="127" y1="40" x2="127" y2="60"/><line x1="140" y1="34" x2="140" y2="66"/><line x1="153" y1="40" x2="153" y2="60"/><line x1="166" y1="40" x2="166" y2="60"/><line x1="179" y1="40" x2="179" y2="60"/><line x1="192" y1="40" x2="192" y2="60"/><line x1="205" y1="34" x2="205" y2="66"/><line x1="218" y1="40" x2="218" y2="60"/><line x1="231" y1="40" x2="231" y2="60"/><line x1="244" y1="40" x2="244" y2="60"/><line x1="257" y1="40" x2="257" y2="60"/><line x1="270" y1="34" x2="270" y2="66"/><line x1="283" y1="40" x2="283" y2="60"/><line x1="296" y1="40" x2="296" y2="60"/><line x1="309" y1="40" x2="309" y2="60"/><line x1="322" y1="40" x2="322" y2="60"/><line x1="335" y1="34" x2="335" y2="66"/></g>
-  <g class="plunger"><rect class="rod" x="75" y="45" width="70" height="10" rx="3"/><rect class="flange" x="131" y="35" width="14" height="30" rx="4"/><rect class="cap" x="71" y="24" width="8" height="52" rx="3"/></g>
-  <text class="tick" x="75" y="92">0</text><text class="tick" x="140" y="92">25</text><text class="tick" x="205" y="92">50</text><text class="tick" x="270" y="92">75</text><text class="tick" x="335" y="92">100</text>
-</svg></div>
 </div>
 </main>
 <footer class="foot">
-  <div class="wrap foot__top">
-    <div><p class="kicker">// hlix</p><p class="foot__lede">a research peptide catalog. every compound in stock, logged with its dose, spec and price.</p></div>
-    <div class="foot__col"><h4>catalog</h4><a href="catalog#metabolic">Metabolic Research</a><a href="catalog#growth">Growth & GH Secretagogues</a><a href="catalog#recovery">Healing & Recovery</a><a href="catalog#cognitive">Cognitive & Neuro Health</a><a href="catalog#longevity">Longevity & Anti-Aging</a><a href="catalog#hormonal">Hormonal & Sexual Health</a><a href="catalog#specialty">Specialty Research</a></div>
-    <div class="foot__col"><h4>site</h4><a href="about">about</a><a href="calculator">calculator</a><a href="contact">contact</a></div>
-    <div class="foot__col"><h4>contact</h4><a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a><span>research use only</span></div>
-  </div>
-  <div class="wrap foot__legal">
-    <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
+  <div class="wrap">
+    <div class="foot__grid">
+      <div class="foot__brand">
+        <a class="brand" href="./" aria-label="hlix home">hlix<i></i></a>
+        <p>a research peptide catalog. every compound logged with its dose, spec and price per vial.</p>
+        <button class="btn btn--ghost btn--sm" type="button" data-open-chat><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg> ask the hlix ai</button>
+      </div>
+      <div class="foot__col"><h4>shop</h4><a href="catalog?cat=metabolic">metabolic research</a><a href="catalog?cat=growth">growth &amp; gh secretagogues</a><a href="catalog?cat=recovery">healing &amp; recovery</a><a href="catalog?cat=cognitive">cognitive &amp; neuro health</a><a href="catalog?cat=longevity">longevity &amp; anti-aging</a><a href="catalog?cat=hormonal">hormonal &amp; sexual health</a><a href="catalog?cat=specialty">specialty research</a><a href="catalog?cat=supplies">supplies</a></div>
+      <div class="foot__col"><h4>tools</h4><a href="calculator">dosage calculator</a><a href="calculator#planner">dose planner</a><button type="button" data-search-open>search</button><button type="button" data-open-chat>ai assistant</button></div>
+      <div class="foot__col"><h4>hlix</h4><a href="about">about</a><a href="contact">contact</a><a href="account">your account</a><a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a></div>
+    </div>
+    <div class="foot__legal">
+      <p>© 2026 hlix. for laboratory research use only. not for human or animal consumption. nothing on this site is medical advice, and nothing here is an offer to sell a controlled or prescription substance.</p>
+    </div>
   </div>
 </footer>
-<div class="lb" data-lb aria-hidden="true"><button class="x" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
-<script src="assets/js/search-index.js?v=1794298770"></script>
-<script src="assets/js/v2-prices.js?v=1794298770"></script>
-<script src="assets/js/v2.js?v=1794298770"></script>
-<script src="assets/js/v2-cart.js?v=1794298770"></script>
-<script src="assets/js/v2-calc.js?v=1794298770" defer></script><script src="assets/js/v2-planner.js?v=1794298770" defer></script>
-<script src="assets/js/v2-chat.js?v=1794298770"></script>
+<nav class="tabbar" aria-label="quick actions">
+  <a href="catalog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="3.5" width="7" height="7" rx="1.5"/><rect x="3.5" y="13.5" width="7" height="7" rx="1.5"/><rect x="13.5" y="13.5" width="7" height="7" rx="1.5"/></svg><span>shop</span></a>
+  <button type="button" data-search-open><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search</span></button>
+  <a href="calculator" aria-current="page"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg><span>calculator</span></a>
+  <button type="button" data-open-chat><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg><span>ask ai</span></button>
+  <button type="button" data-cart-open><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="20" r="1.4"/><circle cx="18" cy="20" r="1.4"/><path d="M2.5 3h2.3l2.1 11.6a2 2 0 0 0 2 1.65h8.3a2 2 0 0 0 2-1.6L21 8H6"/></svg><span>cart</span><b class="count" data-cart-count hidden>0</b></button>
+</nav>
+<div class="pal" data-pal role="dialog" aria-modal="true" aria-label="search">
+  <div class="pal__scrim" data-pal-close></div>
+  <div class="pal__box">
+    <label class="pal__field"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><input data-pal-input type="text" placeholder="search compounds, categories or goals" autocomplete="off" spellcheck="false" aria-label="search"><button type="button" class="pal__esc" data-pal-close>esc</button></label>
+    <div class="pal__body" data-pal-body></div>
+    <div class="pal__foot"><span><kbd>↑</kbd><kbd>↓</kbd> move</span><span><kbd>↵</kbd> open</span><span><kbd>esc</kbd> close</span></div>
+  </div>
+</div>
+<div class="sheet" data-menu role="dialog" aria-modal="true" aria-label="menu">
+  <div class="sheet__scrim" data-menu-close></div>
+  <div class="sheet__box">
+    <div class="sheet__head"><span class="label">menu</span><button class="ibtn" type="button" data-menu-close aria-label="close menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <nav class="sheet__links">
+      <a href="./"><span>01</span>home</a>
+      <a href="catalog"><span>02</span>shop</a>
+      <a href="calculator"><span>03</span>calculator</a>
+      <a href="calculator#planner"><span>04</span>dose planner</a>
+      <a href="about"><span>05</span>about</a>
+      <a href="contact"><span>06</span>contact</a>
+      <a href="account"><span>07</span>account</a>
+    </nav>
+    <div class="sheet__foot">
+      <button class="pill" type="button" data-theme-toggle><span class="i-sun"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4.5"/><path d="M12 2.5v2.5M12 19v2.5M4.5 12H2M22 12h-2.5M5.5 5.5l1.8 1.8M16.7 16.7l1.8 1.8M18.5 5.5l-1.8 1.8M7.3 16.7l-1.8 1.8"/></svg></span><span class="i-moon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5Z"/></svg></span><span data-theme-label>light mode</span></button>
+      <a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a>
+    </div>
+  </div>
+</div>
+<div class="drawer" data-cart role="dialog" aria-modal="true" aria-label="cart">
+  <div class="drawer__scrim" data-cart-close></div>
+  <aside class="drawer__box">
+    <div class="drawer__head"><h2>cart <span data-cart-n></span></h2><button class="ibtn" type="button" data-cart-close aria-label="close cart"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
+    <div class="drawer__list" data-cart-list></div>
+    <div class="drawer__empty" data-cart-empty hidden>
+      <p>your cart is empty.</p>
+      <a class="btn btn--ghost" href="catalog">browse the catalog <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <div class="drawer__foot" data-cart-foot hidden>
+      <div class="drawer__sub"><span>subtotal</span><b data-cart-subtotal>$0</b></div>
+      <a class="btn btn--solid btn--block" href="checkout">request this order <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+      <p class="drawer__note">no payment is taken online. send the request and we'll confirm by email with next steps.</p>
+    </div>
+  </aside>
+</div>
+<div class="lb" data-lb aria-hidden="true"><button class="ibtn lb__x" type="button" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
+<div class="toast" data-toast role="status" aria-live="polite"></div>
+<script src="assets/js/search-index.js?v=1794301007"></script>
+<script src="assets/js/v2-prices.js?v=1794301007"></script>
+<script src="assets/js/v3-cart.js?v=1794301007"></script>
+<script src="assets/js/v3.js?v=1794301007"></script>
+<script src="assets/js/v2-calc.js?v=1794301007" defer></script><script src="assets/js/v2-planner.js?v=1794301007" defer></script>
+<script src="assets/js/v2-chat.js?v=1794301007"></script>
 </body>
 </html>
