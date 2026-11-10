@@ -343,14 +343,17 @@ their order is still placed.
 
 ## Stock (live from the admin)
 
-Each product page says, for the size picked, what the admin's Inventory says: **in stock**
-(vials for sale on hand), **on the way** (some on a supplier order no customer is waiting
-for) or **ships in 1–2 weeks · ordered for you** (neither). Every size can still be ordered.
+Stock follows the admin's Inventory. Every product card (catalog, home, "more in")
+has a tag: **in stock** when any size has vials for sale on hand, **on the way** when some
+are on a supplier order no customer is waiting for, otherwise **out of stock**. On a product
+page each size has a dot in the same colors, and the line under "add to cart" says it for
+the size picked (**out of stock · ships in 1–2 weeks, ordered for you**). Every size can
+still be ordered.
 `/api/prices` carries it as `stock` (`{ SKU: "in_stock" | "on_the_way" | "to_order" }`,
 from `public.storefront_stock()` in the admin's migration 0030, never a count) and
 `v2-prices.js` hands it out as `HLIXPrices.stock(sku)`. If it can't be read, the line stays
-hidden: the page never claims stock it can't confirm. The wording is `STOCK_TEXT` in
-`assets/js/v3.js`.
+hidden: the page never claims stock it can't confirm. The wording is `STOCK_TEXT` and
+`CARD_STOCK` in `assets/js/v3.js`.
 
 Product pages open on **powder**; family & friends accounts' price box opens on **pack of
 10**, listed first.

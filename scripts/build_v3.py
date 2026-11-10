@@ -348,7 +348,7 @@ def card(g, p, a, i=0):
     hover = (f'<img class="card__alt" alt="" width="480" height="600" data-hover-src="{img_src(d, a, "powder")}">'
              if v2.has_photo(d) else "")
     return f'''<a class="card" href="{p}peptides/{g['slug']}" style="--c:{color(g)}" data-card data-cat="{g['category']}" data-name="{esc(g['name'].lower())}" data-tags="{tags_attr}" data-skus="{esc(skus)}" data-price="{g['min_price']:.2f}" data-sizes="{len(g['variants'])}" data-order="{i}">
-  <div class="card__media">{media}{hover}<span class="card__view">view {ARROW}</span></div>
+  <div class="card__media">{media}{hover}<span class="tag-stock" data-card-stock hidden></span><span class="card__view">view {ARROW}</span></div>
   <div class="card__body">
     <p class="card__cat"><i></i>{esc(g['category_label'].lower())}</p>
     <h3 class="card__name">{esc(g['name'])}</h3>
@@ -662,7 +662,8 @@ def page_product(g, groups):
         f'<button type="button" role="radio" class="size{" is-active" if v is d else ""}" aria-checked="{"true" if v is d else "false"}" '
         f'data-variant data-sku="{esc(v["sku"])}" data-dose="{esc(v["dose"])}" data-amt="{esc(v["dose_amount"] or "")}" data-dunit="{esc(v["dose_unit"])}" '
         f'data-price="{v["price"]:.2f}" data-price-recon="{recon_price(v["price"]):.2f}" data-img="{v["sku"].lower()}">'
-        f'<b>{esc(v["dose"])}</b><span data-tile-price>{money(v["price"])}</span></button>'
+        f'<b>{esc(v["dose"])}</b><span data-tile-price>{money(v["price"])}</span>'
+        f'<i class="size__dot" data-tile-stock hidden aria-hidden="true"></i><span class="sr-only" data-tile-stock-text></span></button>'
         for v in variants
     )
     certs = certs_for(g)

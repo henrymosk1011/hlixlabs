@@ -597,6 +597,37 @@
   // ------------------------------------------------------------------
   // product page: size + form, price, photos, add to cart, sticky buy bar
   // ------------------------------------------------------------------
+  // Stock from the admin's Inventory (v2-prices.js): a tag on every product card ("in stock" when
+  // any size is, "on the way", or "out of stock") and a dot on each size of a product page.
+  // Everything stays orderable; nothing shows until the live stock has loaded.
+  var CARD_STOCK = { in_stock: "in stock", on_the_way: "on the way", to_order: "out of stock" };
+  function decorateStock() {
+    var P = window.HLIXPrices;
+    if (!P || !P.stock) return;
+    var S = function (sku) { return P.stock(sku); };
+    $$("[data-card]").forEach(function (card) {
+      var tag = $("[data-card-stock]", card);
+      if (!tag) return;
+      var all = (card.getAttribute("data-skus") || "").split(",").map(S);
+      var st = all.indexOf("in_stock") >= 0 ? "in_stock"
+        : all.indexOf("on_the_way") >= 0 ? "on_the_way"
+        : all.length && all.every(function (x) { return x === "to_order"; }) ? "to_order" : null;
+      tag.hidden = !st;
+      if (!st) return;
+      tag.className = "tag-stock is-" + st;
+      tag.textContent = CARD_STOCK[st];
+    });
+    $$("[data-variant]").forEach(function (b) {
+      var dot = $("[data-tile-stock]", b), txt = $("[data-tile-stock-text]", b), st = S(b.getAttribute("data-sku"));
+      if (!dot) return;
+      dot.hidden = !st;
+      dot.className = "size__dot" + (st ? " is-" + st : "");
+      dot.title = st ? CARD_STOCK[st] : "";
+      if (txt) txt.textContent = st ? ", " + CARD_STOCK[st] : "";
+    });
+  }
+  d.addEventListener("hlix:prices", decorateStock);
+
   var pdp = $("[data-pdp]");
   if (pdp) (function () {
     var sizes = $$("[data-variant]", pdp);
@@ -669,7 +700,7 @@
     // stock for the selected size, from the admin's Inventory (v2-prices.js); every size can
     // be ordered, the line just says when it would ship
     var stockLine = $("[data-stock]", pdp);
-    var STOCK_TEXT = { in_stock: "in stock", on_the_way: "on the way", to_order: "ships in 1\u20132 weeks \u00b7 ordered for you" };
+    var STOCK_TEXT = { in_stock: "in stock", on_the_way: "on the way", to_order: "out of stock \u00b7 ships in 1\u20132 weeks, ordered for you" };
     function renderStock() {
       if (!stockLine) return;
       var s = window.HLIXPrices && window.HLIXPrices.stock ? window.HLIXPrices.stock(st.btn.getAttribute("data-sku")) : null;
