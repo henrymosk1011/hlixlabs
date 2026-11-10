@@ -345,10 +345,12 @@ their order is still placed.
 
 Stock follows the admin's Inventory. Every product card (catalog, home, "more in")
 has a tag: **in stock** when any size has vials for sale on hand, **on the way** when some
-are on a supplier order no customer is waiting for, otherwise **out of stock**. On a product
-page each size has a dot in the same colors, and the line under "add to cart" says it for
-the size picked (**out of stock · ships in 1–2 weeks, ordered for you**). Every size can
-still be ordered.
+are on a supplier order no customer is waiting for, otherwise **out of stock** (in red,
+`--out` in `v3.css`). On a product page each size button says it too, under the price, and
+the line under the buy button says it for the size picked (**out of stock · ships in 1–2
+weeks, ordered for you**). Every size can still be ordered: for a size that's out of stock
+the button (and the phone's buy bar) says **pre-order** instead of "add to cart", and it goes
+in the cart the same way.
 `/api/prices` carries it as `stock` (`{ SKU: "in_stock" | "on_the_way" | "to_order" }`,
 from `public.storefront_stock()` in the admin's migration 0030, never a count) and
 `v2-prices.js` hands it out as `HLIXPrices.stock(sku)`. If it can't be read, the line stays

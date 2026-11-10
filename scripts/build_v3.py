@@ -663,7 +663,7 @@ def page_product(g, groups):
         f'data-variant data-sku="{esc(v["sku"])}" data-dose="{esc(v["dose"])}" data-amt="{esc(v["dose_amount"] or "")}" data-dunit="{esc(v["dose_unit"])}" '
         f'data-price="{v["price"]:.2f}" data-price-recon="{recon_price(v["price"]):.2f}" data-img="{v["sku"].lower()}">'
         f'<b>{esc(v["dose"])}</b><span data-tile-price>{money(v["price"])}</span>'
-        f'<i class="size__dot" data-tile-stock hidden aria-hidden="true"></i><span class="sr-only" data-tile-stock-text></span></button>'
+        f'<small class="size__stock" data-tile-stock hidden></small></button>'
         for v in variants
     )
     certs = certs_for(g)

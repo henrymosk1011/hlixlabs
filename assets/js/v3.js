@@ -598,7 +598,7 @@
   // product page: size + form, price, photos, add to cart, sticky buy bar
   // ------------------------------------------------------------------
   // Stock from the admin's Inventory (v2-prices.js): a tag on every product card ("in stock" when
-  // any size is, "on the way", or "out of stock") and a dot on each size of a product page.
+  // any size is, "on the way", or "out of stock", in red) and the same words on each size button.
   // Everything stays orderable; nothing shows until the live stock has loaded.
   var CARD_STOCK = { in_stock: "in stock", on_the_way: "on the way", to_order: "out of stock" };
   function decorateStock() {
@@ -618,12 +618,11 @@
       tag.textContent = CARD_STOCK[st];
     });
     $$("[data-variant]").forEach(function (b) {
-      var dot = $("[data-tile-stock]", b), txt = $("[data-tile-stock-text]", b), st = S(b.getAttribute("data-sku"));
-      if (!dot) return;
-      dot.hidden = !st;
-      dot.className = "size__dot" + (st ? " is-" + st : "");
-      dot.title = st ? CARD_STOCK[st] : "";
-      if (txt) txt.textContent = st ? ", " + CARD_STOCK[st] : "";
+      var label = $("[data-tile-stock]", b), st = S(b.getAttribute("data-sku"));
+      if (!label) return;
+      label.hidden = !st;
+      label.className = "size__stock" + (st ? " is-" + st : "");
+      label.textContent = st ? CARD_STOCK[st] : "";
     });
   }
   d.addEventListener("hlix:prices", decorateStock);
@@ -701,9 +700,15 @@
     // be ordered, the line just says when it would ship
     var stockLine = $("[data-stock]", pdp);
     var STOCK_TEXT = { in_stock: "in stock", on_the_way: "on the way", to_order: "out of stock \u00b7 ships in 1\u20132 weeks, ordered for you" };
+    function stockOf(sku) { return window.HLIXPrices && window.HLIXPrices.stock ? window.HLIXPrices.stock(sku) : null; }
+    // a size that's out of stock is ordered for the customer: the buttons say "pre-order"
+    function buyLabel() { return stockOf(st.btn.getAttribute("data-sku")) === "to_order" ? "pre-order " : "add to cart "; }
     function renderStock() {
+      var s = stockOf(st.btn.getAttribute("data-sku"));
+      if (!addBtn.classList.contains("is-done")) addBtn.firstChild.textContent = buyLabel();
+      var proxyBtn = $("[data-add-proxy]");
+      if (proxyBtn) proxyBtn.firstChild.textContent = s === "to_order" ? "pre-order \u00b7 " : "add \u00b7 ";
       if (!stockLine) return;
-      var s = window.HLIXPrices && window.HLIXPrices.stock ? window.HLIXPrices.stock(st.btn.getAttribute("data-sku")) : null;
       stockLine.hidden = !s;
       if (!s) return;
       stockLine.className = "stockline is-" + s;
@@ -798,7 +803,7 @@
       addBtn.classList.add("is-done");
       addBtn.firstChild.textContent = "added ";
       clearTimeout(doneT);
-      doneT = setTimeout(function () { addBtn.classList.remove("is-done"); addBtn.firstChild.textContent = "add to cart "; }, 1600);
+      doneT = setTimeout(function () { addBtn.classList.remove("is-done"); addBtn.firstChild.textContent = buyLabel(); }, 1600);
       qtyIn.value = 1;
       render();
     });
