@@ -203,7 +203,10 @@ module.exports = async (req, res) => {
     });
 
     if (!response.ok) {
-      console.error("Resend API error", response.status);
+      // Resend's own reason (e.g. "The hlixlabs.com domain is not verified"), without the email itself.
+      let why = "";
+      try { const e = await response.json(); why = `${e.name || ""}: ${e.message || ""}`.slice(0, 300); } catch (e) { why = ""; }
+      console.error("Resend API error", response.status, why);
       if (placed) return void res.status(200).json({ ok: true, account: true, ref: placed.ref });
       res.status(502).json({ error: "Upstream error." });
       return;
