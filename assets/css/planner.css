@@ -1,0 +1,325 @@
+/* hlix — the dose planner as the admin dashboard's Calendar page shows it (planner-embed.html, markup from
+   planner_app() in scripts/build_v2.py, run by assets/js/v2-planner.js). A calm, card-based calendar in
+   the admin's own type: three cards (Vials, Calendar, the vial picked), neutral surfaces, and the vials'
+   colors carrying the meaning. Light unless the plan says dark (the moon / sun button). The calculator page's
+   planner on the public site keeps its own look (v2.css). */
+
+/* ---------------------------------------------------------------- tokens */
+.pc {
+  --card: #ffffff; --card-2: #f5f6f4; --card-3: #eaece9;
+  --text: #15181b; --text-2: #3c4248; --muted: #697078; --faint: #9aa0a6;
+  --line: rgba(18, 22, 26, 0.08); --line-2: rgba(18, 22, 26, 0.15);
+  --accent: #0e9f76; --warn: #a66b00; --danger: #c4413b;
+  --shadow: 0 1px 2px rgba(16, 20, 24, 0.04), 0 10px 30px -18px rgba(16, 20, 24, 0.22);
+  --v0: #0ea87c; --v1: #1f7fd6; --v2: #7c4ddb; --v3: #d43f86; --v4: #6a9410; --v5: #6b7280;
+  --r: 16px; --r-sm: 9px; --gap: 6px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: light;
+}
+.pc.is-dark {
+  --card: #12151a; --card-2: #181c21; --card-3: #21262c;
+  --text: #f3f4f2; --text-2: #c4c9ce; --muted: #8a9096; --faint: #5d646b;
+  --line: rgba(236, 240, 238, 0.08); --line-2: rgba(236, 240, 238, 0.15);
+  --accent: #33e6b0; --warn: #f2b84b; --danger: #ef7a73;
+  --shadow: none;
+  --v0: #33e6b0; --v1: #5cb8ff; --v2: #b48cff; --v3: #ff7eb6; --v4: #c6ec5c; --v5: #d2d7de;
+  color-scheme: dark;
+}
+/* a vial's color: a preset (data-c) or its own (--vc / --vink set inline); --vink is text that reads on it */
+.pc, [data-c="0"] { --vc: var(--v0); }
+[data-c="1"] { --vc: var(--v1); }
+[data-c="2"] { --vc: var(--v2); }
+[data-c="3"] { --vc: var(--v3); }
+[data-c="4"] { --vc: var(--v4); }
+[data-c="5"] { --vc: var(--v5); }
+[data-c] { --vink: #06140f; }
+[data-c="1"], [data-c="2"], [data-c="3"], [data-c="5"] { --vink: #ffffff; }
+.pc.is-dark[data-c], .pc.is-dark [data-c] { --vink: #06140f; }
+
+/* ---------------------------------------------------------------- page */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html, body.pc-page { background: transparent; }
+body.pc-page { padding: 4px; container: page / inline-size; -webkit-font-smoothing: antialiased; }
+.pc { font: 400 14px/1.45 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--text); }
+.cal__n, .cal__v, .cal__dots i, .cal__wk-i b, .pc-stat__v b, .pl-tab > small { font-variant-numeric: tabular-nums; }
+:where(.pc) button, :where(.pc) input { font: inherit; color: inherit; }
+:where(.pc) button { cursor: pointer; background: none; border: 0; }
+.pc [hidden] { display: none !important; }
+.pc :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.pc ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+.pc-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.pc [data-pl-all] { display: none !important; } /* every vial's row is in the Vials card */
+
+/* ---------------------------------------------------------------- layout: the cards, and which this copy shows */
+.pc { display: grid; gap: 16px; grid-template-areas: "vials" "cal" "vial"; }
+.pc-vials { grid-area: vials; }
+.pc-cal { grid-area: cal; }
+.pc-vial { grid-area: vial; }
+@container page (min-width: 900px) { /* one copy with room for a column beside the calendar */
+  .pc[data-part="all"] { grid-template-columns: minmax(0, 1fr) 300px; grid-template-areas: "cal vials" "cal vial"; align-items: start; }
+}
+.pc[data-part="calendar"] { grid-template-areas: "cal"; }
+.pc[data-part="calendar"] .pc-vials, .pc[data-part="calendar"] .pc-vial { display: none; }
+.pc[data-part="side"] { grid-template-areas: "vials" "vial"; }
+.pc[data-part="side"] .pc-cal { display: none; }
+/* the parts an older admin page asked for: the vials alone, or the vial alone */
+.pc[data-part="vials"] { grid-template-areas: "vials"; }
+.pc[data-part="vials"] .pc-cal, .pc[data-part="vials"] .pc-vial { display: none; }
+.pc[data-part="panel"] { grid-template-areas: "vial"; }
+.pc[data-part="panel"] .pc-cal, .pc[data-part="panel"] .pc-vials { display: none; }
+.pc[data-bar="out"] .pc-vials { display: none; }
+
+/* ---------------------------------------------------------------- cards and common pieces */
+.pc-card { min-width: 0; padding: 18px 20px 20px; border: 1px solid var(--line); border-radius: var(--r); background: var(--card); box-shadow: var(--shadow); transition: background-color 0.3s, border-color 0.3s; }
+.pc-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.pc-h { font-size: 15px; font-weight: 600; letter-spacing: -0.01em; }
+.pc-sub { margin-top: 1px; color: var(--muted); font-size: 12.5px; }
+.pc-label { display: block; margin-bottom: 7px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.pc-field { min-width: 0; }
+.pc-dot { flex: none; width: 10px; height: 10px; border-radius: 50%; background: var(--vc); }
+
+.pc-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; height: 34px; padding: 0 14px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--card); color: var(--text); font-size: 13px; font-weight: 500; white-space: nowrap; transition: background-color 0.2s, border-color 0.2s; }
+.pc-btn:hover { background: var(--card-2); }
+.pc-btn svg { width: 15px; height: 15px; }
+.pc-btn--sm { height: 30px; padding: 0 11px; font-size: 12.5px; }
+.pc-btn--primary { border-color: var(--vc); background: var(--vc); color: var(--vink, #fff); font-weight: 600; }
+.pc-btn--primary:hover { background: color-mix(in srgb, var(--vc) 88%, var(--text)); }
+.pc-icon { display: inline-grid; place-items: center; width: 32px; height: 32px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--card); color: var(--text-2); transition: background-color 0.2s, color 0.2s; }
+.pc-icon:hover { background: var(--card-2); color: var(--text); }
+.pc-icon svg { width: 16px; height: 16px; }
+.pc-link { padding: 4px 2px; color: var(--muted); font-size: 12.5px; font-weight: 500; transition: color 0.2s; }
+.pc-link:hover { color: var(--text); }
+.pc-link--danger:hover, .pc-link.is-armed { color: var(--danger); }
+.pc-input { width: 100%; height: 36px; padding: 0 12px; border: 1px solid var(--line-2); border-radius: var(--r-sm); background: var(--card); outline: 0; transition: border-color 0.2s, box-shadow 0.2s; }
+.pc-input:focus { border-color: var(--vc); box-shadow: 0 0 0 3px color-mix(in srgb, var(--vc) 18%, transparent); }
+.pc-input::placeholder { color: var(--faint); }
+
+/* option buttons (sizes, doses, how often): quiet until picked, then the vial's color */
+.opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.opt { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--card); color: var(--text-2); font-size: 12.5px; font-weight: 500; white-space: nowrap; transition: background-color 0.2s, border-color 0.2s, color 0.2s; }
+.opt:hover { border-color: color-mix(in srgb, var(--text) 30%, transparent); color: var(--text); }
+.opt.is-active { border-color: var(--vc); background: var(--vc); color: var(--vink, #fff); font-weight: 600; }
+.opt span { text-transform: none; }
+.opt-in { width: 86px; height: 30px; padding: 0 10px; border: 1px solid var(--vc); border-radius: 8px; background: var(--card); outline: 0; font-size: 12.5px; }
+.opt--stop { border-style: dashed; color: var(--muted); }
+.opt--stop.is-active { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, var(--card)); color: var(--warn); }
+
+/* ---------------------------------------------------------------- vials: one row each */
+.pc-list { display: flex; flex-direction: column; gap: 2px; margin: 12px -8px 0; }
+.pl-tab { position: relative; display: grid; grid-template-columns: 10px minmax(0, 1fr) auto; grid-template-areas: "dot name size" ". st lvl"; align-items: center; gap: 2px 10px; width: 100%; padding: 9px 10px; border-radius: 10px; text-align: left; transition: background-color 0.2s, box-shadow 0.2s; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; cursor: grab; }
+.pl-tab:hover { background: var(--card-2); }
+.pl-tab.is-active { background: color-mix(in srgb, var(--vc) 11%, var(--card)); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--vc) 45%, transparent); }
+.pl-tab > i { grid-area: dot; width: 10px; height: 10px; border-radius: 50%; background: var(--vc); }
+.pl-tab > span { grid-area: name; overflow: hidden; color: var(--text); font-size: 13.5px; font-weight: 550; white-space: nowrap; text-overflow: ellipsis; }
+.pl-tab > small { grid-area: size; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.pl-tab__st { grid-area: st; overflow: hidden; color: var(--muted); font-size: 12px; font-style: normal; white-space: nowrap; text-overflow: ellipsis; }
+.pl-tab.is-short .pl-tab__st { color: var(--warn); }
+.pl-tab__lvl { grid-area: lvl; justify-self: end; width: 48px; height: 4px; overflow: hidden; border-radius: 2px; background: color-mix(in srgb, var(--vc) 18%, transparent); text-decoration: none; }
+.pl-tab__lvl b { display: block; width: calc(var(--lvl, 0) * 100%); height: 100%; border-radius: 2px; background: var(--vc); transition: width 0.5s var(--ease); }
+.pl-tab--add { display: flex; align-items: center; gap: 8px; margin-top: 4px; padding: 9px 10px; border: 1px dashed var(--line-2); color: var(--muted); font-size: 13px; font-weight: 500; cursor: pointer; }
+.pl-tab--add:hover { color: var(--text); border-color: color-mix(in srgb, var(--text) 30%, transparent); }
+.pl-tab--add b { display: inline-grid; place-items: center; width: 10px; font-size: 16px; font-weight: 500; line-height: 1; }
+/* reordering: the row dragged rides the pointer; a line marks where it lands */
+.pc-list.is-sorting .pl-tab { cursor: grabbing; }
+.pl-tab.is-dragging, .pl-tab.is-held { z-index: 2; background: var(--card); box-shadow: 0 12px 28px -10px rgba(0, 0, 0, 0.35), inset 0 0 0 1px var(--vc); transition: none; }
+.pl-tab.is-held:not(.is-dragging) { transform: scale(1.02); transition: transform 0.2s var(--ease); }
+.pl-tab.is-drop-before::before, .pl-tab.is-drop-after::after { content: ""; position: absolute; left: 10px; right: 10px; height: 2px; border-radius: 2px; background: var(--text); }
+.pl-tab.is-drop-before::before { top: -2px; }
+.pl-tab.is-drop-after::after { bottom: -2px; }
+
+/* a new vial */
+.pc-new { display: grid; gap: 14px; margin-top: 14px; padding-top: 16px; border-top: 1px solid var(--line); animation: pc-in 0.3s var(--ease) both; }
+.pc-new__t { font-size: 13.5px; font-weight: 600; }
+.pl-new__dose { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
+.pl-new__dose .opt-in { width: 80px; }
+.pc-acts { display: flex; flex-wrap: wrap; gap: 8px; }
+@keyframes pc-in { from { opacity: 0; transform: translateY(-4px); } }
+
+/* start → end */
+.pl-dates__row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.pl-dates input { flex: 1 1 130px; min-width: 0; max-width: 170px; height: 34px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--card); outline: 0; font-size: 13px; transition: border-color 0.2s, color 0.2s; }
+.pl-dates input:focus { border-color: var(--vc); }
+.pl-dates input:disabled { opacity: 0.5; }
+.pl-dates input.is-auto { border-style: dashed; color: var(--muted); }
+.pl-dates__to { color: var(--faint); }
+.pl-auto { height: 30px; padding: 0 10px; border: 1px solid var(--line-2); border-radius: 8px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.pl-auto:hover { color: var(--text); }
+.pl-dates__hint { display: block; margin-top: 7px; color: var(--muted); font-size: 12px; line-height: 1.45; }
+.pl-dates__hint:empty { display: none; }
+
+/* ---------------------------------------------------------------- calendar */
+.pc-cal { container: cal / inline-size; }
+.pc-cal__head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 12px 16px; margin-bottom: 18px; }
+.pc-cal__title { font-size: 22px; font-weight: 650; letter-spacing: -0.02em; line-height: 1.2; }
+.pc-cal__title span { color: var(--faint); font-weight: 500; }
+.pc-cal__tools { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.pc-nav { display: flex; align-items: center; gap: 4px; }
+.pc-seg { display: inline-flex; padding: 3px; border-radius: 10px; background: var(--card-2); box-shadow: inset 0 0 0 1px var(--line); }
+.pc-seg button { height: 26px; padding: 0 11px; border-radius: 7px; color: var(--muted); font-size: 12.5px; font-weight: 500; transition: background-color 0.2s, color 0.2s; }
+.pc-seg button[aria-pressed="true"] { background: var(--card); color: var(--text); box-shadow: 0 1px 2px rgba(0, 0, 0, 0.12), inset 0 0 0 1px var(--line); }
+.pc-look svg + svg, .pc.is-dark .pc-look svg:first-child { display: none; }
+.pc.is-dark .pc-look svg + svg { display: block; }
+
+.cal__months { display: grid; gap: 30px; }
+.cal__months.is-in { animation: cal-in 0.45s var(--ease) both; }
+@keyframes cal-in { from { opacity: 0; transform: translateX(calc(var(--dir, 1) * 14px)); } }
+.cal__mon-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 10px; }
+.cal__mon-t { font-size: 15px; font-weight: 600; }
+.cal__mon-t span { color: var(--faint); font-weight: 500; }
+.cal__mon:not(.is-center) .cal__mon-t { color: var(--text-2); }
+.cal__mon-sum { color: var(--muted); font-size: 12px; white-space: nowrap; }
+.cal__dow { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--gap); margin-bottom: 6px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.cal__dow span { padding-left: 10px; }
+.cal__grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--gap); }
+
+/* a day: its number, the picked vial's dose (a pill in its color), the other vials' doses (chips), and a thin
+   bar along the bottom for what's left in the picked vial that day */
+.cal__d { position: relative; min-width: 0; aspect-ratio: 1 / 0.8; overflow: hidden; border: 1px solid transparent; border-radius: 10px; background: var(--card-2); text-align: left; transition: background-color 0.2s, border-color 0.2s, box-shadow 0.2s; }
+.cal__d.is-blank { background: none; }
+.cal__n { position: absolute; top: 7px; left: 9px; display: flex; align-items: center; gap: 5px; color: var(--text-2); font-size: 12.5px; font-weight: 500; line-height: 20px; }
+.cal__d.is-past .cal__n { color: var(--faint); }
+.cal__d.is-today .cal__n { margin: 0 0 0 -4px; padding: 0 7px; border-radius: 999px; background: var(--text); color: var(--card); font-weight: 600; }
+.cal__d.has-dose { border-color: color-mix(in srgb, var(--vc) 22%, transparent); }
+.cal__v { position: absolute; top: 6px; right: 6px; display: flex; align-items: baseline; gap: 2px; font-size: 12.5px; font-weight: 650; line-height: 1; white-space: nowrap; }
+.cal__d.has-dose .cal__v { padding: 4px 7px; border-radius: 6px; background: var(--vc); color: var(--vink, #fff); }
+.cal__v small { font-size: 0.82em; font-weight: 550; opacity: 0.8; }
+.cal__d.is-short { border-style: dashed; border-color: color-mix(in srgb, var(--warn) 60%, transparent); }
+.cal__d.is-short .cal__v { background: var(--card); color: var(--warn); box-shadow: inset 0 0 0 1px var(--warn); }
+.cal__d.is-sel { border-color: var(--vc); box-shadow: 0 0 0 1px var(--vc); }
+.cal__d.is-end .cal__n::after { content: "End"; padding: 1px 5px; border-radius: 4px; background: color-mix(in srgb, var(--vc) 16%, transparent); color: var(--text-2); font-size: 10px; font-weight: 600; letter-spacing: 0.02em; line-height: 14px; }
+.cal__d.in-plan::before, .cal__d.in-plan::after { content: ""; position: absolute; left: 9px; bottom: 6px; height: 3px; border-radius: 2px; }
+.cal__d.in-plan::before { right: 9px; background: color-mix(in srgb, var(--vc) 16%, transparent); }
+.cal__d.in-plan::after { width: calc((100% - 18px) * var(--lvl, 0)); background: color-mix(in srgb, var(--vc) 75%, transparent); transition: width 0.6s var(--ease) calc(var(--i, 0) * 12ms); }
+/* the other vials' doses that day: a chip each in its color (three, then "+n"); tap one for that vial */
+.cal__dots { position: absolute; left: 7px; right: 7px; bottom: 14px; display: flex; gap: 3px; overflow: hidden; }
+.cal__dots i { flex: none; display: inline-flex; align-items: center; height: 17px; padding: 0 5px; border-radius: 5px; background: var(--vc); color: var(--vink, #fff); font-size: 10.5px; font-style: normal; font-weight: 650; cursor: pointer; transition: transform 0.2s var(--ease); }
+.cal__dots i:nth-of-type(n + 4) { display: none; }
+.cal__dots b { flex: none; display: inline-flex; align-items: center; height: 17px; padding: 0 5px; border-radius: 5px; background: var(--card-3); color: var(--text-2); font-size: 10px; font-weight: 600; }
+@media (hover: hover) {
+  button.cal__d:hover { background: var(--card-3); }
+  button.cal__d.has-dose:hover { background: color-mix(in srgb, var(--vc) 8%, var(--card-3)); }
+  button.cal__d:not(.has-dose):hover .cal__v::before { content: "+"; color: var(--faint); font-size: 16px; font-weight: 400; }
+  .cal__dots i:hover { transform: translateY(-1px); }
+}
+
+/* under each week: every peptide's doses that week added up; tap one for its vial */
+.cal__wk { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; margin: -1px 0 6px; padding: 0 2px; font-size: 12px; }
+.cal__wk-k { margin-right: 6px; color: var(--faint); font-size: 11.5px; font-weight: 500; white-space: nowrap; }
+.cal__wk-k span + span { display: none; }
+.cal__wk-i { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; border-radius: 7px; color: var(--text-2); white-space: nowrap; transition: background-color 0.2s; }
+.cal__wk-i:hover { background: var(--card-2); }
+.cal__wk-i i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--vc); }
+.cal__wk-i span { max-width: 18ch; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
+.cal__wk-i b { color: var(--text); font-weight: 600; }
+.cal__wk-i b small { margin-left: 2px; color: var(--muted); font-size: 0.9em; font-weight: 500; }
+.cal__wk-i.is-active { background: color-mix(in srgb, var(--vc) 12%, transparent); }
+.cal__wk-i.is-active span { color: var(--text); }
+
+.pc-cal__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; }
+
+/* the day editor: opens under the tapped day's week, pointing at the day */
+.cal__ed { grid-column: 1 / -1; display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s var(--ease); }
+.cal__ed.is-open { grid-template-rows: 1fr; }
+.cal__ed-in { min-height: 0; overflow: hidden; }
+.cal__ed-box { position: relative; display: grid; gap: 12px; margin: 10px 0 12px; padding: 16px 18px 18px; border: 1px solid var(--line-2); border-radius: 14px; background: var(--card); box-shadow: 0 16px 40px -24px rgba(0, 0, 0, 0.45); }
+.cal__ed-box::before { content: ""; position: absolute; top: -7px; left: calc((100% - 6 * var(--gap)) / 7 * (var(--col, 0) + 0.5) + var(--col, 0) * var(--gap) - 6px); width: 12px; height: 12px; border-top: 1px solid var(--line-2); border-left: 1px solid var(--line-2); background: var(--card); transform: rotate(45deg); transition: left 0.35s var(--ease); }
+.ed__head { display: flex; align-items: center; gap: 10px 14px; }
+.ed__head b { font-size: 16px; font-weight: 650; letter-spacing: -0.01em; }
+.ed__meta { flex: 1; color: var(--muted); font-size: 12.5px; }
+.ed__meta.is-warn { color: var(--warn); }
+.ed__x { margin-left: auto; }
+.ed__row { display: grid; grid-template-columns: 64px minmax(0, 1fr); align-items: start; gap: 10px; }
+.ed__k { padding-top: 6px; color: var(--muted); font-size: 12px; font-weight: 500; }
+.ed-vial i { width: 8px; height: 8px; border-radius: 50%; background: var(--vc); }
+.ed-vial.is-active i { background: var(--vink, #fff); }
+.ed-vial span { text-transform: none; }
+.ed__hint { margin-left: 74px; padding: 9px 12px; border-radius: 9px; background: var(--card-2); color: var(--text-2); font-size: 12.5px; line-height: 1.45; }
+
+/* ---------------------------------------------------------------- the vial picked */
+.pc-vial__head { justify-content: flex-start; }
+.pc-vial__name { flex: 1; min-width: 0; }
+.pc-vial__name b { display: block; overflow: hidden; font-size: 15.5px; font-weight: 600; letter-spacing: -0.01em; white-space: nowrap; text-overflow: ellipsis; }
+.pc-vial__name i { display: none; }
+.pc-vial__name span { display: block; margin-top: 1px; color: var(--muted); font-size: 12.5px; }
+.pl-set__go svg { transition: transform 0.25s var(--ease); }
+.pl-set__go[aria-expanded="true"] svg { transform: rotate(180deg); }
+.pc-set__body { display: grid; gap: 16px; margin-top: 16px; padding: 16px 0 4px; border-top: 1px solid var(--line); animation: pc-in 0.3s var(--ease) both; }
+.pl-remove { justify-self: start; }
+.pl-swatches { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+.pl-sw { position: relative; flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--vc); box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.08); transition: transform 0.2s var(--ease), box-shadow 0.2s; }
+.pl-sw:hover { transform: scale(1.1); }
+.pl-sw.is-active { box-shadow: 0 0 0 2px var(--card), 0 0 0 4px var(--vc); }
+.pl-sw--custom { background: conic-gradient(#ff6b6b, #ffd25c, #5cf08a, #5cc8ff, #b48cff, #ff7eb6, #ff6b6b); }
+.pl-sw--custom.is-active { background: var(--vc); }
+.pl-cpick { --pick: var(--vc); }
+.pl-cpick__row { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.pl-cpick input[type="color"] { width: 42px; height: 34px; padding: 3px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--card); cursor: pointer; }
+.pl-cpick input[type="color"]::-webkit-color-swatch-wrapper { padding: 0; }
+.pl-cpick input[type="color"]::-webkit-color-swatch { border: 0; border-radius: 5px; }
+.pl-cpick input[type="color"]::-moz-color-swatch { border: 0; border-radius: 5px; }
+.pl-cpick__hex { width: 104px; height: 34px; text-transform: none; }
+.pl-cpick__ok { border-color: var(--pick); background: var(--pick); color: var(--pick-ink, var(--vink, #fff)); }
+
+.pc-stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 16px; }
+.pc-stat { min-width: 0; padding: 11px 12px 12px; border-radius: 11px; background: var(--card-2); }
+.pc-stat__k { display: block; overflow: hidden; color: var(--muted); font-size: 11.5px; font-weight: 500; white-space: nowrap; text-overflow: ellipsis; }
+.pc-stat__v { display: block; margin-top: 4px; color: var(--muted); font-size: 12px; white-space: nowrap; }
+.pc-stat__v b { color: var(--text); font-size: 19px; font-weight: 650; letter-spacing: -0.02em; }
+.pc-stat__bar { display: block; height: 4px; margin: 8px 0 7px; overflow: hidden; border-radius: 2px; background: color-mix(in srgb, var(--vc) 18%, transparent); }
+.pc-stat__bar i { display: block; width: calc(var(--lvl, 0) * 100%); height: 100%; border-radius: 2px; background: var(--vc); transition: width 0.6s var(--ease); }
+.pc-stat__u { display: block; overflow: hidden; color: var(--muted); font-size: 11.5px; white-space: nowrap; text-overflow: ellipsis; }
+.pc-stat.is-short .pc-stat__v b, .pc-stat.is-short .pc-stat__u { color: var(--warn); }
+.pc-rows { margin-top: 12px; }
+.pc-rows div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 9px 2px; border-top: 1px solid var(--line); font-size: 13px; }
+.pc-rows dt { color: var(--muted); }
+.pc-rows dd { color: var(--text); font-weight: 500; text-align: right; }
+.pc-warn { margin-top: 10px; padding: 10px 12px; border-radius: 10px; background: color-mix(in srgb, var(--warn) 12%, transparent); color: var(--text-2); font-size: 12.5px; line-height: 1.45; }
+
+/* ---------------------------------------------------------------- small calendars (phones, a narrow frame) */
+@container cal (max-width: 640px) {
+  .pc-cal__title { font-size: 19px; }
+  .cal__d { aspect-ratio: auto; min-height: 60px; border-radius: 8px; }
+  .cal__dow span { padding-left: 0; text-align: center; }
+  .cal__n { top: 4px; left: 6px; font-size: 11.5px; line-height: 18px; }
+  .cal__d.is-today .cal__n { margin-left: -3px; padding: 0 5px; }
+  .cal__d.is-end .cal__n::after { display: none; }
+  .cal__d.is-end { box-shadow: inset -3px 0 0 var(--vc); }
+  .cal__v { top: auto; left: 3px; right: 3px; bottom: 7px; width: fit-content; max-width: calc(100% - 6px); margin: 0 auto; justify-content: center; font-size: 11px; }
+  .cal__d.has-dose .cal__v { padding: 3px 5px; border-radius: 5px; }
+  .cal__v small { display: none; }
+  .cal__d.in-plan::before, .cal__d.in-plan::after { left: 5px; bottom: 3px; height: 2px; }
+  .cal__d.in-plan::before { right: 5px; }
+  .cal__d.in-plan::after { width: calc((100% - 10px) * var(--lvl, 0)); }
+  /* the other vials: a thick bar each across the middle of the day (every one, side by side) */
+  .cal__dots { left: 5px; right: 5px; top: 25px; bottom: auto; gap: 2px; overflow: visible; }
+  .cal__dots i { position: relative; flex: 1 1 0; min-width: 0; height: 6px; padding: 0; border-radius: 3px; font-size: 0; }
+  .cal__dots i::after { content: ""; position: absolute; left: -1px; right: -1px; top: -7px; bottom: -7px; }
+  .cal__dots i:nth-of-type(n + 4) { display: block; }
+  .cal__dots b { display: none; }
+  .cal__wk { gap: 2px; margin-bottom: 4px; }
+  .cal__wk-i { height: 22px; gap: 5px; padding: 0 6px; font-size: 11.5px; }
+  .cal__wk-i span { max-width: 10ch; }
+  .ed__row { grid-template-columns: minmax(0, 1fr); gap: 6px; }
+  .ed__k { padding-top: 0; }
+  .ed__hint { margin-left: 0; }
+  .ed__head { flex-wrap: wrap; }
+  .ed__head b { flex: 1; }
+  .ed__meta { order: 3; flex-basis: 100%; }
+  .cal__ed-box { padding: 14px; }
+}
+@container cal (max-width: 440px) {
+  .cal__wk-i span { display: none; } /* a phone: the colors say which peptide */
+  .cal__wk-k span { display: none; }
+  .cal__wk-k span + span { display: inline; }
+  .pc-cal__tools { width: 100%; justify-content: space-between; }
+}
+@container page (max-width: 520px) {
+  .pc { gap: 12px; }
+  .pc-card { padding: 14px 14px 16px; border-radius: 14px; }
+  .pc-stats { gap: 6px; }
+  .pc-stat { padding: 10px; }
+  .pc-stat__v b { font-size: 17px; }
+}
+
+/* ---------------------------------------------------------------- reduced motion */
+.no-motion .pc *, .no-motion .pc *::before, .no-motion .pc *::after { animation: none !important; transition: none !important; }

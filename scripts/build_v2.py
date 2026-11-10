@@ -717,6 +717,120 @@ def planner_section(embed=False):
   </section>'''
 
 
+# ------------------------------------------------------------ the admin's calendar ---
+
+IC = {
+    "plus": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
+    "left": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg>',
+    "right": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg>',
+    "down": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>',
+    "x": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg>',
+    "sun": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>',
+    "moon": '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>',
+}
+
+
+def planner_app():
+    """The dose planner as the admin dashboard's Calendar page shows it (planner-embed.html, styled by
+    assets/css/planner.css rather than the site's v2.css): three cards, each a part the admin can frame on its
+    own (see "part" in v2-planner.js). Vials: every vial as a row (pick, drag to reorder, add one). Calendar:
+    the month (or three), the day editor, each week's totals. The vial: what's left in the one picked, its
+    dates, and its settings. The same v2-planner.js runs it as the calculator page's planner, through the same
+    data-* hooks; only the layout and the look differ."""
+    sizes = [2, 5, 10, 15, 20, 30, 50, 100, 1000]
+    def size_opts(default):
+        out = "".join(f'<button type="button" class="opt{" is-active" if v == default else ""}" data-val="{v}">{v} mg</button>' for v in sizes)
+        return out + '<button type="button" class="opt" data-val="custom">Custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" aria-label="Size in mg" hidden>'
+    every = "".join(f'<button type="button" class="opt" data-val="{v}">{t}</button>' for v, t in [(1, "Daily"), (2, "Every other day"), (7, "Weekly")])
+    def dates(pre):
+        return (f'<div class="pl-dates pc-field"><span class="pc-label">Start → end</span><div class="pl-dates__row">'
+                f'<input type="date" data-{pre}-start aria-label="Start: the first dose"><span class="pl-dates__to" aria-hidden="true">→</span>'
+                f'<input type="date" data-{pre}-end aria-label="End: the last day it\'s used"><button type="button" class="pl-auto" data-{pre}-end-auto hidden>Auto</button></div>'
+                f'<small class="pl-dates__hint" data-{pre}-hint></small></div>')
+    doses = ("".join(f'<button type="button" class="opt" data-val="{v}">{v} mg</button>' for v in [0.5, 1, 2, 2.5, 3, 5, 10])
+             + '<button type="button" class="opt" data-val="custom">Custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" aria-label="Dose in mg" hidden>'
+             + '<button type="button" class="opt" data-val="0">None</button><button type="button" class="opt opt--stop" data-ed-stop>Stop here</button>')
+    repeat = "".join(f'<button type="button" class="opt{" is-active" if v == 0 else ""}" data-val="{v}">{t}</button>'
+                     for v, t in [(0, "Just this day"), (1, "Daily"), (2, "Every other day"), (7, "Weekly")])
+    swatches = "".join(f'<button type="button" class="pl-sw" data-c="{i}" data-color="{i}" aria-label="{c}"></button>'
+                       for i, c in enumerate(["Green", "Blue", "Violet", "Pink", "Lime", "Silver"]))
+    stats = "".join(
+        f'<div class="pc-stat" data-pl-t="{k}"><span class="pc-stat__k" data-pl-d>&nbsp;</span>'
+        f'<span class="pc-stat__v"><b data-pl-v>0</b> mg</span><span class="pc-stat__bar" aria-hidden="true"><i></i></span>'
+        f'<span class="pc-stat__u" data-pl-u>Nothing used</span></div>'
+        for k in ("day", "week", "month")
+    )
+    return f'''<div class="pc" data-planner data-embed>
+
+  <section class="pc-card pc-vials" aria-labelledby="pc-vials-h">
+    <header class="pc-head">
+      <div><h2 class="pc-h" id="pc-vials-h">Vials</h2><p class="pc-sub">Left <span data-pl-all-day>after today</span></p></div>
+      <b class="pc-hidden" data-pl-echo></b>
+    </header>
+    <div class="pl-tabs pc-list" data-pl-tabs></div>
+    <div class="pl-new pc-new" data-pl-new role="group" aria-label="New vial" hidden>
+      <p class="pc-new__t">New vial</p>
+      <label class="pc-field"><span class="pc-label">Name</span><input type="text" class="pc-input" data-new-name maxlength="28" placeholder="e.g. BPC-157 #2" list="pl-names" autocomplete="off" spellcheck="false"></label>
+      <div class="pc-field"><span class="pc-label">Size</span><div class="opts" data-new-size>{size_opts(None)}</div></div>
+      <div class="pc-field"><span class="pc-label">Doses</span>
+        <div class="opts" data-new-how><button type="button" class="opt" data-how="same">Same as <span data-new-same></span></button><button type="button" class="opt" data-how="set">A dose</button><button type="button" class="opt" data-how="none">None yet</button></div>
+        <div class="pl-new__dose" data-new-dose-row hidden><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" data-new-dose aria-label="Dose in mg"><div class="opts" data-new-every>{every}</div></div>
+      </div>
+      {dates("new")}
+      <div class="pc-acts"><button type="button" class="pc-btn pc-btn--primary" data-new-ok>Add vial</button><button type="button" class="pc-btn" data-new-x>Cancel</button></div>
+    </div>
+    <datalist id="pl-names"></datalist>
+    <div class="pc-hidden" data-pl-all hidden><div data-pl-all-list></div></div>
+  </section>
+
+  <section class="pc-card pc-cal cal" data-cal aria-label="Calendar">
+    <header class="pc-cal__head">
+      <h2 class="pc-cal__title" data-cal-title>&nbsp;</h2>
+      <div class="pc-cal__tools">
+        <div class="pc-seg" role="group" aria-label="Months shown"><button type="button" data-cal-span="1" aria-pressed="true">Month</button><button type="button" data-cal-span="3" aria-pressed="false">3 months</button></div>
+        <div class="pc-nav"><button type="button" class="pc-icon" data-cal-nav="-1" aria-label="Previous month">{IC["left"]}</button><button type="button" class="pc-btn pc-btn--sm" data-cal-today>Today</button><button type="button" class="pc-icon" data-cal-nav="1" aria-label="Next month">{IC["right"]}</button></div>
+        <button type="button" class="pc-icon pc-look" data-cal-look title="Light or dark">{IC["moon"]}{IC["sun"]}<span class="pc-hidden">Dark</span></button>
+      </div>
+    </header>
+    <div class="cal__months" data-cal-months></div>
+    <footer class="pc-cal__foot"><span data-cal-sum>&nbsp;</span><button type="button" class="pc-link cal__clear" data-cal-clear hidden>Clear plan</button></footer>
+    <div class="cal__ed" data-cal-ed hidden><div class="cal__ed-in"><div class="cal__ed-box" role="group" aria-label="Dose for this day">
+      <div class="ed__head"><b data-ed-date></b><span class="ed__meta" data-ed-meta></span><button type="button" class="pc-icon ed__x" data-ed-close aria-label="Close">{IC["x"]}</button></div>
+      <div class="ed__row" data-ed-vial-row hidden><span class="ed__k">Vial</span><div class="opts" data-ed-vials></div></div>
+      <div class="ed__row"><span class="ed__k">Dose</span><div class="opts" data-ed-dose>{doses}</div></div>
+      <div class="ed__row"><span class="ed__k">Repeat</span><div class="opts" data-ed-rep>{repeat}</div></div>
+      <p class="ed__hint" data-ed-hint hidden></p>
+    </div></div></div>
+  </section>
+
+  <section class="pc-card pc-vial pl-out" aria-label="The vial picked">
+    <header class="pc-head pc-vial__head">
+      <i class="pc-dot" aria-hidden="true"></i>
+      <div class="pc-vial__name" data-pl-set-sum>&nbsp;</div>
+      <button type="button" class="pc-btn pc-btn--sm pl-set__go" data-pl-set-toggle aria-expanded="false" aria-controls="pl-set-body"><span data-pl-set-word>Edit vial</span>{IC["down"]}</button>
+      <b class="pc-hidden" data-pl-size></b>
+    </header>
+    <div class="pl-set pc-set" data-pl-set>
+      <div class="pl-set__body pc-set__body" id="pl-set-body" data-pl-set-body hidden>
+        <label class="pc-field"><span class="pc-label">Name</span><input type="text" class="pc-input" data-pl-name maxlength="28" placeholder="e.g. BPC-157" list="pl-names" autocomplete="off" spellcheck="false"></label>
+        <div class="pc-field"><span class="pc-label">Color</span><div class="pl-swatches" data-pl-colors>{swatches}<button type="button" class="pl-sw pl-sw--custom" data-pl-custom-open aria-label="Custom color" aria-expanded="false" aria-controls="pl-cpick"></button></div></div>
+        <div class="pl-cpick pc-field" id="pl-cpick" data-pl-cpick role="group" aria-label="Custom color" hidden><span class="pc-label">Custom color</span><div class="pl-cpick__row"><input type="color" data-pl-custom value="#33e6b0" aria-label="Pick a color"><input type="text" class="pc-input pl-cpick__hex" data-pl-hex maxlength="7" autocomplete="off" spellcheck="false" aria-label="Color code, like #33e6b0"><button type="button" class="pc-btn pc-btn--primary pl-cpick__ok" data-pl-cpick-ok>Apply</button><button type="button" class="pc-btn" data-pl-cpick-x>Cancel</button></div></div>
+        <div class="pc-field"><span class="pc-label">Size</span><div class="opts" data-pl-vial>{size_opts(5)}</div></div>
+        {dates("pl")}
+        <button type="button" class="pc-link pc-link--danger pl-remove" data-pl-remove hidden>Remove vial</button>
+      </div>
+    </div>
+    <div class="pc-stats">{stats}</div>
+    <dl class="pc-rows">
+      <div><dt data-pl-out-k>Runs dry</dt><dd data-pl-out>—</dd></div>
+      <div><dt>Planned</dt><dd data-pl-plan>No doses yet</dd></div>
+    </dl>
+    <p class="pc-warn warn" data-pl-warn hidden></p>
+  </section>
+</div>'''
+
+
+
 def page_calculator(groups):
     vial = opts("vial", [2, 5, 10, 20, 30, 50, 100], "mg", 5)
     water = opts("water", [0.5, 1, 2, 2.5, 3, 5, 10], "ml", 2)
@@ -801,15 +915,17 @@ def page_planner_embed():
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="color-scheme" content="dark">
 <meta name="robots" content="noindex, nofollow">
-<title>dose planner · hlix</title>
+<title>Dose planner · hlix</title>
 {FONTS}
-<link rel="stylesheet" href="assets/css/v2.css?v={VER}">
-<script>(function(){{var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");window.HLIX2={{base:""}};}})();</script>
+<link rel="stylesheet" href="assets/css/planner.css?v={VER}">
+<script>(function(){{var h=document.documentElement;h.classList.add("js");var reduce=/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);if(reduce)h.classList.add("no-motion");
+// numbers that count to their new value (the planner's tween; the site's v2.js isn't loaded here)
+function tween(a,b,d,u,done){{if(reduce||d<=0||a===b){{u(b);if(done)done();return;}}var t0=null,end=false;function fin(){{if(end)return;end=true;u(b);if(done)done();}}function step(t){{if(end)return;if(t0===null)t0=t;var p=Math.min(1,(t-t0)/d),e=p===1?1:1-Math.pow(2,-10*p);u(a+(b-a)*e);if(p<1)requestAnimationFrame(step);else fin();}}requestAnimationFrame(step);setTimeout(fin,d+80);}}
+window.HLIX2={{base:"",tween:tween}};}})();</script>
 </head>
-<body class="planner-embed" data-page="planner">
-{planner_section(embed=True)}
+<body class="pc-page">
+{planner_app()}
 <script src="assets/js/search-index.js?v={VER}"></script>
-<script src="assets/js/v2.js?v={VER}"></script>
 <script src="assets/js/v2-planner.js?v={VER}" defer></script>
 </body>
 </html>'''

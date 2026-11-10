@@ -71,11 +71,19 @@ color, doses, rules, end? }`: `doses` the days set by hand, `rules` the repeats
 the tabs to change it), and two can share a color. The admin reads plans with the
 same math (`dashboard/src/lib/vials.ts` there): change one, change the other.
 
-The admin frames the page more than once, each copy showing part of the planner
-(`part` in `v2-planner.js`): `#vials` (the vial tabs, the new-vial form and the
-vial's settings, kept in sight as you scroll), the calendar, and, wide, `#panel`
-("left in vial"). The admin passes the plan and the day or vial picked between
-them; a copy given back the plan it sent changes nothing.
+`planner-embed.html` has a layout and look of its own, in the admin's style:
+`planner_app()` in `scripts/build_v2.py` (three cards: Vials, Calendar, the vial
+picked) styled by `assets/css/planner.css` (not `v2.css`, and without `v2.js`).
+Both pages share `v2-planner.js` and its `data-*` hooks. Its text is in sentence
+case; the calculator page lowercases it (v2.css, and `lc()` in the script where a
+vial's name keeps its case).
+
+The admin frames the page more than once when it's wide, each copy showing part of
+the planner (`part` in `v2-planner.js`): the calendar, and beside it `#side` (the
+Vials and the vial picked, which saves like the calendar). Narrow, one copy shows
+it all. The admin passes the plan and the day or vial picked between them; a copy
+given back the plan it sent changes nothing. (`#vials` and `#panel`, each card on
+its own, are what an older admin page asked for.)
 
 `vercel.json` keeps every page unframeable except `planner-embed.html`, which
 only admin.hlixlabs.com (and the admin's local demo on `localhost:5175`) may

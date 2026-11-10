@@ -17,16 +17,21 @@
   // under it ("all"). the admin passes the plan, the day in focus and the vial picked between them; the
   // calendar and the vials bar save, the panel doesn't. a calendar told the bar is in its own frame ("bar")
   // hides its own
-  var part = embed && location.hash === "#panel" ? "panel" : embed && location.hash === "#vials" ? "vials" : "all";
-  var barOut = false; // the vials bar is in a frame of its own (so not in this one)
+  // the admin's Calendar now frames two copies when it's wide: the calendar ("calendar") and, beside it, the
+  // vials with the one picked ("side", #side: the Vials and vial cards of planner-embed.html), which saves
+  // like the calendar does. "vials" and "panel" are the parts an older admin page asks for
+  var part = embed && location.hash === "#side" ? "side" : embed && location.hash === "#panel" ? "panel" : embed && location.hash === "#vials" ? "vials" : "all";
+  var aside = part === "side" || part === "vials"; // shows (and saves) the vials but not the calendar: picks go to it
+  var barOut = false; // the vials are in a frame of their own (so not in this one)
   root.setAttribute("data-part", part);
   var STORE = "hlix-plan";
   var EPS = 1e-9;
   var MAX_REPEAT = 2000; // safety cap on how many doses the repeats can lay down (a 1000 mg vial at 0.5 mg a day)
   var PRESETS = 6;      // preset colors, --v0 … --v5 in v2.css; vials past six get a color of their own
   var MAX_DOTS = 3;     // other vials' dose chips a roomy day shows before "+n" (a small one shows each as a bar)
-  var MONTHS = ["january", "february", "march", "april", "may", "june", "july", "august", "september", "october", "november", "december"];
-  var DOW = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"];
+  // written in sentence case: the site's own pages show it all lowercase (v2.css), the admin's calendar as written
+  var MONTHS = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+  var DOW = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
   var EVERY = { 1: "daily", 2: "every-other-day", 7: "weekly" };
 
   var $ = function (s, c) { return (c || root).querySelector(s); };
@@ -48,6 +53,9 @@
   function mon(d) { return MONTHS[d.getMonth()].slice(0, 3); }
   function dayLabel(d) { return DOW[d.getDay()] + ", " + mon(d) + " " + d.getDate(); }
   function rangeLabel(a, b) { return mon(a) + " " + a.getDate() + "–" + (a.getMonth() === b.getMonth() ? "" : mon(b) + " ") + b.getDate(); }
+  // the site's own pages are all lowercase (v2.css), save the few places that keep a vial's name as typed:
+  // there, the rest of the text is lowercased here
+  function lc(t) { return embed ? t : t.toLowerCase(); }
   var KEY_RE = /^\d{4}-\d\d-\d\d$/;
   // a date from a date field: only this century (typing a year passes through 0002, 0020, 0202 on the way to 2026)
   function okDate(k) { return typeof k === "string" && KEY_RE.test(k) && k >= "2000-01-01" && k <= "2099-12-31"; }
@@ -384,6 +392,7 @@
       el.classList.toggle("is-past", k < todayKey);
       el.classList.toggle("is-sel", k === editing);
       el.classList.toggle("is-end", !!v.end && k === v.end);
+      el.classList.toggle("in-plan", inPlan); // its bar of what's left (the admin's calendar)
       el.querySelector(".cal__v").innerHTML = dose > 0 ? fmt(dose, 2) + "<small>mg</small>" : "";
       // the other vials' doses that day: a chip each in its color with the dose (v2.css shows a few, then "+n";
       // on a small calendar, a bar each across the day)
@@ -416,8 +425,8 @@
       w.el.hidden = !list.length;
       if (!list.length) { w.el.innerHTML = ""; w.el.removeAttribute("aria-label"); return; }
       var range = rangeLabel(parse(w.a), parse(w.b));
-      w.el.setAttribute("aria-label", "week of " + range + ": " + list.map(function (g) { return peptideName(g.o) + " " + mg(g.mg); }).join(", "));
-      w.el.innerHTML = '<span class="cal__wk-k" aria-hidden="true"><span>' + range + "</span><span>wk</span></span>" + list.map(function (g) {
+      w.el.setAttribute("aria-label", "Week of " + range + ": " + list.map(function (g) { return peptideName(g.o) + " " + mg(g.mg); }).join(", "));
+      w.el.innerHTML = '<span class="cal__wk-k" aria-hidden="true"><span>' + range + "</span><span>Wk</span></span>" + list.map(function (g) {
         var name = peptideName(g.o);
         return '<button type="button" class="cal__wk-i' + (g.on ? " is-active" : "") + '" data-vial="' + g.pick.id + '" ' + tintAttr(g.o) +
           ' title="' + attr(name + ": " + mg(g.mg) + " this week") + '" aria-label="' + attr(name + " " + mg(g.mg) + ", show it") + '"><i></i><span>' + attr(name) + "</span><b>" + fmt(g.mg, 2) + "<small>mg</small></b></button>";
@@ -431,10 +440,10 @@
     var s0 = onScreen[0], s1 = onScreen[onScreen.length - 1];
     var name = onScreen.length > 1 ? MONTHS[s0.m].slice(0, 3) + " – " + MONTHS[s1.m].slice(0, 3) : MONTHS[s0.m];
     var all = doses(s0.a, s1.b);
-    sumEl.textContent = (many ? label(v) + " · " : "") + (all ? name + ": " + all : "no doses in " + name + " yet");
-    onScreen.forEach(function (s) { if (s.sum) s.sum.textContent = doses(s.a, s.b) || "no doses"; });
+    sumEl.textContent = (many ? label(v) + " · " : "") + lc(all ? name + ": " + all : "No doses in " + name + " yet");
+    onScreen.forEach(function (s) { if (s.sum) s.sum.textContent = doses(s.a, s.b) || "No doses"; });
     clearBtn.hidden = !L.length;
-    if (!clearBtn.classList.contains("is-armed")) clearBtn.textContent = many ? "clear " + label(v) : "clear plan";
+    if (!clearBtn.classList.contains("is-armed")) clearBtn.textContent = many ? lc("Clear ") + label(v) : lc("Clear plan");
   }
 
   // ---- "left in vial" panel ----
@@ -446,7 +455,7 @@
     $("[data-pl-d]", t).textContent = sub;
     t.style.setProperty("--lvl", Math.max(0, Math.min(1, left / size)).toFixed(4));
     t.classList.toggle("is-short", short);
-    $("[data-pl-u]", t).textContent = short ? mg(-left) + " short" : used > EPS ? mg(used) + " used" : "nothing used";
+    $("[data-pl-u]", t).textContent = short ? mg(-left) + " short" : used > EPS ? mg(used) + " used" : "Nothing used";
     tween(from, to, 650, function (x) { el.textContent = fmt(x, 2); }, function () { el.textContent = fmt(to, 2); });
   }
 
@@ -456,7 +465,7 @@
     var v = V(), L = ledger(v), size = v.size, f = parse(focus);
     var ws = addDays(f, -f.getDay()), we = addDays(f, 6 - f.getDay());
     var ms = new Date(f.getFullYear(), f.getMonth(), 1), me = new Date(f.getFullYear(), f.getMonth() + 1, 0);
-    tile("day", focus === todayKey ? "today" : mon(f) + " " + f.getDate(), usedIn(L, focus, focus), size - usedThrough(L, focus));
+    tile("day", focus === todayKey ? "Today" : mon(f) + " " + f.getDate(), usedIn(L, focus, focus), size - usedThrough(L, focus));
     tile("week", rangeLabel(ws, we), usedIn(L, key(ws), key(we)), size - usedThrough(L, key(we)));
     tile("month", MONTHS[f.getMonth()], usedIn(L, key(ms), key(me)), size - usedThrough(L, key(me)));
     $("[data-pl-size]").textContent = label(v) + " · " + mg(size);
@@ -465,10 +474,10 @@
     L.forEach(function (e) { if (!over && e.cum > size + EPS) over = e; });
     var outK = $("[data-pl-out-k]"), outEl = $("[data-pl-out]"), planEl = $("[data-pl-plan]"), warn = $("[data-pl-warn]");
     var ends = !dry && L.length && v.end;
-    outK.textContent = ends ? "ends" : dry || !L.length ? "runs dry" : "spare after plan";
+    outK.textContent = ends ? "Ends" : dry || !L.length ? "Runs dry" : "Spare after plan";
     if (!L.length) {
       outEl.textContent = "—";
-      planEl.textContent = "tap a day to add one";
+      planEl.textContent = "Tap a day to add one";
     } else {
       if (dry) {
         var days = Math.round((parse(dry.k) - today) / 864e5);
@@ -481,18 +490,36 @@
       planEl.textContent = L.length + (L.length === 1 ? " dose · " : " doses · ") + mg(total);
     }
     warn.hidden = !over;
-    if (over) warn.textContent = (state.vials.length > 1 ? label(v) + ": " : "") + "this plan uses " + mg(total) + ", " + mg(total - size) + " more than one " + mg(size) + " vial holds. the amber days come after it runs dry, so you'd open a second vial on " + dayLabel(parse(over.k)) + ".";
+    if (over) warn.textContent = (state.vials.length > 1 ? label(v) + ": " : "") + lc("This plan uses " + mg(total) + ", " + mg(total - size) + " more than one " + mg(size) + " vial holds. The amber days come after it runs dry, so you'd open a second vial on " + dayLabel(parse(over.k)) + ".");
     allVials();
     syncDates();
   }
 
+  // each vial after the day in focus: what's left, and when it runs dry (or ends)
+  function standing(v) {
+    var L = ledger(v), left = v.size - usedThrough(L, focus), dry = dryEntry(v, L);
+    var when = dry ? "dry " + md(dry.k) : v.end && L.length ? "ends " + md(v.end) : L.length ? "lasts the plan" : "no doses yet";
+    return { L: L, left: left, dry: dry, when: when, lvl: Math.max(0, Math.min(1, left / v.size)).toFixed(4) };
+  }
+  // the tabs' second line (shown as the rows of the admin's Vials card): "6 mg left · dry Dec 7"
+  function tabStatus() {
+    state.vials.forEach(function (v) {
+      var b = tabsEl.querySelector('[data-vial="' + v.id + '"]');
+      if (!b) return;
+      var st = standing(v), short = st.left < -EPS;
+      b.classList.toggle("is-short", short);
+      b.style.setProperty("--lvl", st.lvl);
+      $(".pl-tab__st", b).textContent = !st.L.length ? "No doses yet" : (short ? mg(-st.left) + " short" : mg(st.left) + " left") + " · " + st.when;
+    });
+  }
   // every vial at a glance (only with two or more); tap a row to switch to that vial
   var allEl = $("[data-pl-all]"), allList = $("[data-pl-all-list]");
   function allVials() {
-    allEl.hidden = state.vials.length < 2;
-    if (allEl.hidden) return;
     var f = parse(focus);
     $("[data-pl-all-day]").textContent = "after " + (focus === todayKey ? "today" : mon(f) + " " + f.getDate());
+    tabStatus();
+    allEl.hidden = state.vials.length < 2;
+    if (allEl.hidden) return;
     allList.innerHTML = "";
     state.vials.forEach(function (v) {
       var L = ledger(v), left = v.size - usedThrough(L, focus), dry = dryEntry(v, L);
@@ -581,7 +608,7 @@
   function syncEditor() {
     if (!editing) return;
     var v = V(), d = parse(editing), sched = schedule(v);
-    edDate.textContent = editing === todayKey ? "today, " + mon(d) + " " + d.getDate() : dayLabel(d);
+    edDate.textContent = editing === todayKey ? "Today, " + mon(d) + " " + d.getDate() : dayLabel(d);
     edVialRow.hidden = state.vials.length < 2;
     if (!edVialRow.hidden) {
       edVials.innerHTML = "";
@@ -611,26 +638,26 @@
     var L = ledger(v), dose = sched[editing] || 0, left = v.size - usedThrough(L, editing);
     var water = +calc.water || 0;
     edMeta.classList.toggle("is-warn", dose > 0 && left < -EPS);
-    if (dose > 0 && left < -EPS) edMeta.textContent = "not enough left: " + mg(-left) + " short";
+    if (dose > 0 && left < -EPS) edMeta.textContent = "Not enough left: " + mg(-left) + " short";
     else if (dose > 0) edMeta.textContent = mg(left) + " left after this dose" + (water > 0 ? " · draw " + fmt(dose * water * 100 / v.size, 1) + " units with " + fmt(water, 2) + " ml water" : "");
-    else edMeta.textContent = L.length && editing >= L[0].k ? mg(Math.max(0, left)) + " in the vial" : "no dose yet";
+    else edMeta.textContent = L.length && editing >= L[0].k ? mg(Math.max(0, left)) + " in the vial" : "No dose yet";
     // what a repeat picked here would do, against the repeats as they were when this day was opened
     var here = snapshot.rules.filter(function (r) { return isDay(r, editing); });
     var along = snapshot.rules.filter(function (r) { return here.indexOf(r) < 0 && running(r, editing); });
-    var goes = along.length ? " " + abouts(along) + " keeps going." : "";
+    var goes = along.length ? " " + abouts(along).replace(/^the/, "The") + " keeps going." : "";
     edHint.hidden = !edRep && !here.length && !edStop;
     var spare = v.size - L.reduce(function (t, e) { return t + e.mg; }, 0);
     var past = !edStop && !edRep && !!snapshot.end && editing > snapshot.end;
     var till = snapshot.end && editing <= snapshot.end ? "up to its end date, " + md(snapshot.end) : "until the vial runs dry";
     if (past) edHint.hidden = false;
-    edHint.textContent = edStop ? "no more doses from this day on: the vial ends the day before, and the " + (spare > EPS ? mg(spare) + " left in it is thrown away." : "rest is thrown away.")
-      : past ? "after this vial's end date (" + md(snapshot.end) + "). a dose here clears it, and the vial runs on."
-      : !edRep ? (here.length ? "part of " + abouts(here) + ". changes here only touch this day." : "")
-      : !(edDose > 0) && !edClear ? "pick a dose to repeat from this day."
-      : here.length && along.length ? (edClear ? "stops " + abouts(here) + " from this day on." : "repeats from this day in place of " + abouts(here) + ", " + till + ".") + goes
-      : edClear ? "clears this day and every dose after it."
-      : along.length ? "adds a repeat from this day, alongside " + abouts(along) + ". they share the vial " + till.replace("the vial", "it") + "."
-      : "repeats from this day " + till + ".";
+    edHint.textContent = edStop ? "No more doses from this day on: the vial ends the day before, and the " + (spare > EPS ? mg(spare) + " left in it is thrown away." : "rest is thrown away.")
+      : past ? "After this vial's end date (" + md(snapshot.end) + "). A dose here clears it, and the vial runs on."
+      : !edRep ? (here.length ? "Part of " + abouts(here) + ". Changes here only touch this day." : "")
+      : !(edDose > 0) && !edClear ? "Pick a dose to repeat from this day."
+      : here.length && along.length ? (edClear ? "Stops " + abouts(here) + " from this day on." : "Repeats from this day in place of " + abouts(here) + ", " + till + ".") + goes
+      : edClear ? "Clears this day and every dose after it."
+      : along.length ? "Adds a repeat from this day, alongside " + abouts(along) + ". They share the vial " + till.replace("the vial", "it") + "."
+      : "Repeats from this day " + till + ".";
   }
 
   // every choice re-applies over the snapshot, so trying options in a row never stacks them up
@@ -769,7 +796,7 @@
   var spanBtns = $$("[data-cal-span]"), lookBtn = $("[data-cal-look]");
   function syncLook() {
     root.classList.toggle("is-dark", state.look === "dark");
-    $("span", lookBtn).textContent = state.look === "dark" ? "light" : "dark"; // what a tap switches to
+    $("span", lookBtn).textContent = state.look === "dark" ? "Light" : "Dark"; // what a tap switches to
     spanBtns.forEach(function (b) { b.setAttribute("aria-pressed", +b.getAttribute("data-cal-span") === state.months ? "true" : "false"); });
   }
   lookBtn.addEventListener("click", function () {
@@ -795,7 +822,7 @@
   clearBtn.addEventListener("click", function () {
     if (!clearBtn.classList.contains("is-armed")) {
       clearBtn.classList.add("is-armed");
-      clearBtn.textContent = "tap again to clear";
+      clearBtn.textContent = lc("Tap again to clear");
       armT = setTimeout(function () { disarm(); paint(); }, 3000);
       return;
     }
@@ -825,8 +852,8 @@
       tint(b, v);
       b.setAttribute("data-vial", v.id);
       b.setAttribute("aria-pressed", v.id === state.active ? "true" : "false");
-      if (state.vials.length > 1) b.title = "drag to move (or alt + arrow keys)";
-      b.innerHTML = "<i></i><span></span><small></small>";
+      if (state.vials.length > 1) b.title = "Drag to reorder (or Alt + arrow keys)";
+      b.innerHTML = '<i></i><span></span><small></small><em class="pl-tab__st"></em><u class="pl-tab__lvl"><b></b></u>';
       $("span", b).textContent = label(v);
       $("small", b).textContent = mg(v.size);
       tabsEl.appendChild(b);
@@ -836,8 +863,9 @@
     add.className = "pl-tab pl-tab--add";
     add.setAttribute("data-vial-add", "");
     add.setAttribute("aria-expanded", nw.hidden ? "false" : "true");
-    add.innerHTML = "<b>+</b>add vial";
+    add.innerHTML = "<b>+</b>Add vial";
     tabsEl.appendChild(add);
+    tabStatus();
   }
 
   function syncVial() {
@@ -869,8 +897,11 @@
     setBody.hidden = !setOpen;
     setEl.classList.toggle("is-open", setOpen);
     setToggle.setAttribute("aria-expanded", setOpen ? "true" : "false");
-    setWord.textContent = setOpen ? "done" : "settings";
-    setSum.textContent = label(v) + " · " + mg(v.size) + (a ? " · " + md(a) + " → " + (z ? md(z) : "…") : " · no doses yet");
+    setWord.textContent = setOpen ? "Done" : "Edit vial";
+    // "RT #2 · 10 mg · Nov 2 → Dec 7": the name, then the rest (the admin's vial card shows them on two lines)
+    setSum.innerHTML = "<b></b><i> · </i><span></span>";
+    $("b", setSum).textContent = label(v);
+    $("span", setSum).textContent = lc(mg(v.size) + (a ? " · " + md(a) + " → " + (z ? md(z) : "…") : " · no doses yet"));
   }
   function openSet(on) {
     if (setOpen === on) return;
@@ -884,7 +915,7 @@
   });
   document.addEventListener("pointerdown", function (e) {
     var t = e.target;
-    if (t && t.closest && t.closest(".pl-vials")) return;
+    if (t && t.closest && t.closest(".pl-vials, [data-pl-set], [data-pl-set-toggle], [data-pl-tabs], [data-pl-new]")) return;
     if (barOut || part === "panel") tell("away"); // the bar's frame folds its settings
     else if (setOpen) openSet(false);
   });
@@ -905,7 +936,7 @@
     shown = {}; // a different vial: tiles jump straight to its numbers instead of counting from the last one's
     if (editing) startEdit(editing);
     disarmRemove();
-    if (embed && part === "vials") { // the calendar saves it, and opens it on the day it has open
+    if (embed && aside) { // the calendar saves it, and opens it on the day it has open
       syncVial();
       paint();
       summarize();
@@ -959,7 +990,8 @@
     swallow = false;
     var b = e.target.closest && e.target.closest("[data-vial]");
     if (!b || e.button > 0 || state.vials.length < 2) return;
-    drag = { b: b, id: b.getAttribute("data-vial"), x: e.clientX, y: e.clientY, on: false, pid: e.pointerId, to: null, after: false, touch: e.pointerType === "touch", held: false, holdT: 0 };
+    drag = { b: b, id: b.getAttribute("data-vial"), x: e.clientX, y: e.clientY, on: false, pid: e.pointerId, to: null, after: false, touch: e.pointerType === "touch", held: false, holdT: 0,
+      col: getComputedStyle(tabsEl).flexDirection.indexOf("column") === 0 };
     if (drag.touch) {
       var d = drag;
       d.holdT = setTimeout(function () {
@@ -988,10 +1020,10 @@
     tabs.forEach(function (t) {
       if (t === drag.b) return;
       var r = t.getBoundingClientRect();
-      if (e.clientX >= r.left && e.clientX <= r.right && e.clientY >= r.top - 4 && e.clientY <= r.bottom + 4) { hit = t; after = e.clientX > r.left + r.width / 2; }
+      if ((drag.col || (e.clientX >= r.left && e.clientX <= r.right)) && e.clientY >= r.top - 4 && e.clientY <= r.bottom + 4) { hit = t; after = drag.col ? e.clientY > r.top + r.height / 2 : e.clientX > r.left + r.width / 2; }
     });
     var add = $("[data-vial-add]", tabsEl), ar = add.getBoundingClientRect();
-    if (!hit && e.clientX >= ar.left && e.clientY >= ar.top - 4 && e.clientY <= ar.bottom + 4) { hit = tabs[tabs.length - 1] === drag.b ? tabs[tabs.length - 2] : tabs[tabs.length - 1]; after = true; }
+    if (!hit && (drag.col ? e.clientY >= ar.top - 4 : e.clientX >= ar.left && e.clientY >= ar.top - 4 && e.clientY <= ar.bottom + 4)) { hit = tabs[tabs.length - 1] === drag.b ? tabs[tabs.length - 2] : tabs[tabs.length - 1]; after = true; }
     if (!hit) return; // between tabs: keep the last spot
     drag.to = hit.getAttribute("data-vial");
     drag.after = after;
@@ -1089,12 +1121,12 @@
   $("[data-pl-cpick-x]").addEventListener("click", function () { closePick(); customSw.focus({ preventScroll: true }); });
   cPick.addEventListener("keydown", function (e) { if (e.key === "Escape") { e.stopPropagation(); closePick(); customSw.focus({ preventScroll: true }); } });
 
-  function disarmRemove() { clearTimeout(removeT); removeBtn.classList.remove("is-armed"); removeBtn.textContent = "remove vial"; }
+  function disarmRemove() { clearTimeout(removeT); removeBtn.classList.remove("is-armed"); removeBtn.textContent = lc("Remove vial"); }
   removeBtn.addEventListener("click", function () {
     if (state.vials.length < 2) return;
     if (!removeBtn.classList.contains("is-armed")) {
       removeBtn.classList.add("is-armed");
-      removeBtn.textContent = "tap again to remove " + label(V());
+      removeBtn.textContent = lc("Tap again to remove ") + label(V());
       removeT = setTimeout(disarmRemove, 3000);
       return;
     }
@@ -1135,12 +1167,12 @@
   // (empty: "auto", the day it runs dry, which moves with its size and doses). nothing after the end is taken from it
   var plStart = $("[data-pl-start]"), plEnd = $("[data-pl-end]"), plAuto = $("[data-pl-end-auto]"), plHint = $("[data-pl-hint]");
   function datesHint(v, a, own, runs) {
-    if (!a) return "tap a day on the calendar to add its first dose.";
+    if (!a) return "Tap a day on the calendar to add its first dose.";
     var L = ledger(v), spare = v.size - (L.length ? L[L.length - 1].cum : 0), left = spare > EPS ? mg(spare) + " left over" : "nothing left over";
     var dry = v.rules.some(function (r) { return !r.until; }); // a repeat still going: it went until the vial couldn't cover the next dose
-    if (!own) return runs ? "auto: " + (dry ? "its last dose before it runs dry" + (spare > EPS ? " (" + mg(spare) + " left, short of a dose)" : "") : "its last dose, " + left) + ". pick a date to end it sooner." : "";
-    if (runs && runs < own) return "it runs dry " + md(runs) + ", before this date.";
-    return "ends here: " + (spare > EPS ? left + ", thrown away" : left) + ". auto puts it back to the day it runs dry.";
+    if (!own) return runs ? "Auto: " + (dry ? "its last dose before it runs dry" + (spare > EPS ? " (" + mg(spare) + " left, short of a dose)" : "") : "its last dose, " + left) + ". Pick a date to end it sooner." : "";
+    if (runs && runs < own) return "It runs dry " + md(runs) + ", before this date.";
+    return "Ends here: " + (spare > EPS ? left + ", thrown away" : left) + ". Auto puts it back to the day it runs dry.";
   }
   function syncDates() {
     var v = V(), a = firstDay(v), own = v.end || null, runs = runsTo(v);
@@ -1151,7 +1183,7 @@
     plEnd.min = a || "2000-01-01";
     plEnd.classList.toggle("is-auto", !own);
     plAuto.hidden = !own;
-    plHint.textContent = datesHint(v, a, own, runs);
+    plHint.textContent = lc(datesHint(v, a, own, runs));
     syncSet();
   }
   plStart.min = plEnd.min = "2000-01-01";
@@ -1257,13 +1289,13 @@
     nwEnd.classList.toggle("is-auto", !s.end);
     nwAuto.hidden = !s.end;
     var lead = s.how === "same" ? regimenText(R) + ". " : "";
-    nwHint.textContent = s.how === "none" ? ""
-      : !okDate(S) ? "pick the day of its first dose."
-      : s.how === "set" && !ks.length ? "pick a dose and how often."
-      : s.end && s.end < S ? "the end is before the start."
+    nwHint.textContent = lc(s.how === "none" ? ""
+      : !okDate(S) ? "Pick the day of its first dose."
+      : s.how === "set" && !ks.length ? "Pick a dose and how often."
+      : s.end && s.end < S ? "The end is before the start."
       : lead + ks.length + (ks.length === 1 ? " dose" : " doses") + ", " + (s.end
         ? "ends " + md(s.end) + (runs && runs < s.end ? " (it runs dry " + md(runs) + ")" : spare > EPS ? ", " + mg(spare) + " left over" : "")
-        : "runs dry after " + md(lastKey(sched)) + (spare > EPS ? " (" + mg(spare) + " left, short of a dose)" : "") + ".");
+        : "runs dry after " + md(lastKey(sched)) + (spare > EPS ? " (" + mg(spare) + " left, short of a dose)" : "") + "."));
   }
   function openNew() {
     var v = V(), R = regimen(v);
@@ -1307,7 +1339,7 @@
     save(); // the new vial, before it's picked (a calendar in another frame gets it first)
     setActive(v.id);
     var a = firstDay(v);
-    if (a) { if (embed && part === "vials") tell("goto", { k: a }); else showDay(a); }
+    if (a) { if (embed && aside) tell("goto", { k: a }); else showDay(a); }
   }
   // day a, on screen and in the panel
   function showDay(a) {
@@ -1401,7 +1433,7 @@
   window.addEventListener("message", function (e) {
     var m = e.data;
     if (e.source !== window.parent || !m) return;
-    if (m.type === "hlix-plan:part" && e.origin === host && part !== "panel" && part !== "vials") { // the calendar on its own, or with the panel
+    if (m.type === "hlix-plan:part" && e.origin === host && part !== "panel" && !aside) { // the calendar on its own, or with the panel
       part = m.part === "calendar" ? "calendar" : "all";
       root.setAttribute("data-part", part);
       barOut = m.bar === true;
@@ -1419,7 +1451,7 @@
       setActive(m.id);
       return;
     }
-    if (m.type === "hlix-plan:goto" && e.origin === host && started && okDate(m.k) && part !== "vials" && part !== "panel") { // a vial just added in the bar
+    if (m.type === "hlix-plan:goto" && e.origin === host && started && okDate(m.k) && part !== "panel" && !aside) { // a vial just added in the bar
       showDay(m.k);
       return;
     }
@@ -1432,7 +1464,7 @@
     var json = JSON.stringify(m.plan || null);
     if (started && json === lastJSON) return; // what this shows already (its own change, come back)
     lastJSON = json;
-    var wasEd = part === "panel" || part === "vials" ? null : editing; // a day open in the editor stays open
+    var wasEd = part === "panel" || aside ? null : editing; // a day open in the editor stays open
     load(m.plan);
     if (!started) {
       started = true;
@@ -1444,7 +1476,7 @@
       disarm();
       disarmRemove();
       vialCustom = false;
-      if (part !== "panel") shown = {}; // the panel follows every change in the calendar: its numbers count to the new ones
+      if (part !== "panel" && part !== "side") shown = {}; // the panel follows every change in the calendar: its numbers count to the new ones
       start();
       if (wasEd && slotOf(wasEd)) openEditor(wasEd);
     }
