@@ -31,6 +31,7 @@ CLOSE = b.icon("close")
 SUN = b.icon("sun")
 MOON = b.icon("moon")
 CART = b.icon("cart")
+USER = b.icon("user")
 
 esc = b.html_escape
 money = b.money
@@ -136,6 +137,7 @@ def nav(p, page):
   <div class="nav__right">
     <button class="nav__search" data-search-open aria-label="search">{SEARCH}<span>search</span><kbd>/</kbd></button>
     <button class="nav__theme" data-theme-toggle aria-label="switch to light theme"><span class="nav__theme-sun">{SUN}</span><span class="nav__theme-moon">{MOON}</span></button>
+    <a class="nav__account" href="{p}account.html" aria-label="your account"{' aria-current="page"' if page == "account" else ""}>{USER}<i aria-hidden="true"></i></a>
     <button class="nav__cart" data-cart-open aria-label="view cart">{CART}<span class="nav__cart-count" data-cart-count hidden>0</span></button>
     <a class="btn btn--sm" href="{p}contact.html" data-magnetic>contact</a>
     <button class="nav__burger" data-menu-toggle aria-label="menu" aria-expanded="false"><i></i><i></i></button>
@@ -147,6 +149,7 @@ def nav(p, page):
     <a style="--i:1" href="{p}catalog.html"><span>02</span>catalog</a>
     <a style="--i:2" href="{p}calculator.html"><span>03</span>calculator</a>
     <a style="--i:3" href="{p}contact.html"><span>04</span>contact</a>
+    <a style="--i:4" href="{p}account.html"><span>05</span>account</a>
   </nav>
   <div class="menu__foot"><button data-search-open class="link-arrow">search products {SEARCH}</button><span>{CONTACT_EMAIL}</span></div>
 </div>
@@ -195,7 +198,7 @@ FONTS = '''<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">'''
 
 
-def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class=""):
+def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class="", noindex=False):
     p = "../" * depth          # site root (assets, pages, search index)
     js = "".join(f'<script src="{p}assets/js/{s}?v={VER}" defer></script>' for s in scripts)
     return f'''<!DOCTYPE html>
@@ -205,10 +208,10 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#050607">
 <title>{title} · hlix</title>
-<meta name="description" content="{esc(desc)}">
+<meta name="description" content="{esc(desc)}">{'\n<meta name="robots" content="noindex, nofollow">' if noindex else ''}
 {FONTS}
 <link rel="stylesheet" href="{p}assets/css/v2.css?v={VER}">
-<script>(function(){{var h=document.documentElement;h.classList.add("js");if(/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches))h.classList.add("no-motion");try{{var t=localStorage.getItem("hlix-theme");if(t==="light"||t==="dark")h.setAttribute("data-theme",t);}}catch(e){{}}window.HLIX2={{base:"{p}"}};}})();</script>
+<script src="{p}assets/js/v2-boot.js?v={VER}" data-base="{p}"></script>
 </head>
 <body class="{body_class}" data-page="{page}">
 {nav(p, page)}
@@ -918,10 +921,7 @@ def page_planner_embed():
 <title>Dose planner · hlix</title>
 {FONTS}
 <link rel="stylesheet" href="assets/css/planner.css?v={VER}">
-<script>(function(){{var h=document.documentElement;h.classList.add("js");var reduce=/[?&]motion=off/.test(location.search)||(window.matchMedia&&matchMedia("(prefers-reduced-motion: reduce)").matches);if(reduce)h.classList.add("no-motion");
-// numbers that count to their new value (the planner's tween; the site's v2.js isn't loaded here)
-function tween(a,b,d,u,done){{if(reduce||d<=0||a===b){{u(b);if(done)done();return;}}var t0=null,end=false;function fin(){{if(end)return;end=true;u(b);if(done)done();}}function step(t){{if(end)return;if(t0===null)t0=t;var p=Math.min(1,(t-t0)/d),e=p===1?1:1-Math.pow(2,-10*p);u(a+(b-a)*e);if(p<1)requestAnimationFrame(step);else fin();}}requestAnimationFrame(step);setTimeout(fin,d+80);}}
-window.HLIX2={{base:"",tween:tween}};}})();</script>
+<script src="assets/js/v2-boot-embed.js?v={VER}"></script>
 </head>
 <body class="pc-page">
 {planner_app()}
@@ -947,10 +947,13 @@ def page_checkout():
     <div class="checkout__subtotal" data-checkout-subtotal-row hidden><span>subtotal</span><b data-checkout-subtotal>$0</b></div>
   </div>
   <form class="checkout__form" data-checkout-form>
+    <p class="checkout__acct" data-checkout-acct-out>have an account? <a href="account.html?next=checkout">sign in</a> to save your address and follow this order. or just order as a guest.</p>
+    <p class="checkout__acct" data-checkout-acct-in hidden>signed in as <b data-checkout-acct-email></b>. this order will show in <a href="account.html">your account</a>.</p>
     <fieldset>
       <legend>contact</legend>
-      <label><span>full name</span><input name="name" type="text" required autocomplete="name"></label>
-      <label><span>email</span><input name="email" type="email" required autocomplete="email"></label>
+      <label><span>full name</span><input name="name" type="text" required autocomplete="name" maxlength="120"></label>
+      <label><span>email</span><input name="email" type="email" required autocomplete="email" maxlength="254"></label>
+      <label><span>phone (optional)</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
     </fieldset>
     <fieldset>
       <legend>shipping address</legend>
@@ -965,24 +968,125 @@ def page_checkout():
         <label><span>country</span><input name="country" type="text" required autocomplete="country-name" value="United States"></label>
       </div>
     </fieldset>
+    <label class="checkout__save" data-checkout-save hidden><input type="checkbox" name="save" checked> <span>save this address to my account</span></label>
     <fieldset>
       <legend>notes (optional)</legend>
-      <label><span>anything we should know?</span><textarea name="notes" rows="3"></textarea></label>
+      <label><span>anything we should know?</span><textarea name="notes" rows="3" maxlength="2000"></textarea></label>
     </fieldset>
     <div><button class="btn btn--solid" type="submit" data-checkout-submit data-magnetic>submit order request {ARROW}</button></div>
     <p class="cform__status" data-checkout-status hidden></p>
-    <p class="checkout__legal">submitting sends your request and cart contents to hlix by email. no payment method is collected or charged on this page. for laboratory research use only.</p>
+    <p class="checkout__legal">submitting sends your request and cart contents to hlix. no payment method is collected or charged on this page. for laboratory research use only.</p>
   </form>
 </div>
 <div class="checkout__done" data-checkout-done hidden>
   <div class="wrap">
     <p class="kicker" data-reveal="fade">// request received</p>
     <h1 class="phead__title" data-split>got it.</h1>
-    <p class="phead__sub">your order request is in. we'll reply by email at <b data-checkout-done-email></b> with next steps, usually within 1–2 business days.</p>
-    <a class="btn btn--solid" href="catalog.html" data-magnetic>back to catalog {ARROW}</a>
+    <p class="phead__sub">your order request is in<span data-checkout-done-ref hidden></span>. we'll reply by email at <b data-checkout-done-email></b> with next steps, usually within 1–2 business days.</p>
+    <a class="btn btn--solid" href="account.html" data-checkout-done-acct hidden data-magnetic>see it in your account {ARROW}</a>
+    <a class="btn btn--solid" href="catalog.html" data-checkout-done-cat data-magnetic>back to catalog {ARROW}</a>
   </div>
 </div>'''
     return shell(title="checkout", desc="review your cart and submit an order request.", page="checkout", body=body, groups=(), scripts=("v2-checkout.js",), body_class="checkout-page")
+
+
+# ---------------------------------------------------------------- account ---
+
+def page_account():
+    """Sign in or make an account, then: your orders, saved shipping details, password.
+    Run by assets/js/v2-account.js against /api/account; the session is in cookies no
+    script can read (api/_lib/session.js)."""
+    status = '<p class="cform__status" data-acct-status hidden role="status" aria-live="polite"></p>'
+    body = f'''
+<section class="phead acct-head"><div class="wrap">
+  <p class="kicker" data-reveal="fade">// account</p>
+  <h1 class="phead__title" data-split>your account.</h1>
+  <p class="phead__sub" data-reveal>keep your cart on every device, save your shipping address and follow your orders.</p>
+</div></section>
+<div class="wrap acct" data-acct>
+  <p class="acct__loading" data-acct-loading>loading…</p>
+
+  <div class="acct__out" data-acct-out hidden>
+    <div class="acct__tabs" role="tablist" aria-label="sign in or make an account">
+      <button type="button" role="tab" id="tab-signin" aria-controls="form-signin" aria-selected="true" data-acct-tab="signin">sign in</button>
+      <button type="button" role="tab" id="tab-signup" aria-controls="form-signup" aria-selected="false" data-acct-tab="signup">create account</button>
+    </div>
+    <form class="checkout__form acct__form" id="form-signin" role="tabpanel" aria-labelledby="tab-signin" data-acct-form="signin">
+      <label><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
+      <label><span>password</span><input name="password" type="password" required autocomplete="current-password" maxlength="200"></label>
+      <div class="acct__actions"><button class="btn btn--solid" type="submit" data-magnetic>sign in {ARROW}</button><button type="button" class="acct__link" data-acct-go="forgot">forgot your password?</button></div>
+      {status}
+    </form>
+    <form class="checkout__form acct__form" id="form-signup" role="tabpanel" aria-labelledby="tab-signup" data-acct-form="signup" hidden>
+      <label><span>name</span><input name="name" type="text" autocomplete="name" maxlength="120"></label>
+      <label><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
+      <label><span>password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
+      <div class="acct__actions"><button class="btn btn--solid" type="submit" data-magnetic>create account {ARROW}</button></div>
+      {status}
+      <p class="checkout__legal">your password is stored scrambled (hashed): nobody at hlix can see it. we use your email only for your orders.</p>
+    </form>
+    <form class="checkout__form acct__form" data-acct-form="forgot" hidden>
+      <p class="acct__note">enter your email and we'll send you a link to set a new password.</p>
+      <label><span>email</span><input name="email" type="email" required autocomplete="username" maxlength="254" spellcheck="false"></label>
+      <div class="acct__actions"><button class="btn btn--solid" type="submit">send the link {ARROW}</button><button type="button" class="acct__link" data-acct-go="signin">back to sign in</button></div>
+      {status}
+    </form>
+  </div>
+
+  <div class="acct__in" data-acct-in hidden>
+    <div class="acct__who">
+      <p>signed in as <b data-acct-email></b></p>
+      <button class="btn btn--sm" type="button" data-acct-signout>sign out</button>
+    </div>
+    <form class="checkout__form acct__form acct__reset" data-acct-form="reset" hidden>
+      <fieldset>
+        <legend>set a new password</legend>
+        <label><span>new password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
+      </fieldset>
+      <div class="acct__actions"><button class="btn btn--solid" type="submit">save password {ARROW}</button></div>
+      {status}
+    </form>
+    <div class="acct__grid">
+      <section class="acct__orders" aria-labelledby="acct-orders-h">
+        <h2 class="acct__h" id="acct-orders-h">your orders</h2>
+        <div data-acct-orders></div>
+        <p class="acct__empty" data-acct-orders-empty hidden>no orders yet. <a href="catalog.html">browse the catalog</a>.</p>
+      </section>
+      <div class="acct__side">
+        <form class="checkout__form acct__form" data-acct-form="profile">
+          <fieldset>
+            <legend>shipping details</legend>
+            <label><span>full name</span><input name="name" type="text" autocomplete="name" maxlength="120"></label>
+            <label><span>phone</span><input name="phone" type="tel" autocomplete="tel" maxlength="40"></label>
+            <label><span>address line 1</span><input name="address1" type="text" autocomplete="address-line1" maxlength="200"></label>
+            <label><span>address line 2</span><input name="address2" type="text" autocomplete="address-line2" maxlength="200"></label>
+            <div class="checkout__row">
+              <label><span>city</span><input name="city" type="text" autocomplete="address-level2" maxlength="120"></label>
+              <label><span>state / region</span><input name="state" type="text" autocomplete="address-level1" maxlength="120"></label>
+            </div>
+            <div class="checkout__row">
+              <label><span>zip / postal code</span><input name="zip" type="text" autocomplete="postal-code" maxlength="40"></label>
+              <label><span>country</span><input name="country" type="text" autocomplete="country-name" maxlength="120"></label>
+            </div>
+          </fieldset>
+          <div class="acct__actions"><button class="btn btn--sm" type="submit">save details</button></div>
+          {status}
+        </form>
+        <form class="checkout__form acct__form" data-acct-form="password">
+          <fieldset>
+            <legend>change password</legend>
+            <label><span>current password</span><input name="current" type="password" required autocomplete="current-password" maxlength="200"></label>
+            <label><span>new password (at least 10 characters)</span><input name="password" type="password" required minlength="10" maxlength="72" autocomplete="new-password"></label>
+          </fieldset>
+          <div class="acct__actions"><button class="btn btn--sm" type="submit">change password</button></div>
+          {status}
+        </form>
+        <p class="acct__fine"><button type="button" class="acct__link" data-acct-signout-all>sign out on every device</button></p>
+      </div>
+    </div>
+  </div>
+</div>'''
+    return shell(title="account", desc="sign in to your hlix account: your orders, cart and shipping details.", page="account", body=body, groups=(), scripts=("v2-account.js",), body_class="account-page", noindex=True)
 
 
 # ----------------------------------------------------------------- main ---
@@ -1003,9 +1107,10 @@ def main():
     (OUT / "calculator.html").write_text(page_calculator(groups))
     (OUT / "planner-embed.html").write_text(page_planner_embed())
     (OUT / "checkout.html").write_text(page_checkout())
+    (OUT / "account.html").write_text(page_account())
     for g in groups:
         (OUT / "peptides" / f"{g['slug']}.html").write_text(page_product(g, groups))
-    print(f"v2: 5 core pages + {len(groups)} product pages -> {OUT}")
+    print(f"v2: 7 core pages + {len(groups)} product pages -> {OUT}")
 
 
 if __name__ == "__main__":

@@ -1,7 +1,11 @@
-// Vercel serverless function — emails an order *request* via Resend when a
-// guest submits the checkout page. There is no payment processor wired up:
-// this only records the request and notifies hlix, matching the site's
-// "request first, payment follows by email" checkout flow.
+// Vercel serverless function — places an order *request* from the checkout
+// page. There is no payment processor wired up, matching the site's "request
+// first, payment follows by email" checkout flow.
+//
+// Signed in (an account on the site, see api/account.js): the order goes
+// straight into the hlix admin as a pending Customer Order, priced by the
+// database (shop_place_order in the admin's migration 0026), and hlix is also
+// emailed. As a guest: the request is emailed to hlix, as before.
 //
 // Requires a RESEND_API_KEY environment variable set in the deployment's
 // project settings — never commit a real key to this repo. Optionally set
@@ -10,6 +14,7 @@
 // it on the resend.dev sandbox sender below).
 
 const { getPrices, unitPrice } = require("./_lib/prices");
+const S = require("./_lib/session");
 
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || "henrymm@gmail.com";
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "hlix <onboarding@resend.dev>";
@@ -33,12 +38,18 @@ function money(n) {
 }
 
 module.exports = async (req, res) => {
+  res.setHeader("Cache-Control", "no-store");
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method not allowed" });
     return;
   }
+  // Only from a page on this site (another site can't place orders in someone's name).
+  if (!S.sameSite(req)) {
+    res.status(403).json({ error: "Not allowed." });
+    return;
+  }
 
-  const ip = (req.headers["x-forwarded-for"] || req.socket.remoteAddress || "unknown").split(",")[0].trim();
+  const ip = S.clientIp(req);
   const now = Date.now();
   const record = hits.get(ip) || { count: 0, resetAt: now + WINDOW_MS };
   if (now > record.resetAt) {
@@ -52,11 +63,12 @@ module.exports = async (req, res) => {
     return;
   }
 
-  const body = req.body || {};
-  const c = body.customer || {};
+  const body = S.body(req);
+  const c = body.customer && typeof body.customer === "object" ? body.customer : {};
   const customer = {
     name: str(c.name, MAX_LEN),
     email: str(c.email, MAX_LEN),
+    phone: str(c.phone, 40),
     address1: str(c.address1, MAX_LEN),
     address2: str(c.address2, MAX_LEN),
     city: str(c.city, MAX_LEN),
@@ -65,11 +77,12 @@ module.exports = async (req, res) => {
     country: str(c.country, MAX_LEN),
     notes: str(c.notes, MAX_NOTES),
   };
-  if (!customer.name || !customer.email || !customer.address1 || !customer.city || !customer.state || !customer.zip || !customer.country) {
+  const token = await S.session(req, res);
+  if (!customer.name || (!token && !customer.email) || !customer.address1 || !customer.city || !customer.state || !customer.zip || !customer.country) {
     res.status(400).json({ error: "Please fill in every required field." });
     return;
   }
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
+  if (!token && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customer.email)) {
     res.status(400).json({ error: "That email address doesn't look right." });
     return;
   }
@@ -89,18 +102,57 @@ module.exports = async (req, res) => {
     return;
   }
 
+  // Signed in: the database places it (and prices it), then hlix gets the email.
+  let placed = null;
+  if (token) {
+    const r = await S.rpc("shop_place_order", {
+      p: {
+        items: items.map((it) => ({ sku: it.sku, form: it.form === "powder" ? "powder" : "recon", qty: it.qty })),
+        ship: {
+          name: customer.name, phone: customer.phone, address1: customer.address1, address2: customer.address2,
+          city: customer.city, state: customer.state, zip: customer.zip, country: customer.country,
+        },
+        notes: customer.notes,
+        save: body.save === true,
+      },
+    }, token);
+    if (!r.ok || !r.data) {
+      const status = r.status === 401 || r.status === 403 ? 401 : r.status === 503 ? 503 : 400;
+      res.status(status).json({ error: status === 401 ? "Sign in again, then place your order." : S.friendly(r, "Your order couldn't be placed. Try again in a moment.") });
+      return;
+    }
+    placed = r.data;
+    if (placed.duplicate) {
+      res.status(200).json({ ok: true, account: true, ref: placed.ref });
+      return;
+    }
+    customer.email = String(placed.email || "");
+    items.length = 0;
+    for (const it of placed.items || []) {
+      items.push({ name: str(it.name, MAX_LEN), dose: str(it.dose, MAX_LEN), form: it.form === "powder" ? "powder" : "recon", sku: str(it.sku, MAX_LEN), qty: Number(it.qty) || 0, unitPrice: Number(it.price) || 0 });
+    }
+  }
+
   // Price every line from the current catalog (the admin's prices), never
   // from what the browser sent: a cart can be days old, and the request can
   // be edited.
   const { prices } = await getPrices();
-  if (items.some((it) => !prices.has(it.sku))) {
-    res.status(400).json({ error: "Something in your cart is no longer in the catalog. Remove it and try again." });
-    return;
+  if (!placed) {
+    if (items.some((it) => !prices.has(it.sku))) {
+      res.status(400).json({ error: "Something in your cart is no longer in the catalog. Remove it and try again." });
+      return;
+    }
+    for (const it of items) it.unitPrice = unitPrice(prices.get(it.sku), it.form);
   }
-  for (const it of items) it.unitPrice = unitPrice(prices.get(it.sku), it.form);
 
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
+    // An account's order is already saved in the admin; only the email is missing.
+    if (placed) {
+      console.error("Order", placed.ref, "saved, but RESEND_API_KEY is missing so no email was sent");
+      res.status(200).json({ ok: true, account: true, ref: placed.ref });
+      return;
+    }
     res.status(500).json({ error: "Server is not configured (missing API key)." });
     return;
   }
@@ -110,14 +162,15 @@ module.exports = async (req, res) => {
     .map((it) => `<tr><td>${esc(it.name)}</td><td>${esc(it.dose)}</td><td>${it.form === "recon" ? "ready to use" : "powder"}</td><td>${esc(it.sku)}</td><td>${it.qty}</td><td>${money(it.unitPrice * it.qty)}</td></tr>`)
     .join("");
   const html = `
-    <h2>New order request</h2>
+    <h2>${placed ? `New website order #${esc(placed.ref)}` : "New order request"}</h2>
+    ${placed ? "<p>Placed by a signed-in account. It's in the admin under Customer Orders (pending).</p>" : ""}
     <table cellpadding="6" style="border-collapse:collapse">
       <tr><th align="left">item</th><th align="left">dose</th><th align="left">form</th><th align="left">sku</th><th align="left">qty</th><th align="left">line total</th></tr>
       ${itemRows}
     </table>
     <p><strong>subtotal:</strong> ${money(subtotal)}</p>
     <h3>customer</h3>
-    <p>${esc(customer.name)}<br>${esc(customer.email)}</p>
+    <p>${esc(customer.name)}<br>${esc(customer.email)}${customer.phone ? "<br>" + esc(customer.phone) : ""}</p>
     <p>${esc(customer.address1)}${customer.address2 ? "<br>" + esc(customer.address2) : ""}<br>${esc(customer.city)}, ${esc(customer.state)} ${esc(customer.zip)}<br>${esc(customer.country)}</p>
     ${customer.notes ? `<h3>notes</h3><p>${esc(customer.notes).replace(/\n/g, "<br>")}</p>` : ""}
     <p style="color:#888">No payment was collected. Follow up with the customer to arrange payment.</p>
@@ -133,22 +186,23 @@ module.exports = async (req, res) => {
       body: JSON.stringify({
         from: FROM_EMAIL,
         to: [NOTIFY_EMAIL],
-        reply_to: customer.email,
-        subject: `hlix order request — ${customer.name} — ${money(subtotal)}`,
+        reply_to: customer.email || undefined,
+        subject: `hlix ${placed ? `order #${placed.ref}` : "order request"} — ${customer.name} — ${money(subtotal)}`,
         html,
       }),
     });
 
     if (!response.ok) {
-      const errText = await response.text();
-      console.error("Resend API error", response.status, errText);
+      console.error("Resend API error", response.status);
+      if (placed) return void res.status(200).json({ ok: true, account: true, ref: placed.ref });
       res.status(502).json({ error: "Upstream error." });
       return;
     }
 
-    res.status(200).json({ ok: true });
+    res.status(200).json(placed ? { ok: true, account: true, ref: placed.ref } : { ok: true });
   } catch (err) {
-    console.error(err);
+    console.error("order email failed", err && err.name);
+    if (placed) return void res.status(200).json({ ok: true, account: true, ref: placed.ref });
     res.status(500).json({ error: "Something went wrong." });
   }
 };

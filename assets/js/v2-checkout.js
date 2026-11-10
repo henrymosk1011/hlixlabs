@@ -1,7 +1,8 @@
-// hlix v2 — checkout page. Reads the cart from localStorage (v2-cart.js),
-// renders an order summary, and on submit posts the whole thing to
-// /api/order (Resend) as an order *request* — no payment is collected or
-// processed anywhere on this page.
+// hlix v2 — checkout page. Reads the cart (v2-cart.js), renders an order summary, and on
+// submit posts it to /api/order as an order *request* — no payment is collected or
+// processed anywhere on this page. Signed in (window.HLIXAccount), the shipping details
+// are filled in from the account, the order goes straight into the hlix admin and shows
+// in the account; as a guest, it's emailed to hlix.
 (function () {
   "use strict";
   var d = document;
@@ -12,34 +13,64 @@
   var checkout = $("[data-checkout]");
   if (!checkout || !window.HLIXCart) return;
 
-  var cart = window.HLIXCart.get();
   var list = $("[data-checkout-list]");
   var empty = $("[data-checkout-empty]");
   var subRow = $("[data-checkout-subtotal-row]");
   var subEl = $("[data-checkout-subtotal]");
   var form = $("[data-checkout-form]");
+  var submitted = false;
 
-  if (!cart.length) {
-    if (empty) empty.hidden = false;
-    if (form) form.hidden = true;
-    return;
-  }
-
+  // The cart can arrive after the page does (from the account), so this runs again then.
   function renderSummary() {
-    list.innerHTML = window.HLIXCart.get().map(function (it) {
+    if (submitted) return;
+    var cart = window.HLIXCart.get();
+    if (empty) empty.hidden = cart.length > 0;
+    if (form) form.hidden = !cart.length;
+    if (subRow) subRow.hidden = !cart.length;
+    list.innerHTML = cart.map(function (it) {
       return (
         '<div class="cart__item">' +
-          '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : "powder") + ' · qty ' + it.qty + '</span></div>' +
-          '<b class="cart__item-price">' + moneyStr(it.unitPrice * it.qty) + '</b>' +
+          '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : "powder") + ' · qty ' + esc(it.qty) + '</span></div>' +
+          '<b class="cart__item-price">' + moneyStr(Number(it.unitPrice) * Number(it.qty) || 0) + '</b>' +
         '</div>'
       );
     }).join("");
-    if (subRow) subRow.hidden = false;
     if (subEl) subEl.textContent = moneyStr(window.HLIXCart.subtotal());
   }
   renderSummary();
   // v2-cart.js re-prices the cart on this same event first (it listens earlier)
   d.addEventListener("hlix:prices", renderSummary);
+  d.addEventListener("hlix:cart", renderSummary);
+
+  // ---- signed in: who, and their saved details --------------------------------
+  var acctOut = $("[data-checkout-acct-out]");
+  var acctIn = $("[data-checkout-acct-in]");
+  var saveBox = $("[data-checkout-save]");
+  var account = null;
+  function useAccount(data) {
+    account = data && data.signedIn ? data : null;
+    if (acctOut) acctOut.hidden = !!account;
+    if (acctIn) acctIn.hidden = !account;
+    if (saveBox) saveBox.hidden = !account;
+    var emailInput = form.email;
+    if (!account) {
+      emailInput.readOnly = false;
+      return;
+    }
+    $("[data-checkout-acct-email]").textContent = account.email || "";
+    emailInput.value = account.email || "";
+    emailInput.readOnly = true; // the order goes to the account's email
+    var p = account.profile || {};
+    ["name", "phone", "address1", "address2", "city", "state", "zip", "country"].forEach(function (k) {
+      var input = form.elements[k];
+      if (input && !input.value.trim() && typeof p[k] === "string" && p[k]) input.value = p[k];
+    });
+    if (form.country && !form.country.value.trim()) form.country.value = "United States";
+  }
+  if (window.HLIXAccount) {
+    window.HLIXAccount.ready.then(useAccount);
+    d.addEventListener("hlix:account", function (e) { useAccount(e.detail); });
+  }
 
   var status = $("[data-checkout-status]");
   var submitBtn = $("[data-checkout-submit]");
@@ -51,6 +82,7 @@
     var customer = {
       name: f.name.value.trim(),
       email: f.email.value.trim(),
+      phone: f.phone ? f.phone.value.trim() : "",
       address1: f.address1.value.trim(),
       address2: f.address2.value.trim(),
       city: f.city.value.trim(),
@@ -68,23 +100,38 @@
 
     fetch("/api/order", {
       method: "POST",
+      credentials: "same-origin",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ customer: customer, items: window.HLIXCart.get(), subtotal: window.HLIXCart.subtotal() }),
+      body: JSON.stringify({
+        customer: customer,
+        items: window.HLIXCart.get(),
+        subtotal: window.HLIXCart.subtotal(),
+        save: !!(account && f.save && f.save.checked),
+      }),
     })
-      .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, data: data }; }); })
+      .then(function (r) { return r.json().then(function (data) { return { ok: r.ok, status: r.status, data: data }; }); })
       .then(function (res) {
         if (res.ok) {
+          submitted = true;
           window.HLIXCart.clear();
           checkout.hidden = true;
           if (done) {
             done.hidden = false;
             var emailOut = $("[data-checkout-done-email]", done);
             if (emailOut) emailOut.textContent = customer.email;
+            var ref = $("[data-checkout-done-ref]", done);
+            if (ref && res.data.ref) { ref.textContent = " as order #" + res.data.ref; ref.hidden = false; }
+            if (res.data.account) {
+              var a = $("[data-checkout-done-acct]", done), c = $("[data-checkout-done-cat]", done);
+              if (a) a.hidden = false;
+              if (c) c.hidden = true;
+            }
           }
         } else {
           status.classList.add("is-error");
-          status.textContent = res.data.error || "something went wrong. try again in a moment.";
+          status.textContent = String(res.data.error || "something went wrong. try again in a moment.").toLowerCase();
           submitBtn.disabled = false;
+          if (res.status === 401 && window.HLIXAccount) window.HLIXAccount.reload();
         }
       })
       .catch(function () {

@@ -1,10 +1,13 @@
-// hlix v2 — client-side cart. No accounts, no payment processor: cart state
-// lives in localStorage on this device only, and checkout (v2-checkout.js)
-// emails the order request to hlix instead of charging a card.
+// hlix v2 — the cart. No payment processor: checkout (v2-checkout.js) sends an
+// order request instead of charging a card. The cart lives in localStorage; while
+// someone's signed in (an account, api/account.js) it's also saved to their account
+// so it follows them to any device. Signing in merges this browser's cart into the
+// account's; signing out clears it from this browser.
 (function () {
   "use strict";
   var d = document, root = d.documentElement;
   var KEY = "hlix_cart";
+  var SYNCED = "hlix_cart_synced"; // the cart as last saved to the account, to tell edits made here since
 
   function $(s, c) { return (c || d).querySelector(s); }
   function $$(s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); }
@@ -12,11 +15,107 @@
   function getCart() {
     try { return JSON.parse(localStorage.getItem(KEY) || "[]"); } catch (e) { return []; }
   }
-  function saveCart(cart) {
+  function saveCart(cart, localOnly) {
     try { localStorage.setItem(KEY, JSON.stringify(cart)); } catch (e) {}
     renderBadge(cart);
     renderDrawer(cart);
+    d.dispatchEvent(new CustomEvent("hlix:cart"));
+    if (!localOnly && signedIn()) schedulePush();
   }
+
+  // ------------------------------------------------------------------
+  // the account's copy (api/account.js)
+  // ------------------------------------------------------------------
+  function signedIn() { return /(?:^|;\s*)hlix_in=1/.test(d.cookie); }
+  function text(v, max) { return typeof v === "string" ? v.slice(0, max) : ""; }
+  function slim(cart) {
+    return cart.slice(0, 50).map(function (it) {
+      var q = Math.max(1, Math.min(999, parseInt(it.qty, 10) || 1));
+      return {
+        sku: text(it.sku, 40), form: it.form === "powder" ? "powder" : "recon", qty: q,
+        name: text(it.name, 160), dose: text(it.dose, 40), slug: text(it.slug, 120), category: text(it.category, 80),
+        unitPrice: Math.max(0, Number(it.unitPrice) || 0),
+      };
+    }).filter(function (it) { return it.sku; });
+  }
+  function shape(cart) { return JSON.stringify(slim(cart).map(function (it) { return [it.sku, it.form, it.qty]; })); }
+  function readSynced() { try { return localStorage.getItem(SYNCED); } catch (e) { return null; } }
+  function setSynced(cart) { try { localStorage.setItem(SYNCED, shape(cart)); } catch (e) {} }
+  // Same product and form in both: the bigger amount (never doubled up).
+  function merge(a, b) {
+    var out = [], at = {};
+    a.concat(b).forEach(function (it) {
+      var k = itemKey(it);
+      if (at[k] === undefined) { at[k] = out.length; out.push(JSON.parse(JSON.stringify(it))); }
+      else if ((it.qty | 0) > (out[at[k]].qty | 0)) out[at[k]].qty = it.qty | 0;
+    });
+    return slim(out);
+  }
+  function api(body) {
+    return fetch("/api/account", {
+      method: "POST", credentials: "same-origin",
+      headers: { "content-type": "application/json", accept: "application/json" },
+      body: JSON.stringify(body),
+    }).then(function (r) {
+      return r.json().catch(function () { return {}; }).then(function (data) { return { ok: r.ok, status: r.status, data: data || {} }; });
+    }, function () { return { ok: false, status: 0, data: { error: "couldn't reach the server. check your connection and try again." } }; });
+  }
+  var pushTimer = null;
+  function schedulePush() {
+    clearTimeout(pushTimer);
+    pushTimer = setTimeout(push, 400);
+  }
+  function push() {
+    var cart = getCart();
+    return api({ action: "cart", cart: slim(cart) }).then(function (r) {
+      if (r.ok) setSynced(cart);
+      else if (r.status === 401) root.classList.remove("signed-in");
+      return r;
+    });
+  }
+  // Who's signed in, and their cart. `merging`: just signed in, so this browser's cart
+  // (made signed out) joins the account's. Otherwise the account's cart wins, unless this
+  // browser has changes that never reached it.
+  function load(merging) {
+    return fetch("/api/account", { credentials: "same-origin", headers: { accept: "application/json" } })
+      .then(function (r) { return r.json(); })
+      .then(function (data) {
+        data = data && typeof data === "object" ? data : { signedIn: false };
+        account.data = data;
+        root.classList.toggle("signed-in", !!data.signedIn);
+        if (data.signedIn) {
+          var local = getCart(), server = Array.isArray(data.cart) ? data.cart : [];
+          if (!merging && readSynced() !== null && shape(local) === readSynced()) {
+            saveCart(slim(server), true);
+            setSynced(server);
+          } else {
+            var both = merge(server, local);
+            saveCart(both, true);
+            if (shape(both) !== shape(server)) push(); else setSynced(both);
+          }
+        }
+        d.dispatchEvent(new CustomEvent("hlix:account", { detail: data }));
+        return data;
+      }, function () {
+        return (account.data = { signedIn: false, offline: true });
+      });
+  }
+  var account = {
+    data: null,
+    api: api,
+    signedIn: signedIn,
+    reload: function () { return (account.ready = load(false)); },
+    afterSignIn: function () { return (account.ready = load(true)); },
+    // Signed out: this browser forgets the cart (it's the account's, not the browser's).
+    signedOut: function () {
+      try { localStorage.removeItem(SYNCED); } catch (e) {}
+      root.classList.remove("signed-in");
+      account.data = { signedIn: false };
+      saveCart([], true);
+    },
+  };
+  account.ready = signedIn() ? load(false) : Promise.resolve((account.data = { signedIn: false }));
+  window.HLIXAccount = account;
   function itemKey(it) { return it.sku + "|" + it.form; }
   function subtotal(cart) { return cart.reduce(function (s, it) { return s + it.unitPrice * it.qty; }, 0); }
   function moneyStr(n) { return "$" + Math.ceil(n - 1e-9); }
@@ -160,7 +259,7 @@
       var unit = window.HLIXPrices.unit(it.sku, it.form);
       if (unit !== null && unit !== it.unitPrice) { it.unitPrice = unit; changed = true; }
     });
-    if (changed) saveCart(cart);
+    if (changed) saveCart(cart, true); // only prices changed: nothing to save to the account
   });
 
   renderBadge(getCart());

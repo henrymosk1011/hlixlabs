@@ -5,10 +5,11 @@ selector when a peptide has multiple doses, plus a Powder/Reconstituted
 form toggle on every one), a category-filtered and searchable catalog
 (search matches by name or by research-goal tag, e.g. "hair" or "sleep"),
 an About/Contact page, a standalone reconstitution/dosage calculator, and
-an optional AI chat widget backed by a small serverless function. The
-site itself is static HTML/CSS/JS — no build step to view it, no shopping
-cart. The chat widget is the one piece that needs a real backend; see
-"Chat backend" below.
+an optional AI chat widget backed by a small serverless function, a cart
+with an order-request checkout, and customer accounts. The pages are static
+HTML/CSS/JS — no build step to view them; the chat, checkout and accounts use
+the small serverless functions in `api/` (see "Chat backend" and "Accounts"
+below).
 
 ## Structure
 
@@ -20,6 +21,8 @@ hlix/
 ├── contact.html
 ├── calculator.html        Reconstitution & dosage calculator
 ├── planner-embed.html     The calculator's dose planner on its own, for the admin (see below)
+├── checkout.html          Review the cart and send an order request
+├── account.html           Sign in / make an account: orders, saved address, password (see "Accounts")
 ├── peptides/               One generated page per catalog entry
 ├── v1/                     The original design, kept for reference (see below)
 ├── assets/
@@ -27,6 +30,8 @@ hlix/
 │   ├── css/v2.css          Main site's design system
 │   ├── js/main.js, product.js, calculator.js, search.js, chatbot.js   v1's JS
 │   ├── js/v2.js, v2-calc.js, v2-planner.js, v2-chat.js, v2-prices.js   Main site's JS (v2-planner.js: the calculator's dose planner calendar)
+│   ├── js/v2-boot.js, v2-boot-embed.js, v1-prefix.js   The first script on each page (no inline scripts: see "Security")
+│   ├── js/v2-cart.js, v2-checkout.js, v2-account.js   Cart (and its copy on the account), checkout, account page
 │   ├── js/search-index.js  Shared search index, read by both sites
 │   └── img/vials/          Shared photoreal product images
 ├── data/
@@ -44,7 +49,10 @@ hlix/
     ├── chat.js               Serverless function backing the chat widget
     │                          (Vercel Node function — needs ANTHROPIC_API_KEY)
     ├── prices.js             Live prices from the admin, for the pages and cart
-    └── _lib/prices.js        Shared price lookup (prices.js, order.js, chat.js)
+    ├── order.js              Checkout: an account's order goes into the admin; a guest's is emailed
+    ├── account.js            Accounts: sign up / in / out, password, saved details, cart
+    ├── _lib/prices.js        Shared price lookup (prices.js, order.js, chat.js)
+    └── _lib/session.js       Sign-in sessions in HttpOnly cookies, and request checks
 ```
 
 ## Dose planner in the admin (`planner-embed.html`)
@@ -274,6 +282,61 @@ client. Same Vercel Settings → Environment Variables screen as above:
   "from" an unverified domain will fail.
 
 Checkout has no payment processor wired up on purpose: a visitor adds items
-to a `localStorage` cart, fills in a shipping form, and submitting emails
-that request to `NOTIFY_EMAIL` — the cart is not billed anywhere. Follow up
-with the customer directly to arrange payment.
+to the cart, fills in a shipping form, and submitting emails that request to
+`NOTIFY_EMAIL` — the cart is not billed anywhere. Follow up with the customer
+directly to arrange payment. A signed-in customer's order is also saved in the
+admin as a pending Customer Order (see "Accounts"); if the email can't be sent,
+their order is still placed.
+
+## Accounts
+
+Customers can make an account (the person icon in the nav, or `account.html`).
+Signed in, their cart is saved to the account and follows them to any device
+(signing in merges the cart they had into it; signing out clears it from that
+browser), checkout fills in their saved shipping details, their orders go
+straight into the hlix admin, and the account page shows their orders, saved
+details and a password change.
+
+Accounts live in the admin's Supabase project (its Auth), next to the admin
+login. What a customer can do there is decided by the database, not this site:
+the `shop_*` functions in the admin repo's
+`supabase/migrations/0026_shop_accounts.sql` only ever read or write the
+caller's own account, price orders themselves, and limit orders (5 a day per
+account, 30 an hour in all). The admin repo's README has the Supabase settings
+accounts need ("Website accounts").
+
+Vercel environment variables (all optional):
+
+- `SITE_URL` — where account emails link back to. Defaults to
+  `https://hlixlabs.com`. Never taken from the request.
+- `ACCOUNT_EMAILS=on` — once the Supabase project sends email through your own
+  SMTP (Resend), so "forgot your password?" sends a reset link. Until then it
+  asks people to write to contact@hlixlabs.com.
+
+## Security
+
+- **No token ever reaches the browser's scripts.** `api/account.js` signs in on
+  the customer's behalf and keeps the session in `__Host-` cookies that are
+  `HttpOnly`, `Secure` and `SameSite=Strict`; only a harmless `hlix_in=1` flag
+  is readable, so pages know someone's signed in. The access token renews
+  itself from the refresh token; signing out (or "sign out on every device")
+  ends the session in Supabase too.
+- **Only this site can make changes.** Every `POST` to `/api/account` and
+  `/api/order` must come from a page on this site (`Origin` /
+  `Sec-Fetch-Site`) and be JSON, so another site can't sign someone out, place
+  orders or change anything in their name.
+- **No inline scripts.** Every script is a file on this site, and
+  `vercel.json`'s Content-Security-Policy allows nothing else
+  (`script-src 'self'`), so an injected `<script>` won't run. The account page
+  sets everything it shows as text, never HTML.
+- **Passwords**: at least 10 characters, not just the email, 72 at most (what
+  the hashing uses). Changing it needs the current one (or a reset link from the
+  last 15 minutes), and signs out every other device.
+- **Email links** (confirm, reset) are taken out of the address bar at once and
+  checked by Supabase before they become a session. Their return address is
+  fixed (`SITE_URL`), never the request's `Host`.
+- **Admin logins** are refused here, so they're only ever used on
+  admin.hlixlabs.com.
+- **Rate limits**: sign-in (per address and per email), sign-up, password and
+  reset tries are limited on each server instance; Supabase Auth and the
+  database add their own.

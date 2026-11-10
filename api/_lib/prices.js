@@ -70,4 +70,4 @@ async function getPrices() {
   return cache;
 }
 
-module.exports = { getPrices, powderPrice, reconPrice, unitPrice };
+module.exports = { getPrices, powderPrice, reconPrice, unitPrice, SUPABASE_URL, SUPABASE_KEY };
