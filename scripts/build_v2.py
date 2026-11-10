@@ -16,12 +16,10 @@ trailing slashes (vercel.json), so /v2/ is served as /v2, where relative links w
 resolve against the site root and lead into the main site.
 """
 import json
-import re
 import shutil
 import time
 from collections import Counter
 from pathlib import Path
-from urllib.parse import urljoin
 
 import build as b
 from vial_svg import render_vial, CATEGORY_COLORS
@@ -1112,23 +1110,7 @@ def page_account():
 
 # ----------------------------------------------------------------- main ---
 
-URL_ATTR = re.compile(r'(\s(?:href|src|action|data-base)=")([^"]*)(")')
-ABSOLUTE = ("#", "/", "http:", "https:", "mailto:", "tel:", "data:")
-
-
-def absolutize(html, page_url):
-    """Every relative href/src/action/data-base in a page served at page_url (e.g. "/v2/catalog")
-    made root-absolute, so the page works with or without a trailing slash on its address.
-    An empty data-base (v2-boot.js: "pages are next to this one") becomes the page's folder."""
-    def fix(m):
-        attr, val = m.group(1), m.group(2)
-        if val.startswith(ABSOLUTE) or (not val and "data-base" not in attr):
-            return m.group(0)
-        url = urljoin(page_url, val or "./")
-        if url.endswith("/") and url != "/" and "data-base" not in attr:
-            url = url[:-1]          # /v2/ is served as /v2: link there directly
-        return attr + url + m.group(3)
-    return URL_ATTR.sub(fix, html)
+absolutize = b.absolutize   # every link root-absolute (shared with v1, see build.py)
 
 
 def write(rel, html):

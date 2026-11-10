@@ -9,9 +9,11 @@ Run after parse_pricelist.py whenever the price list changes:
 """
 import json
 import math
+import re
 import shutil
 import time
 from pathlib import Path
+from urllib.parse import urljoin
 
 from vial_svg import render_vial, CATEGORY_COLORS
 from parse_pricelist import slugify
@@ -973,6 +975,49 @@ def render_search_index(groups):
     (ROOT / "assets" / "js" / "search-index.js").write_text(js)
 
 
+# ------------------------------------------------- archived designs' links ---
+
+URL_ATTR = re.compile(r'(\s(?:href|src|action|data-base|data-prefix)=")([^"]*)(")')
+ABSOLUTE = ("#", "/", "http:", "https:", "mailto:", "tel:", "data:")
+FOLDER_ATTRS = ("data-base", "data-prefix")   # "where pages are": a folder, kept with its trailing slash
+
+
+def absolutize(html, page_url, clean=False):
+    """Every relative href/src/action/data-base/data-prefix in a page served at page_url (e.g.
+    "/v1/catalog") made root-absolute. The site drops trailing slashes (vercel.json), so /v1/ is
+    served as /v1, where a relative link would resolve against the site root and lead into the
+    main site; absolute links work either way. An empty data-base or data-prefix ("pages are next
+    to this one") becomes the page's folder. clean: links to .html pages lose the extension
+    (/v1/catalog.html -> /v1/catalog, /v1/index.html -> /v1), the addresses cleanUrls serves them at."""
+    def fix(m):
+        attr, val = m.group(1), m.group(2)
+        folder = any(a in attr for a in FOLDER_ATTRS)
+        if val.startswith(ABSOLUTE) or (not val and not folder):
+            return m.group(0)
+        url = urljoin(page_url, val or "./")
+        if folder:
+            return attr + url + m.group(3)
+        cut = min([i for i in (url.find("?"), url.find("#")) if i >= 0], default=len(url))
+        path, rest = url[:cut], url[cut:]
+        if clean and path.endswith(".html"):
+            path = path[:-len(".html")]
+            if path.endswith("/index"):
+                path = path[:-len("index")]
+        if path.endswith("/") and path != "/":
+            path = path[:-1]          # /v1/ is served as /v1: link there directly
+        return attr + path + rest + m.group(3)
+    return URL_ATTR.sub(fix, html)
+
+
+V1_PATH = "/v1/"   # where v1/ is served
+
+
+def write_v1(rel, html):
+    """A v1 page into v1/, its links made absolute and clean (see absolutize())."""
+    name = rel[:-len(".html")]
+    (ROOT / "v1" / rel).write_text(absolutize(html, V1_PATH + ("" if name == "index" else name), clean=True))
+
+
 def main():
     products = load_products()
     groups = group_products(products)
@@ -982,18 +1027,18 @@ def main():
     v1_out = ROOT / "v1"
     v1_out.mkdir(parents=True, exist_ok=True)
 
-    (v1_out / "index.html").write_text(render_home(groups))
-    (v1_out / "catalog.html").write_text(render_catalog(groups))
-    (v1_out / "about.html").write_text(render_about())
-    (v1_out / "contact.html").write_text(render_contact())
-    (v1_out / "calculator.html").write_text(render_calculator())
+    write_v1("index.html", render_home(groups))
+    write_v1("catalog.html", render_catalog(groups))
+    write_v1("about.html", render_about())
+    write_v1("contact.html", render_contact())
+    write_v1("calculator.html", render_calculator())
 
     peptides_dir = v1_out / "peptides"
     if peptides_dir.exists():
         shutil.rmtree(peptides_dir)
     peptides_dir.mkdir()
     for g in groups:
-        (peptides_dir / f"{g['slug']}.html").write_text(render_product_page(g, groups))
+        write_v1(f"peptides/{g['slug']}.html", render_product_page(g, groups))
 
     print(f"Built 5 core pages + {len(groups)} product pages ({len(products)} vial variants total).")
 

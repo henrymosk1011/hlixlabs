@@ -32,7 +32,7 @@
     if (!matches.length) return '<p class="search-panel__hint">No matches for “' + escapeHtml(query) + '”.</p>';
     return matches.map(function (item) {
       var priceLabel = (item.multi ? "FROM " : "") + money(item.priceFrom);
-      return '<a class="search-result" href="' + prefix + "peptides/" + item.slug + '.html">' +
+      return '<a class="search-result" href="' + prefix + "peptides/" + item.slug + '">' +
         '<span class="search-result__name">' + escapeHtml(item.name) + '</span>' +
         '<span class="search-result__cat">' + escapeHtml(item.category) + '</span>' +
         '<span class="search-result__price">' + priceLabel + '</span>' +
