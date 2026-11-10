@@ -609,7 +609,9 @@
     var name = $(".pdp__name", pdp).textContent;
     var priceMain = $(".pdp__price [data-price-out]", pdp);
     var shownPrice = null;
-    var st = { btn: sizes.filter(function (b) { return b.classList.contains("is-active"); })[0] || sizes[0], form: "recon" };
+    // the page starts on the form it was built with (powder)
+    var startForm = forms.filter(function (b) { return b.classList.contains("is-active"); })[0];
+    var st = { btn: sizes.filter(function (b) { return b.classList.contains("is-active"); })[0] || sizes[0], form: startForm ? startForm.getAttribute("data-form") : "powder" };
 
     function num(b, a) { return parseFloat(b.getAttribute(a)) || 0; }
     function unit(b, form) { return num(b, form === "recon" ? "data-price-recon" : "data-price"); }
@@ -641,7 +643,7 @@
     // for accounts an admin marked as family & friends; the regular price shows crossed out
     var fam = $("[data-family]", pdp);
     var regular = $("[data-regular]", pdp);
-    var buyBy = "vial";
+    var buyBy = "pack"; // family & friends start on the pack of 10
     function famPrice(unitName) {
       return window.HLIXCart && window.HLIXCart.familyPrice ? window.HLIXCart.familyPrice(st.btn.getAttribute("data-sku"), unitName || buyBy) : null;
     }

@@ -643,12 +643,13 @@ def page_product(g, groups):
     multi = len(variants) > 1
     has_img = v2.has_photo(d)
     rp = recon_price(d["price"])
+    pp = d["price"]  # powder: the form a product page starts on
 
     if has_img:
-        main = (f'<img src="{img_src(d, a, "recon", "l")}" alt="{esc(g["name"])} {esc(d["dose"])} research vial" width="1280" height="1600" '
-                f'decoding="sync" data-main-img data-base="{a}assets/img/vials/" data-sku="{d["sku"].lower()}" data-form="recon">')
+        main = (f'<img src="{img_src(d, a, "powder", "l")}" alt="{esc(g["name"])} {esc(d["dose"])} research vial" width="1280" height="1600" '
+                f'decoding="sync" data-main-img data-base="{a}assets/img/vials/" data-sku="{d["sku"].lower()}" data-form="powder">')
         thumbs = "".join(
-            f'<button type="button" class="thumb{" is-active" if f == "recon" else ""}" data-form-thumb="{f}" aria-pressed="{"true" if f == "recon" else "false"}">'
+            f'<button type="button" class="thumb{" is-active" if f == "powder" else ""}" data-form-thumb="{f}" aria-pressed="{"true" if f == "powder" else "false"}">'
             f'<img src="{img_src(d, a, f)}" alt="" width="480" height="600" data-thumb-img><span>{label}</span></button>'
             for f, label in (("powder", "powder"), ("recon", "ready to use"))
         )
@@ -661,7 +662,7 @@ def page_product(g, groups):
         f'<button type="button" role="radio" class="size{" is-active" if v is d else ""}" aria-checked="{"true" if v is d else "false"}" '
         f'data-variant data-sku="{esc(v["sku"])}" data-dose="{esc(v["dose"])}" data-amt="{esc(v["dose_amount"] or "")}" data-dunit="{esc(v["dose_unit"])}" '
         f'data-price="{v["price"]:.2f}" data-price-recon="{recon_price(v["price"]):.2f}" data-img="{v["sku"].lower()}">'
-        f'<b>{esc(v["dose"])}</b><span data-tile-price>{money(recon_price(v["price"]))}</span></button>'
+        f'<b>{esc(v["dose"])}</b><span data-tile-price>{money(v["price"])}</span></button>'
         for v in variants
     )
     certs = certs_for(g)
@@ -706,7 +707,7 @@ def page_product(g, groups):
     <nav class="crumbs" aria-label="breadcrumb"><a href="{p or './'}">home</a><span>/</span><a href="{p}catalog">shop</a><span>/</span><a href="{p}catalog?cat={g['category']}">{esc(g['category_label'].lower())}</a><span>/</span><b>{esc(g['name'])}</b></nav>
     <div class="pdp__grid">
       <div class="pdp__gallery">
-        <div class="stage" data-zoom>{main}<span class="stage__form" data-form-badge>ready to use</span><span class="stage__zoom" aria-hidden="true">{ZOOM}</span></div>
+        <div class="stage" data-zoom>{main}<span class="stage__form is-powder" data-form-badge>powder</span><span class="stage__zoom" aria-hidden="true">{ZOOM}</span></div>
         {thumbs}
       </div>
       <div class="pdp__panel">
@@ -714,11 +715,11 @@ def page_product(g, groups):
           <p class="pdp__cat"><i></i>{esc(g['category_label'].lower())}</p>
           <h1 class="pdp__name">{esc(g['name'])}</h1>
           {coa_line}
-          <div class="pdp__price" data-regular><b class="price__n" data-price-out>{money(rp)}</b><span>/ vial</span><small data-permg>{per_mg(rp, d)}</small></div>
+          <div class="pdp__price" data-regular><b class="price__n" data-price-out>{money(pp)}</b><span>/ vial</span><small data-permg>{per_mg(pp, d)}</small></div>
           <div class="fam" data-family hidden>
             <div class="fam__top"><p class="label">family &amp; friends price</p>
-              <div class="fam__units" role="group" aria-label="buy by the vial or the pack"><button type="button" data-unit="vial" aria-pressed="true">single vial</button><button type="button" data-unit="pack" aria-pressed="false">pack of 10</button></div></div>
-            <p class="fam__price"><b data-family-price></b> <span data-family-per>/ vial</span></p>
+              <div class="fam__units" role="group" aria-label="buy by the vial or the pack"><button type="button" data-unit="pack" aria-pressed="true">pack of 10</button><button type="button" data-unit="vial" aria-pressed="false">single vial</button></div></div>
+            <p class="fam__price"><b data-family-price></b> <span data-family-per>/ pack of 10</span></p>
           </div>
           <div class="pick">
             <div class="pick__head"><span class="label">size</span><b data-dose-out>{esc(d['dose'])}</b></div>
@@ -727,13 +728,13 @@ def page_product(g, groups):
           <div class="pick">
             <div class="pick__head"><span class="label">form</span></div>
             <div class="forms" role="radiogroup" aria-label="form">
-              <button type="button" role="radio" class="form" data-form="powder" aria-checked="false"><span><b>powder</b><small>as powder, to reconstitute</small></span><em data-form-price="powder">{money(d['price'])}</em></button>
-              <button type="button" role="radio" class="form is-active" data-form="recon" aria-checked="true"><span><b>ready to use</b><small>reconstituted</small></span><em data-form-price="recon">{money(rp)}</em></button>
+              <button type="button" role="radio" class="form is-active" data-form="powder" aria-checked="true"><span><b>powder</b><small>as powder, to reconstitute</small></span><em data-form-price="powder">{money(d['price'])}</em></button>
+              <button type="button" role="radio" class="form" data-form="recon" aria-checked="false"><span><b>ready to use</b><small>reconstituted</small></span><em data-form-price="recon">{money(rp)}</em></button>
             </div>
           </div>
           <div class="buy" data-buy>
             <div class="qty" data-qty><button type="button" data-qty-dec aria-label="decrease quantity">{MINUS}</button><input type="number" min="1" step="1" value="1" inputmode="numeric" data-qty-input aria-label="quantity"><button type="button" data-qty-inc aria-label="increase quantity">{PLUS}</button></div>
-            <button type="button" class="btn btn--solid buy__btn" data-add data-name="{esc(g['name'])}" data-slug="{g['slug']}" data-category="{esc(g['category_label'])}">add to cart <span class="buy__sum" data-add-sum>· {money(rp)}</span></button>
+            <button type="button" class="btn btn--solid buy__btn" data-add data-name="{esc(g['name'])}" data-slug="{g['slug']}" data-category="{esc(g['category_label'])}">add to cart <span class="buy__sum" data-add-sum>· {money(pp)}</span></button>
           </div>
           <ul class="pdp__notes">
             <li><i class="dot"></i>in stock</li>
@@ -756,7 +757,7 @@ def page_product(g, groups):
         <dl class="srow__v specs">
           <div><dt>category</dt><dd>{esc(g['category_label'].lower())}</dd></div>
           <div><dt>sizes</dt><dd>{esc(sizes_all)}</dd></div>
-          <div><dt>selected</dt><dd><span data-dose-out>{esc(d['dose'])}</span> · <span data-form-out>ready to use</span></dd></div>
+          <div><dt>selected</dt><dd><span data-dose-out>{esc(d['dose'])}</span> · <span data-form-out>powder</span></dd></div>
           <div><dt>sku</dt><dd class="mono" data-sku-out>{esc(d['sku'])}</dd></div>
           <div><dt>purity</dt><dd>≥99% · hplc verified</dd></div>
           <div><dt>lab reports</dt><dd>{f'{len(certs)} published' if certs else 'on file, on request'}</dd></div>
@@ -777,8 +778,8 @@ def page_product(g, groups):
   {rel}
 </div>
 <div class="buybar" data-buybar aria-hidden="true">
-  <div class="buybar__info"><b>{esc(g['name'])}</b><span><span data-dose-out>{esc(d['dose'])}</span> · <span data-form-out>ready to use</span></span></div>
-  <button type="button" class="btn btn--solid" data-add-proxy tabindex="-1">add · <span data-price-out>{money(rp)}</span></button>
+  <div class="buybar__info"><b>{esc(g['name'])}</b><span><span data-dose-out>{esc(d['dose'])}</span> · <span data-form-out>powder</span></span></div>
+  <button type="button" class="btn btn--solid" data-add-proxy tabindex="-1">add · <span data-price-out>{money(pp)}</span></button>
 </div>'''
     return shell(title=g["name"], desc=f"{g['name']}: {g['category_label']} research compound.", page="product", body=body, groups=groups, depth=1, body_class="product")
 
