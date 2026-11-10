@@ -6,12 +6,19 @@ peptide, about, contact, calculator) from data/products.json.
 Run after parse_pricelist.py whenever the price list changes:
     python3 scripts/parse_pricelist.py
     python3 scripts/build.py
+
+The pages are written with relative links, then made root-absolute (/v1/catalog,
+/assets/...) on the way into v1/ (absolutize()): the site drops trailing slashes
+(vercel.json), so /v1/ is served as /v1, where relative links would resolve against
+the site root and lead into the main site.
 """
 import json
 import math
+import re
 import shutil
 import time
 from pathlib import Path
+from urllib.parse import urljoin
 
 from vial_svg import render_vial, CATEGORY_COLORS
 from parse_pricelist import slugify
@@ -973,27 +980,66 @@ def render_search_index(groups):
     (ROOT / "assets" / "js" / "search-index.js").write_text(js)
 
 
+V1_OUT = ROOT / "v1"
+V1_PATH = "/v1/"               # where V1_OUT is served
+
+URL_ATTR = re.compile(r'(\s(href|src|action|data-base|data-prefix)=")([^"]*)(")')
+ABSOLUTE = ("#", "/", "http:", "https:", "mailto:", "tel:", "data:")
+FOLDER_ATTRS = ("data-base", "data-prefix")   # hold a folder, kept with its trailing slash
+
+
+def absolutize(html, page_url):
+    """Every relative href/src/action/data-base/data-prefix in a page served at page_url
+    (e.g. "/v1/catalog") made root-absolute, so the page works with or without a trailing
+    slash on its address. Page links lose ".html" and a trailing slash, the addresses the
+    site serves them at (cleanUrls, trailingSlash: false): "catalog.html#growth" becomes
+    "/v1/catalog#growth", "index.html" becomes "/v1". An empty data-prefix (v1-prefix.js:
+    "the pages are next to this one") becomes the page's folder."""
+    def fix(m):
+        lead, attr, val, end = m.groups()
+        folder = attr in FOLDER_ATTRS
+        if val.startswith(ABSOLUTE) or (not val and not folder):
+            return m.group(0)
+        url = urljoin(page_url, val or "./")
+        if not folder:
+            path, rest = re.match(r"([^?#]*)(.*)", url, re.S).groups()
+            if attr == "href" and path.endswith(".html"):
+                path = path[:-len(".html")]
+                if path.endswith("/index"):
+                    path = path[:-len("index")]
+            if path.endswith("/") and path != "/":
+                path = path[:-1]
+            url = path + rest
+        return lead + url + end
+    return URL_ATTR.sub(fix, html)
+
+
+def write_v1(rel, html):
+    """A page into V1_OUT at rel (e.g. "peptides/bpc-157.html"), its links made absolute."""
+    name = rel[:-len(".html")]
+    (V1_OUT / rel).write_text(absolutize(html, V1_PATH + ("" if name == "index" else name)))
+
+
 def main():
     products = load_products()
     groups = group_products(products)
 
     render_search_index(groups)
 
-    v1_out = ROOT / "v1"
-    v1_out.mkdir(parents=True, exist_ok=True)
+    V1_OUT.mkdir(parents=True, exist_ok=True)
 
-    (v1_out / "index.html").write_text(render_home(groups))
-    (v1_out / "catalog.html").write_text(render_catalog(groups))
-    (v1_out / "about.html").write_text(render_about())
-    (v1_out / "contact.html").write_text(render_contact())
-    (v1_out / "calculator.html").write_text(render_calculator())
+    write_v1("index.html", render_home(groups))
+    write_v1("catalog.html", render_catalog(groups))
+    write_v1("about.html", render_about())
+    write_v1("contact.html", render_contact())
+    write_v1("calculator.html", render_calculator())
 
-    peptides_dir = v1_out / "peptides"
+    peptides_dir = V1_OUT / "peptides"
     if peptides_dir.exists():
         shutil.rmtree(peptides_dir)
     peptides_dir.mkdir()
     for g in groups:
-        (peptides_dir / f"{g['slug']}.html").write_text(render_product_page(g, groups))
+        write_v1(f"peptides/{g['slug']}.html", render_product_page(g, groups))
 
     print(f"Built 5 core pages + {len(groups)} product pages ({len(products)} vial variants total).")
 
