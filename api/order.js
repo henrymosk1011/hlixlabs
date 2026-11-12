@@ -19,6 +19,7 @@
 const { getPrices, unitPrice } = require("./_lib/prices");
 const S = require("./_lib/session");
 const M = require("./_lib/mail");
+const A = require("./_lib/alerts"); // a signed-in customer's held cart email (this order says it all)
 
 const NOTIFY_EMAIL = process.env.NOTIFY_EMAIL || "henrymm@gmail.com";
 const FROM_EMAIL = process.env.RESEND_FROM_EMAIL || "hlix <onboarding@resend.dev>";
@@ -136,6 +137,7 @@ module.exports = async (req, res) => {
       return;
     }
     placed = r.data;
+    await A.cartEnd(req, res, token, true);
     // The account's membership pricing, as the database priced it (migrations 0027 and 0031).
     const off = Number(placed.discount) || 0;
     pricing = placed.family ? "family & friends pricing"

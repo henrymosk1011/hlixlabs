@@ -1,2 +1,4 @@
 # Email templates pasted into the Supabase dashboard (see README), not pages of the site.
 /emails
+# Tests for api/ (npm test), not part of the site.
+/tests

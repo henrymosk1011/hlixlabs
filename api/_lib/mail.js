@@ -128,23 +128,50 @@ function orderConfirmation({ name, items, subtotal, ref, pricing, account }) {
   return { subject, html, text };
 }
 
-// Sends one email through Resend. Never throws: returns { ok, status, why }.
-async function send(apiKey, { to, subject, html, text, idempotencyKey, tag }) {
-  try {
-    const headers = { "content-type": "application/json", authorization: `Bearer ${apiKey}` };
-    if (idempotencyKey) headers["idempotency-key"] = idempotencyKey;
-    const r = await fetch("https://api.resend.com/emails", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ from: FROM, to: [to], reply_to: REPLY_TO, subject, html, text, tags: tag ? [{ name: "type", value: tag }] : undefined }),
-    });
-    if (r.ok) return { ok: true, status: r.status };
-    let why = "";
-    try { const e = await r.json(); why = `${e.name || ""}: ${e.message || ""}`.slice(0, 300); } catch (e) { why = ""; }
-    return { ok: false, status: r.status, why };
-  } catch (err) {
-    return { ok: false, status: 0, why: (err && err.name) || "network error" };
+// One call to Resend's API. Never throws: returns { ok, status, data, why }. Waits a second
+// and tries once more if Resend says too many requests at once (429).
+async function resend(apiKey, method, path, body, extraHeaders) {
+  for (let attempt = 0; ; attempt++) {
+    try {
+      const r = await fetch(`https://api.resend.com${path}`, {
+        method,
+        headers: { "content-type": "application/json", authorization: `Bearer ${apiKey}`, ...(extraHeaders || {}) },
+        body: body === undefined ? undefined : JSON.stringify(body),
+        signal: AbortSignal.timeout(8000),
+      });
+      let data = null;
+      try { data = await r.json(); } catch (e) { data = null; }
+      if (r.ok) return { ok: true, status: r.status, data };
+      if (r.status === 429 && attempt === 0) { await new Promise((ok) => setTimeout(ok, 1000)); continue; }
+      const why = data ? `${data.name || ""}: ${data.message || ""}`.slice(0, 300) : "";
+      return { ok: false, status: r.status, data, why };
+    } catch (err) {
+      return { ok: false, status: 0, data: null, why: (err && err.name) || "network error" };
+    }
   }
+}
+
+// Sends one email through Resend. Never throws: returns { ok, status, id, why }.
+// replyTo: where replies go (default REPLY_TO_EMAIL). scheduledAt: an ISO time to hold it
+// until (Resend sends it then, unless it's cancelled or moved first).
+async function send(apiKey, { to, subject, html, text, idempotencyKey, tag, replyTo, scheduledAt }) {
+  const r = await resend(apiKey, "POST", "/emails", {
+    from: FROM, to: [to], reply_to: replyTo || REPLY_TO, subject, html, text,
+    tags: tag ? [{ name: "type", value: tag }] : undefined,
+    scheduled_at: scheduledAt || undefined,
+  }, idempotencyKey ? { "idempotency-key": idempotencyKey } : undefined);
+  return { ok: r.ok, status: r.status, id: r.ok && r.data && typeof r.data.id === "string" ? r.data.id : null, why: r.why };
+}
+
+const EMAIL_ID = /^[0-9a-f-]{36}$/i;
+// A held (scheduled) email: send it at another time instead, or not at all.
+function reschedule(apiKey, id, scheduledAt) {
+  if (!EMAIL_ID.test(String(id))) return Promise.resolve({ ok: false, status: 400 });
+  return resend(apiKey, "PATCH", `/emails/${id}`, { scheduled_at: scheduledAt });
+}
+function cancel(apiKey, id) {
+  if (!EMAIL_ID.test(String(id))) return Promise.resolve({ ok: false, status: 400 });
+  return resend(apiKey, "POST", `/emails/${id}/cancel`);
 }
 
 // The customer's copy of an order. Account orders: one per order (by its #). Guests:
@@ -160,4 +187,4 @@ async function confirmOrder(apiKey, { email, name, items, subtotal, ref, pricing
   return r;
 }
 
-module.exports = { ON, confirmOrder, orderConfirmation, greetingName, send };
+module.exports = { ON, confirmOrder, orderConfirmation, greetingName, send, reschedule, cancel, esc, money, lineLabel, lineQty };

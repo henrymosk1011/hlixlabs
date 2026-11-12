@@ -5,5 +5,8 @@
   "description": "hlix: research peptide catalog with a serverless chat backend.",
   "engines": {
     "node": ">=18"
+  },
+  "scripts": {
+    "test": "node --test tests/*.test.js"
   }
 }

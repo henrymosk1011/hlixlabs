@@ -272,5 +272,39 @@
   // another tab changed the cart
   window.addEventListener("storage", function (e) { if (e.key === KEY) render(get()); });
 
+  // While an email to hlix about this visit's cart is held (the hlix_cv cookie, set by
+  // api/_lib/alerts.js), say when they leave the site and when they come back, so it goes
+  // out soon after they've gone. Going to another page of the site isn't leaving.
+  var internal = false, internalT = null, gone = false;
+  function held() { return /(?:^|;\s*)hlix_cv=1(?:;|$)/.test(document.cookie); }
+  function presence(away) {
+    if (away === gone || !held()) return;
+    gone = away;
+    try {
+      fetch("/api/account", {
+        method: "POST", credentials: "same-origin", keepalive: true,
+        headers: { "content-type": "application/json", accept: "application/json" },
+        body: JSON.stringify({ action: "presence", away: away })
+      }).catch(function () {});
+    } catch (e) {}
+  }
+  function goingInside() {
+    internal = true;
+    clearTimeout(internalT);
+    internalT = setTimeout(function () { internal = false; }, 3000); // the link didn't leave the page after all
+  }
+  document.addEventListener("click", function (e) {
+    var a = e.target && e.target.closest ? e.target.closest("a[href]") : null;
+    if (a && a.origin === location.origin && !a.hasAttribute("download") && (!a.target || a.target === "_self")
+      && !e.metaKey && !e.ctrlKey && !e.shiftKey && !e.altKey) goingInside();
+  }, true);
+  document.addEventListener("submit", goingInside, true);
+  document.addEventListener("visibilitychange", function () {
+    if (document.visibilityState === "hidden") { if (!internal) presence(true); }
+    else { internal = false; presence(false); }
+  });
+  window.addEventListener("pagehide", function () { if (!internal) presence(true); });
+  window.addEventListener("pageshow", function (e) { if (e.persisted) { internal = false; presence(false); } });
+
   render(get());
 })();

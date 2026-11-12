@@ -887,6 +887,14 @@ a.cinfo:hover, button.cinfo:hover { border-color: var(--line-2); }
 .acct__temp { margin: 0; padding: 12px 14px; border: 1px solid var(--warn); border-radius: 12px; color: var(--fg, inherit); font: 500 12.5px/1.6 var(--f-mono); }
 .acct__temp[hidden] { display: none; }
 .acct__form.is-urgent { order: -1; }
+/* delete my account: tucked behind a link, in red once it's open */
+.acct__del > summary { display: inline-block; cursor: pointer; list-style: none; color: var(--dim); font: 500 12.5px var(--f-mono); text-decoration: underline; text-underline-offset: 3px; transition: color 0.2s; }
+.acct__del > summary::-webkit-details-marker { display: none; }
+.acct__del > summary:hover, .acct__del[open] > summary { color: var(--out); }
+.acct__del .acct__form { margin-top: 14px; border-color: color-mix(in srgb, var(--out) 55%, transparent); }
+.acct__del .acct__form > p { color: var(--dim); }
+.btn--danger { border-color: var(--out); color: var(--out); }
+.btn--danger:hover { background: var(--out); color: var(--bg); }
 .acct__h { margin-bottom: 14px; font: 800 clamp(1.6rem, 2.6vw, 2.2rem) var(--f-display); letter-spacing: -0.045em; }
 .acct__empty { display: grid; justify-items: start; gap: 14px; padding: 28px; border: 1px dashed var(--line-2); border-radius: var(--r-lg); color: var(--dim); }
 .acct__order { display: grid; gap: 12px; margin-bottom: 10px; padding: 18px 20px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); }

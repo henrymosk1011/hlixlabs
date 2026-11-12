@@ -2,13 +2,14 @@
 //
 //   GET  /api/account                     who's signed in: email, saved details, cart, orders
 //   POST /api/account { action, ... }     signup, signin, signout, forgot, link, password,
-//                                         profile, cart
+//                                         profile, cart, presence, delete
 //
 // Sessions are HttpOnly cookies set here (see api/_lib/session.js); page scripts never see
 // a token. The database decides what a customer can read or change (the admin's
 // supabase/migrations/0026_shop_accounts.sql): only their own account.
 
 const S = require("./_lib/session");
+const A = require("./_lib/alerts"); // emails to hlix: new and deleted accounts, cart visits
 
 const EMAIL = /^[^\s@<>()[\]\\,;:"]{1,64}@[^\s@<>()[\]\\,;:"]{1,190}\.[^\s@<>()[\]\\,;:"]{2,63}$/;
 const PROFILE = { name: 120, phone: 40, address1: 200, address2: 200, city: 120, state: 120, zip: 40, country: 120 };
@@ -82,6 +83,7 @@ async function me(req, res) {
     const fp = await S.rpc("shop_family_prices", {}, token);
     if (fp.ok && fp.data && typeof fp.data === "object" && !Array.isArray(fp.data)) prices = fp.data;
   }
+  await A.cartPresence(req, res, token, false); // they're still here: their cart visit goes on
   return send(res, 200, {
     signedIn: true, emails: S.EMAILS_ON,
     email: d.email, tier, discount, prices, profile: d.profile, cart: d.cart, orders: d.orders,
@@ -99,12 +101,20 @@ const actions = {
     if (bad) return send(res, 400, { error: bad });
     const name = str(b.name, PROFILE.name);
     // account.html: the address on Supabase's allow list; Vercel forwards it to /account (the #tokens come along).
-    const r = await S.auth(`signup?redirect_to=${encodeURIComponent(S.SITE_URL + "/account.html")}`, { body: { email: mail, password: b.password } });
+    // The name rides along with the login (Supabase keeps it as user metadata) until they
+    // open the confirm link, which saves it to their account (link, below).
+    const r = await S.auth(`signup?redirect_to=${encodeURIComponent(S.SITE_URL + "/account.html")}`, { body: { email: mail, password: b.password, data: name ? { name } : {} } });
     if (!r.ok) {
       const [status, error] = authError(r, "Your account couldn't be made. Check your email and password and try again.");
       return send(res, status, { error });
     }
     const s = r.data && r.data.access_token ? r.data : null;
+    // Tell hlix. An email that already has an account gets the same answer as a new one
+    // (so nobody can find out who has an account), with no identities: no new account.
+    const user = (s ? s.user : r.data) || {};
+    if (!(Array.isArray(user.identities) && user.identities.length === 0)) {
+      await A.created({ name, email: mail, userId: user.id, confirm: !s });
+    }
     if (!s) return send(res, 200, { ok: true, confirm: true }); // they confirm by email first
     if (await refuseAdmin(s.access_token)) return send(res, 403, { error: "That login can't be used here." });
     S.setSession(res, s);
@@ -132,6 +142,7 @@ const actions = {
 
   async signout(req, res, b) {
     const token = await S.session(req, res);
+    if (token) await A.cartEnd(req, res, token, false); // their visit is over
     // "everywhere": every device this account is signed in on.
     if (token) await S.auth(`logout?scope=${b.everywhere === true ? "global" : "local"}`, { token });
     S.clearSession(res);
@@ -169,6 +180,15 @@ const actions = {
     const recovery = amr.some((m) => m && m.method === "recovery" && fromLink(m))
       || (b.type === "recovery" && amr.some(fromLink));
     if (recovery) S.setCookie(res, S.RS, "1", 15 * 60);
+    // A confirm-email link: save the name they typed at sign-up, if their account has no
+    // details yet (shop_save_profile sets every field, so never over anything they saved).
+    const meta = r.data && r.data.user_metadata;
+    const typed = str(meta && meta.name, PROFILE.name);
+    if (b.type === "signup" && typed) {
+      const m = await S.rpc("shop_me", {}, at);
+      const prof = m.ok && m.data && m.data.profile && typeof m.data.profile === "object" ? m.data.profile : null;
+      if (prof && Object.keys(PROFILE).every((k) => !prof[k])) await S.rpc("shop_save_profile", { p: { name: typed } }, at);
+    }
     return send(res, 200, { ok: true, reset: recovery });
   },
 
@@ -237,8 +257,53 @@ const actions = {
       if (Number.isFinite(unit) && unit >= 0 && unit <= 1000000) line.unitPrice = unit;
       if (line.sku) cart.push(line);
     }
+    // The first save of a visit: their cart as it was, so hlix hears what they add, not
+    // what was already there (alerts.js).
+    let before = null;
+    if (A.startsVisit(req, token)) {
+      const m = await S.rpc("shop_me", {}, token);
+      if (m.ok && m.data) before = { cart: m.data.cart, name: m.data.profile && m.data.profile.name };
+    }
     const r = await S.rpc("shop_save_cart", { p_cart: cart }, token);
     if (!r.ok) return send(res, r.status === 401 ? 401 : 400, { error: S.friendly(r, "Your cart couldn't be saved.") });
+    await A.cartSaved(req, res, { token, cart, before });
+    return send(res, 200, { ok: true });
+  },
+
+  // The page says they left the site (closed the tab, switched away) or came back, while
+  // a cart email is held (alerts.js).
+  async presence(req, res, b, ip) {
+    const token = await S.session(req, res);
+    if (!token) return send(res, 200, { ok: true });
+    if (S.limited(`presence:${ip}`, 120, 10 * 60 * 1000)) return send(res, 429, { error: "Too many requests." });
+    await A.cartPresence(req, res, token, b.away === true);
+    return send(res, 200, { ok: true });
+  },
+
+  // Delete their own account for good, after typing their password again. The database
+  // (the admin's 0033_shop_delete_account.sql) only does it for a session that began with
+  // a password in the last 5 minutes: the one made here from what they just typed.
+  async delete(req, res, b, ip) {
+    const token = await S.session(req, res);
+    if (!token) return send(res, 401, { error: "Sign in first." });
+    if (S.limited(`delete:${ip}`, 6, 15 * 60 * 1000)) return send(res, 429, { error: "Too many tries. Wait a few minutes and try again." });
+    const who = await S.auth("user", { method: "GET", token });
+    const mail = who.ok && who.data ? String(who.data.email || "") : "";
+    if (!mail) return send(res, 401, { error: "Sign in again first." });
+    if (typeof b.password !== "string" || !b.password || b.password.length > 200) return send(res, 400, { error: "Enter your password to delete your account." });
+    const check = await S.auth("token?grant_type=password", { body: { email: mail, password: b.password } });
+    if (!check.ok) {
+      const [status, error] = authError(check, "Your account couldn't be deleted. Try again in a moment.", true);
+      return send(res, status === 401 ? 400 : status, { error: status === 401 ? "That password isn't right." : error });
+    }
+    const r = await S.rpc("shop_delete_account", {}, check.data.access_token);
+    if (!r.ok || !r.data) {
+      await S.auth("logout?scope=local", { token: check.data.access_token }); // the session made just for this
+      return send(res, r.status === 401 || r.status === 403 ? 403 : 400, { error: S.friendly(r, "Your account couldn't be deleted. Write to contact@hlixlabs.com and we'll do it for you.") });
+    }
+    await A.cartEnd(req, res, token, true); // no cart email: this one says it all
+    S.clearSession(res);
+    await A.deleted({ name: r.data.name, email: r.data.email || mail, orders: r.data.orders, tier: r.data.tier });
     return send(res, 200, { ok: true });
   },
 };

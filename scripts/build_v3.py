@@ -1148,6 +1148,16 @@ def page_account(groups):
           {status}
         </form>
         <p><button type="button" class="acct__link" data-acct-signout-all>sign out on every device</button></p>
+        <details class="acct__del" data-acct-del>
+          <summary>delete my account</summary>
+          <form class="form-card acct__form" data-acct-form="delete">
+            <h2>delete my account</h2>
+            <p>this deletes your hlix account for good: your sign-in, saved shipping details and cart, and you're signed out everywhere. orders you've already placed stay with hlix for our records. you can always make a new account later.</p>
+            <label class="field"><span>your password, to confirm</span><input name="password" type="password" required autocomplete="current-password" maxlength="200"></label>
+            <div class="acct__actions"><button class="btn btn--danger btn--sm" type="submit">delete my account</button></div>
+            {status}
+          </form>
+        </details>
       </div>
     </div>
   </div>

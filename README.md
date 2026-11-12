@@ -367,7 +367,12 @@ Signed in, their cart is saved to the account and follows them to any device
 (signing in merges the cart they had into it; signing out clears it from that
 browser), checkout fills in their saved shipping details, their orders go
 straight into the hlix admin, and the account page shows their orders, saved
-details and a password change.
+details and a password change. They can also delete their account there ("delete
+my account", under "sign out on every device"): it asks for their password again,
+then their sign-in, saved details and cart are gone and they're signed out
+everywhere; their orders stay in the admin (the admin's
+`0033_shop_delete_account.sql`, which only does it for a session that began with a
+password in the last 5 minutes).
 
 Accounts live in the admin's Supabase project (its Auth), next to the admin
 login. What a customer can do there is decided by the database, not this site:
@@ -415,6 +420,9 @@ Vercel environment variables (all optional):
   hlixlabs.com verified in Resend and `RESEND_FROM_EMAIL` on it.
 - `REPLY_TO_EMAIL` — where customers' replies go. Defaults to
   `contact@hlixlabs.com`.
+- `OWNER_ALERTS=off` — stops the emails to you (below). On by default.
+- `ADMIN_URL` — the admin's address in those emails. Defaults to
+  `https://admin.hlixlabs.com`.
 
 ### Emails to customers
 
@@ -453,6 +461,40 @@ verified in Resend:
    email**. Accounts made before stay confirmed.
 6. Vercel (project hlixlabs): `ACCOUNT_EMAILS=on`, then redeploy.
 
+### Emails to you
+
+`api/_lib/alerts.js` emails `NOTIFY_EMAIL` (reply goes to the customer) when:
+
+- **someone makes an account** (with "they still have to confirm their email" until
+  they do). An email that already had an account gets the same answer on the site
+  but no email to you. At most one a day per address.
+- **someone deletes their own account**: who, their membership, and that their
+  orders and client stay in the admin.
+- **a signed-in customer adds things to their cart**: one email per visit, sent
+  once the visit is over, listing what they added on that visit and their whole
+  cart. A browser can't reliably say when someone leaves, so the email is held in
+  Resend (a scheduled email) and goes out once they've been quiet for **15
+  minutes**: each page they open and each cart change pushes it back, and leaving
+  the site (closing the tab, switching to another app or tab) brings it forward to
+  **3 minutes** (`v3-cart.js` tells the server, only while an email is held: the
+  `hlix_cv` cookie). Placing an order or deleting the account cancels it (that
+  email says it all); signing out sends it in 3 minutes. What's held lives in an
+  HttpOnly cookie on their browser (`__Host-hlix_cv`: the email's id, when it's
+  due, and their cart as the visit began). Guests' carts never leave their
+  browser, so there's nothing to send for them. The times are `IDLE` and `AWAY` in
+  `alerts.js`.
+- **a payment comes in**: ready, but nothing sends it yet, because there's no
+  payment processor. When one is added, its webhook (a new `api/` function) checks
+  the payment is real (the processor's signature), records it on the order, then
+  calls `require("./_lib/alerts").alertPaid({ ref, name, email, amount, total,
+  paid, method, txn })` (`paid`: everything paid on the order so far; `txn`: the
+  processor's payment id, so a retried webhook sends one email). The email says
+  "paid in full" or how much is left.
+
+New orders already email you from `api/order.js` (above).
+
+Tests: `npm test` (`tests/api.test.js`, with Supabase and Resend faked).
+
 ## Security
 
 - **No token ever reaches the browser's scripts.** `api/account.js` signs in on
@@ -477,6 +519,9 @@ verified in Resend:
   fixed (`SITE_URL`), never the request's `Host`.
 - **Admin logins** are refused here, so they're only ever used on
   admin.hlixlabs.com.
+- **Deleting an account** needs the password typed again: the site signs in with
+  it, and the database deletes only for a session that began with a password in
+  the last 5 minutes, so a session left open (or stolen) can't do it.
 - **Rate limits**: sign-in (per address and per email), sign-up, password and
   reset tries are limited on each server instance; Supabase Auth and the
   database add their own.

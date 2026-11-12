@@ -247,6 +247,25 @@
       show("signin");
     });
   }
+  // Delete my account: their password again, then it's gone for good (api/account.js "delete").
+  forms.delete.addEventListener("submit", function (e) {
+    e.preventDefault();
+    var f = forms.delete, pw = f.password.value;
+    if (!pw) return status(f, "enter your password to delete your account.", true);
+    busy(f, true);
+    A.api({ action: "delete", password: pw }).then(function (r) {
+      busy(f, false);
+      f.password.value = "";
+      if (r.status === 401) return A.reload().then(render);
+      if (!r.ok) return status(f, (r.data.error || "your account couldn't be deleted.").toLowerCase(), true);
+      $("[data-acct-del]").open = false;
+      A.signedOut();
+      render({ signedIn: false });
+      show("signin");
+      status(forms.signin, "your account is deleted. orders you placed stay with hlix for our records.");
+    });
+  });
+
   $("[data-acct-signout]").addEventListener("click", function () { signOut(false); });
   $("[data-acct-signout-all]").addEventListener("click", function () { signOut(true); });
 
