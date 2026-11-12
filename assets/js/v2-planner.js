@@ -53,9 +53,11 @@
   function mon(d) { return MONTHS[d.getMonth()].slice(0, 3); }
   function dayLabel(d) { return DOW[d.getDay()] + ", " + mon(d) + " " + d.getDate(); }
   function rangeLabel(a, b) { return mon(a) + " " + a.getDate() + "–" + (a.getMonth() === b.getMonth() ? "" : mon(b) + " ") + b.getDate(); }
-  // the site's own pages are all lowercase (v2.css), save the few places that keep a vial's name as typed:
-  // there, the rest of the text is lowercased here
-  function lc(t) { return embed ? t : t.toLowerCase(); }
+  // the archived /v2/ calculator's planner (planner_section(), v2.css) is all lowercase, save the few places
+  // that keep a vial's name as typed: there, the rest of the text is lowercased here. the planner_app() one
+  // (the main site and the admin's Calendar) is in sentence case
+  var oldLook = !root.classList.contains("pc");
+  function lc(t) { return oldLook ? t.toLowerCase() : t; }
   var KEY_RE = /^\d{4}-\d\d-\d\d$/;
   // a date from a date field: only this century (typing a year passes through 0002, 0020, 0202 on the way to 2026)
   function okDate(k) { return typeof k === "string" && KEY_RE.test(k) && k >= "2000-01-01" && k <= "2099-12-31"; }
