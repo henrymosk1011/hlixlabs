@@ -751,13 +751,15 @@ IC = {
 }
 
 
-def planner_app():
-    """The dose planner as the admin dashboard's Calendar page shows it (planner-embed.html, styled by
-    assets/css/planner.css rather than the site's v2.css): three cards, each a part the admin can frame on its
-    own (see "part" in v2-planner.js). Vials: every vial as a row (pick, drag to reorder, add one). Calendar:
+def planner_app(embed=True):
+    """The dose planner as the admin dashboard's Calendar page (planner-embed.html, embed=True) and the main
+    site's calculator page (build_v3.py, embed=False: the plan kept in the browser) show it, styled by
+    assets/css/planner.css: three cards. Vials: every vial as a row (pick, drag to reorder, add one). Calendar:
     the month (or three), the day editor, each week's totals. The vial: what's left in the one picked, its
-    dates, and its settings. The same v2-planner.js runs it as the calculator page's planner, through the same
-    data-* hooks; only the layout and the look differ."""
+    dates, and its settings. The Vials and vial cards sit together (.pc-side): beside the calendar when
+    there's room, around it when there isn't; the admin can frame each part on its own (see "part" in
+    v2-planner.js). The archived /v2/ calculator keeps planner_section() and v2.css; the same v2-planner.js
+    runs both, through the same data-* hooks."""
     sizes = [2, 5, 10, 15, 20, 30, 50, 100, 1000]
     def size_opts(default):
         out = "".join(f'<button type="button" class="opt{" is-active" if v == default else ""}" data-val="{v}">{v} mg</button>' for v in sizes)
@@ -781,7 +783,8 @@ def planner_app():
         f'<span class="pc-stat__u" data-pl-u>Nothing used</span></div>'
         for k in ("day", "week", "month")
     )
-    return f'''<div class="pc" data-planner data-embed>
+    return f'''<div class="pc-host"><div class="pc" data-planner{" data-embed" if embed else ""}>
+  <div class="pc-side">
 
   <section class="pc-card pc-vials" aria-labelledby="pc-vials-h">
     <header class="pc-head">
@@ -804,27 +807,7 @@ def planner_app():
     <div class="pc-hidden" data-pl-all hidden><div data-pl-all-list></div></div>
   </section>
 
-  <section class="pc-card pc-cal cal" data-cal aria-label="Calendar">
-    <header class="pc-cal__head">
-      <h2 class="pc-cal__title" data-cal-title>&nbsp;</h2>
-      <div class="pc-cal__tools">
-        <div class="pc-seg" role="group" aria-label="Months shown"><button type="button" data-cal-span="1" aria-pressed="true">Month</button><button type="button" data-cal-span="3" aria-pressed="false">3 months</button></div>
-        <div class="pc-nav"><button type="button" class="pc-icon" data-cal-nav="-1" aria-label="Previous month">{IC["left"]}</button><button type="button" class="pc-btn pc-btn--sm" data-cal-today>Today</button><button type="button" class="pc-icon" data-cal-nav="1" aria-label="Next month">{IC["right"]}</button></div>
-        <button type="button" class="pc-icon pc-look" data-cal-look title="Light or dark">{IC["moon"]}{IC["sun"]}<span class="pc-hidden">Dark</span></button>
-      </div>
-    </header>
-    <div class="cal__months" data-cal-months></div>
-    <footer class="pc-cal__foot"><span data-cal-sum>&nbsp;</span><button type="button" class="pc-link cal__clear" data-cal-clear hidden>Clear plan</button></footer>
-    <div class="cal__ed" data-cal-ed hidden><div class="cal__ed-in"><div class="cal__ed-box" role="group" aria-label="Dose for this day">
-      <div class="ed__head"><b data-ed-date></b><span class="ed__meta" data-ed-meta></span><button type="button" class="pc-icon ed__x" data-ed-close aria-label="Close">{IC["x"]}</button></div>
-      <div class="ed__row" data-ed-vial-row hidden><span class="ed__k">Vial</span><div class="opts" data-ed-vials></div></div>
-      <div class="ed__row"><span class="ed__k">Dose</span><div class="opts" data-ed-dose>{doses}</div></div>
-      <div class="ed__row"><span class="ed__k">Repeat</span><div class="opts" data-ed-rep>{repeat}</div></div>
-      <p class="ed__hint" data-ed-hint hidden></p>
-    </div></div></div>
-  </section>
-
-  <section class="pc-card pc-vial pl-out" aria-label="The vial picked">
+  <section class="pc-card pc-vial" aria-label="The vial picked">
     <header class="pc-head pc-vial__head">
       <i class="pc-dot" aria-hidden="true"></i>
       <div class="pc-vial__name" data-pl-set-sum>&nbsp;</div>
@@ -846,10 +829,31 @@ def planner_app():
       <div><dt data-pl-out-k>Runs dry</dt><dd data-pl-out>—</dd></div>
       <div><dt>Planned</dt><dd data-pl-plan>No doses yet</dd></div>
     </dl>
-    <p class="pc-warn warn" data-pl-warn hidden></p>
+    <p class="pc-warn" data-pl-warn hidden></p>
   </section>
-</div>'''
+  </div>
 
+  <section class="pc-card pc-cal" data-cal aria-label="Calendar">
+    <header class="pc-cal__head">
+      <h2 class="pc-cal__title" data-cal-title>&nbsp;</h2>
+      <div class="pc-cal__tools">
+        <div class="pc-seg" role="group" aria-label="Months shown"><button type="button" data-cal-span="1" aria-pressed="true">Month</button><button type="button" data-cal-span="3" aria-pressed="false">3 months</button></div>
+        <div class="pc-nav"><button type="button" class="pc-icon" data-cal-nav="-1" aria-label="Previous month">{IC["left"]}</button><button type="button" class="pc-btn pc-btn--sm" data-cal-today>Today</button><button type="button" class="pc-icon" data-cal-nav="1" aria-label="Next month">{IC["right"]}</button></div>
+        <button type="button" class="pc-icon pc-look" data-cal-look title="Light or dark">{IC["moon"]}{IC["sun"]}<span class="pc-hidden">Dark</span></button>
+      </div>
+    </header>
+    <div class="cal__months" data-cal-months></div>
+    <footer class="pc-cal__foot"><span data-cal-sum>&nbsp;</span><button type="button" class="pc-link cal__clear" data-cal-clear hidden>Clear plan</button></footer>
+    <div class="cal__ed" data-cal-ed hidden><div class="cal__ed-in"><div class="cal__ed-box" role="group" aria-label="Dose for this day">
+      <div class="ed__head"><b data-ed-date></b><span class="ed__meta" data-ed-meta></span><button type="button" class="pc-icon ed__x" data-ed-close aria-label="Close">{IC["x"]}</button></div>
+      <div class="ed__row" data-ed-vial-row hidden><span class="ed__k">Vial</span><div class="opts" data-ed-vials></div></div>
+      <div class="ed__row"><span class="ed__k">Dose</span><div class="opts" data-ed-dose>{doses}</div></div>
+      <div class="ed__row"><span class="ed__k">Repeat</span><div class="opts" data-ed-rep>{repeat}</div></div>
+      <p class="ed__hint" data-ed-hint hidden></p>
+    </div></div></div>
+  </section>
+
+</div></div>'''
 
 
 def page_calculator(groups):

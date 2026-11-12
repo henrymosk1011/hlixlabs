@@ -29,9 +29,8 @@ hlix/
 ├── assets/
 │   ├── css/style.css       v1's design system
 │   ├── css/v3.css          Main site's design system
-│   ├── css/v3-planner.css  The calculator page's dose planner styles, copied from v2.css by build_v3.py (don't edit)
-│   ├── css/v2.css          The /v2/ design's styles (and the dose planner's, see "The main site's design")
-│   ├── css/planner.css     planner-embed.html's styles (the admin's Calendar)
+│   ├── css/v2.css          The /v2/ design's styles (its own, older dose planner look included)
+│   ├── css/planner.css     The dose planner's styles: the calculator page and planner-embed.html (the admin's Calendar)
 │   ├── js/main.js, product.js, calculator.js, search.js, chatbot.js   v1's JS
 │   ├── js/v3.js            Main site's ui: menus, search palette, catalog filters, product picker
 │   ├── js/v3-cart.js, v3-checkout.js   Main site's cart (and its copy on the account, family & friends and member prices), checkout
@@ -126,12 +125,16 @@ styled by `assets/css/v3.css`: dark, mint, lowercase, heavy display type.
   icon, a cart drawer with product photos, and a bottom tab bar on phones (shop,
   search, calculator, ask ai, cart).
 
-What it shares with the `/v2/` design: the dose planner (`planner_section()` in
-`build_v2.py` and `v2-planner.js`), the calculator math (`v2-calc.js`), the chat
-(`v2-chat.js`), live prices (`v2-prices.js`) and the account page's logic
-(`v2-account.js`). The planner's styles stay in `v2.css`: `build_v3.py` copies
-that section into `assets/css/v3-planner.css` on every build, so change the
-planner in `v2.css` and rebuild both. The cart (`hlix_cart` in the browser, and
+What it shares with the `/v2/` design: the dose planner's script (`v2-planner.js`),
+the calculator math (`v2-calc.js`), the chat (`v2-chat.js`), live prices
+(`v2-prices.js`) and the account page's logic (`v2-account.js`). The calculator
+page's dose planner is the one the admin's Calendar shows: `planner_app()` in
+`build_v2.py` styled by `assets/css/planner.css` (loaded after `v3.css`, everything
+scoped to `.pc`), under the page's own "dose planner" heading; the Vials and the
+vial picked sit beside the calendar on a wide screen and stay in sight as you
+scroll it. `/v2/calculator` keeps its older planner (`planner_section()`, `v2.css`).
+Change the planner in `build_v2.py` / `planner.css` and rebuild both
+(`build_v2.py`, then `build_v3.py`). The cart (`hlix_cart` in the browser, and
 the account's copy) is the same for both designs.
 
 `/v3/...` addresses (the preview this design was tried out at) redirect to the

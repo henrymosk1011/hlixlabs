@@ -1,8 +1,9 @@
-/* hlix — the dose planner as the admin dashboard's Calendar page shows it (planner-embed.html, markup from
-   planner_app() in scripts/build_v2.py, run by assets/js/v2-planner.js). A calm, card-based calendar in
-   the admin's own type: three cards (Vials, Calendar, the vial picked), neutral surfaces, and the vials'
-   colors carrying the meaning. Light unless the plan says dark (the moon / sun button). The calculator page's
-   planner on the public site keeps its own look (v2.css). */
+/* hlix — the dose planner: the admin dashboard's Calendar (planner-embed.html) and the main site's calculator
+   page (build_v3.py), markup from planner_app() in scripts/build_v2.py, run by assets/js/v2-planner.js. A calm,
+   card-based calendar: three cards (Vials, Calendar, the vial picked), neutral surfaces, the vials' colors
+   carrying the meaning, sentence case. Light unless the plan says dark (the moon / sun button). Everything is
+   scoped to .pc (and .pc-host), so it sits in a site page without touching it or taking its styles; the
+   archived /v2/ calculator keeps its own planner look (v2.css). */
 
 /* ---------------------------------------------------------------- tokens */
 .pc {
@@ -26,21 +27,24 @@
   color-scheme: dark;
 }
 /* a vial's color: a preset (data-c) or its own (--vc / --vink set inline); --vink is text that reads on it */
-.pc, [data-c="0"] { --vc: var(--v0); }
-[data-c="1"] { --vc: var(--v1); }
-[data-c="2"] { --vc: var(--v2); }
-[data-c="3"] { --vc: var(--v3); }
-[data-c="4"] { --vc: var(--v4); }
-[data-c="5"] { --vc: var(--v5); }
-[data-c] { --vink: #06140f; }
-[data-c="1"], [data-c="2"], [data-c="3"], [data-c="5"] { --vink: #ffffff; }
+.pc, .pc[data-c="0"], .pc [data-c="0"] { --vc: var(--v0); }
+.pc[data-c="1"], .pc [data-c="1"] { --vc: var(--v1); }
+.pc[data-c="2"], .pc [data-c="2"] { --vc: var(--v2); }
+.pc[data-c="3"], .pc [data-c="3"] { --vc: var(--v3); }
+.pc[data-c="4"], .pc [data-c="4"] { --vc: var(--v4); }
+.pc[data-c="5"], .pc [data-c="5"] { --vc: var(--v5); }
+.pc[data-c], .pc [data-c] { --vink: #06140f; }
+.pc[data-c="1"], .pc[data-c="2"], .pc[data-c="3"], .pc[data-c="5"], .pc [data-c="1"], .pc [data-c="2"], .pc [data-c="3"], .pc [data-c="5"] { --vink: #ffffff; }
 .pc.is-dark[data-c], .pc.is-dark [data-c] { --vink: #06140f; }
 
 /* ---------------------------------------------------------------- page */
-*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-html, body.pc-page { background: transparent; }
-body.pc-page { padding: 4px; container: page / inline-size; -webkit-font-smoothing: antialiased; }
-.pc { font: 400 14px/1.45 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--text); }
+.pc-host { container: page / inline-size; }
+.pc, .pc *, .pc *::before, .pc *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html:has(body.pc-page), body.pc-page { margin: 0; background: transparent; }
+body.pc-page { padding: 4px; -webkit-font-smoothing: antialiased; }
+/* its own type and case, whatever the page around it uses (the main site is all lowercase) */
+.pc { font: 400 14px/1.45 "Inter", system-ui, -apple-system, "Segoe UI", sans-serif; color: var(--text); text-transform: none; letter-spacing: normal; text-align: left; }
+.pc svg { display: block; flex: none; }
 .cal__n, .cal__v, .cal__dots i, .cal__wk-i b, .pc-stat__v b, .pl-tab > small { font-variant-numeric: tabular-nums; }
 :where(.pc) button, :where(.pc) input { font: inherit; color: inherit; }
 :where(.pc) button { cursor: pointer; background: none; border: 0; }
@@ -51,16 +55,26 @@ body.pc-page { padding: 4px; container: page / inline-size; -webkit-font-smoothi
 .pc [data-pl-all] { display: none !important; } /* every vial's row is in the Vials card */
 
 /* ---------------------------------------------------------------- layout: the cards, and which this copy shows */
-.pc { display: grid; gap: 16px; grid-template-areas: "vials" "cal" "vial"; }
+/* narrow: the Vials, the calendar, then the vial picked, one under the other (.pc-side lets its two cards
+   take their own places) */
+.pc { display: grid; gap: 16px; grid-template-columns: minmax(0, 1fr); grid-template-areas: "vials" "cal" "vial"; }
+.pc-side { display: contents; }
 .pc-vials { grid-area: vials; }
 .pc-cal { grid-area: cal; }
 .pc-vial { grid-area: vial; }
-@container page (min-width: 900px) { /* one copy with room for a column beside the calendar */
-  .pc[data-part="all"] { grid-template-columns: minmax(0, 1fr) 300px; grid-template-areas: "cal vials" "cal vial"; align-items: start; }
+/* room for a column: the Vials and the vial picked together beside the calendar, held in sight as the page
+   scrolls (under the site's top bar; scrolling within itself when it's taller than the screen) */
+@container page (min-width: 900px) {
+  .pc[data-part="all"] { grid-template-columns: minmax(0, 1fr) 320px; grid-template-areas: "cal side"; align-items: start; }
+  .pc[data-part="all"] .pc-side { grid-area: side; display: grid; gap: 16px; align-content: start; position: sticky; top: calc(var(--nav-h, 0px) + 16px); max-height: calc(100vh - var(--nav-h, 0px) - 32px); margin: -2px -6px -14px; padding: 2px 6px 14px; overflow: auto; overscroll-behavior: contain; scrollbar-width: thin; }
+  .pc[data-part="all"] .pc-side > * { grid-area: auto; } /* one after the other in the column, not the page's areas */
 }
+/* copies the admin frames on their own: the calendar, or the side (the Vials and the vial picked) */
 .pc[data-part="calendar"] { grid-template-areas: "cal"; }
-.pc[data-part="calendar"] .pc-vials, .pc[data-part="calendar"] .pc-vial { display: none; }
-.pc[data-part="side"] { grid-template-areas: "vials" "vial"; }
+.pc[data-part="calendar"] .pc-side { display: none; }
+.pc[data-part="side"] { grid-template-areas: "side"; }
+.pc[data-part="side"] .pc-side { grid-area: side; display: grid; gap: 16px; }
+.pc[data-part="side"] .pc-side > * { grid-area: auto; }
 .pc[data-part="side"] .pc-cal { display: none; }
 /* the parts an older admin page asked for: the vials alone, or the vial alone */
 .pc[data-part="vials"] { grid-template-areas: "vials"; }
@@ -95,14 +109,14 @@ body.pc-page { padding: 4px; container: page / inline-size; -webkit-font-smoothi
 .pc-input::placeholder { color: var(--faint); }
 
 /* option buttons (sizes, doses, how often): quiet until picked, then the vial's color */
-.opts { display: flex; flex-wrap: wrap; gap: 6px; }
-.opt { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--card); color: var(--text-2); font-size: 12.5px; font-weight: 500; white-space: nowrap; transition: background-color 0.2s, border-color 0.2s, color 0.2s; }
-.opt:hover { border-color: color-mix(in srgb, var(--text) 30%, transparent); color: var(--text); }
-.opt.is-active { border-color: var(--vc); background: var(--vc); color: var(--vink, #fff); font-weight: 600; }
-.opt span { text-transform: none; }
-.opt-in { width: 86px; height: 30px; padding: 0 10px; border: 1px solid var(--vc); border-radius: 8px; background: var(--card); outline: 0; font-size: 12.5px; }
-.opt--stop { border-style: dashed; color: var(--muted); }
-.opt--stop.is-active { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, var(--card)); color: var(--warn); }
+.pc .opts { display: flex; flex-wrap: wrap; gap: 6px; }
+.pc .opt { display: inline-flex; align-items: center; gap: 6px; height: 30px; padding: 0 11px; border: 1px solid var(--line-2); border-radius: 8px; background: var(--card); color: var(--text-2); font-family: inherit; font-size: 12.5px; font-weight: 500; letter-spacing: normal; white-space: nowrap; transition: background-color 0.2s, border-color 0.2s, color 0.2s; }
+.pc .opt:hover { border-color: color-mix(in srgb, var(--text) 30%, transparent); color: var(--text); }
+.pc .opt.is-active { border-color: var(--vc); background: var(--vc); color: var(--vink, #fff); font-weight: 600; }
+.pc .opt span { text-transform: none; }
+.pc .opt-in { width: 86px; height: 30px; padding: 0 10px; border: 1px solid var(--vc); border-radius: 8px; background: var(--card); outline: 0; font-family: inherit; font-size: 12.5px; }
+.pc .opt--stop { border-style: dashed; color: var(--muted); }
+.pc .opt--stop.is-active { border-color: var(--warn); background: color-mix(in srgb, var(--warn) 14%, var(--card)); color: var(--warn); }
 
 /* ---------------------------------------------------------------- vials: one row each */
 .pc-list { display: flex; flex-direction: column; gap: 2px; margin: 12px -8px 0; }
@@ -131,7 +145,7 @@ body.pc-page { padding: 4px; container: page / inline-size; -webkit-font-smoothi
 .pc-new { display: grid; gap: 14px; margin-top: 14px; padding-top: 16px; border-top: 1px solid var(--line); animation: pc-in 0.3s var(--ease) both; }
 .pc-new__t { font-size: 13.5px; font-weight: 600; }
 .pl-new__dose { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 8px; }
-.pl-new__dose .opt-in { width: 80px; }
+.pc .pl-new__dose .opt-in { width: 80px; }
 .pc-acts { display: flex; flex-wrap: wrap; gap: 8px; }
 @keyframes pc-in { from { opacity: 0; transform: translateY(-4px); } }
 
@@ -267,7 +281,7 @@ body.pc-page { padding: 4px; container: page / inline-size; -webkit-font-smoothi
 .pc-stat__v b { color: var(--text); font-size: 19px; font-weight: 650; letter-spacing: -0.02em; }
 .pc-stat__bar { display: block; height: 4px; margin: 8px 0 7px; overflow: hidden; border-radius: 2px; background: color-mix(in srgb, var(--vc) 18%, transparent); }
 .pc-stat__bar i { display: block; width: calc(var(--lvl, 0) * 100%); height: 100%; border-radius: 2px; background: var(--vc); transition: width 0.6s var(--ease); }
-.pc-stat__u { display: block; overflow: hidden; color: var(--muted); font-size: 11.5px; white-space: nowrap; text-overflow: ellipsis; }
+.pc-stat__u { display: block; color: var(--muted); font-size: 11.5px; line-height: 1.3; }
 .pc-stat.is-short .pc-stat__v b, .pc-stat.is-short .pc-stat__u { color: var(--warn); }
 .pc-rows { margin-top: 12px; }
 .pc-rows div { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; padding: 9px 2px; border-top: 1px solid var(--line); font-size: 13px; }
