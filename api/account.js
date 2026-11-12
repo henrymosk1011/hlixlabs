@@ -71,7 +71,11 @@ async function me(req, res) {
   }
   if (!r.ok || !r.data) return send(res, 502, { error: S.friendly(r, "Your account couldn't be loaded. Try again in a moment.") });
   const d = r.data;
-  const tier = d.tier === "family" ? "family" : "regular";
+  // Membership (the admin's migrations 0027 and 0031): "regular" (website prices),
+  // "silver" / "gold" (discount: percent off the website price), "family" (their cost).
+  const tier = ["silver", "gold", "family"].includes(d.tier) ? d.tier : "regular";
+  const off = Number(d.discount);
+  const discount = (tier === "silver" || tier === "gold") && off > 0 && off < 100 ? off : 0;
   // Family & friends: their prices (a pack of 10, by SKU). The database only answers for them.
   let prices = null;
   if (tier === "family") {
@@ -80,7 +84,7 @@ async function me(req, res) {
   }
   return send(res, 200, {
     signedIn: true, emails: S.EMAILS_ON,
-    email: d.email, tier, prices, profile: d.profile, cart: d.cart, orders: d.orders,
+    email: d.email, tier, discount, prices, profile: d.profile, cart: d.cart, orders: d.orders,
     tempPassword: d.temp_password === true,
     reset: !!S.cookies(req)[S.RS],
   });

@@ -37,7 +37,7 @@ function esc(s) {
 function str(v, max) {
   return typeof v === "string" ? v.trim().slice(0, max) : "";
 }
-// Website prices are whole dollars; family & friends prices (your cost) can have cents.
+// Website prices are whole dollars; member prices (family & friends, silver, gold) can have cents.
 function money(n) {
   const v = Math.round(Number(n) * 100) / 100;
   return "$" + (Number.isInteger(v) ? String(v) : v.toFixed(2));
@@ -117,6 +117,7 @@ module.exports = async (req, res) => {
 
   // Signed in: the database places it (and prices it), then hlix gets the email.
   let placed = null;
+  let pricing = "";
   if (token) {
     const r = await S.rpc("shop_place_order", {
       p: {
@@ -135,6 +136,10 @@ module.exports = async (req, res) => {
       return;
     }
     placed = r.data;
+    // The account's membership pricing, as the database priced it (migrations 0027 and 0031).
+    const off = Number(placed.discount) || 0;
+    pricing = placed.family ? "family & friends pricing"
+      : (placed.tier === "gold" || placed.tier === "silver") && off > 0 ? `${placed.tier} member pricing (${off}% off)` : "";
     if (placed.duplicate) {
       res.status(200).json({ ok: true, account: true, ref: placed.ref });
       return;
@@ -178,6 +183,7 @@ module.exports = async (req, res) => {
     <h2>${placed ? `New website order #${esc(placed.ref)}` : "New order request"}</h2>
     ${placed ? "<p>Placed by a signed-in account. It's in the admin under Customer Orders (pending).</p>" : ""}
     ${placed && placed.family ? "<p><strong>Family &amp; friends pricing</strong> (your cost).</p>" : ""}
+    ${placed && !placed.family && pricing ? `<p><strong>${placed.tier === "gold" ? "Gold" : "Silver"} pricing</strong> (${Number(placed.discount)}% off the website price).</p>` : ""}
     <table cellpadding="6" style="border-collapse:collapse">
       <tr><th align="left">item</th><th align="left">dose</th><th align="left">form</th><th align="left">sku</th><th align="left">qty</th><th align="left">line total</th></tr>
       ${itemRows}
@@ -193,7 +199,7 @@ module.exports = async (req, res) => {
   // The customer's own copy (only when CUSTOMER_EMAILS=on; never fails the order).
   const confirm = () => M.confirmOrder(apiKey, {
     email: customer.email, name: customer.name, items, subtotal,
-    ref: placed ? placed.ref : null, family: !!(placed && placed.family), account: !!placed,
+    ref: placed ? placed.ref : null, pricing, account: !!placed,
   });
 
   try {

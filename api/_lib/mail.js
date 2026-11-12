@@ -52,7 +52,9 @@ function lineQty(it) {
 }
 
 // items: [{ sku, name, dose, form: "powder" | "recon", unit: "vial" | "pack", qty, unitPrice }]
-function orderConfirmation({ name, items, subtotal, ref, family, account }) {
+// pricing: the account's membership pricing, e.g. "family & friends pricing" or
+// "gold member pricing (50% off)"; "" for website prices.
+function orderConfirmation({ name, items, subtotal, ref, pricing, account }) {
   const hi = greetingName(name);
   const subject = ref ? `your hlix order #${ref}` : "your hlix order request";
   const accountUrl = `${SITE_URL}/account`;
@@ -70,7 +72,7 @@ function orderConfirmation({ name, items, subtotal, ref, family, account }) {
     "",
     ...lines.map((l) => `- ${l.label} (${l.form}), ${l.qty}: ${l.total}`),
     "",
-    `subtotal: ${money(subtotal)}${family ? " (family & friends pricing)" : ""}`,
+    `subtotal: ${money(subtotal)}${pricing ? ` (${pricing})` : ""}`,
     "",
     "no payment has been taken. we'll reply by email with how to pay and the next steps, usually within 1 to 2 business days.",
     account ? `\nyou can follow it on your account page: ${accountUrl}` : "",
@@ -105,7 +107,7 @@ function orderConfirmation({ name, items, subtotal, ref, family, account }) {
           <p style="margin:0 0 18px;font-size:15px;line-height:1.55">hi ${esc(hi)}, we got your order request${ref ? ` <b>#${esc(ref)}</b>` : ""}. here's what's in it:</p>
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0">${lines.map(row).join("")}
             <tr>
-              <td style="padding:12px 0 0;font-size:15px;font-weight:700">subtotal${family ? '<br><span style="font-weight:400;color:#5c6166;font-size:13px">family &amp; friends pricing</span>' : ""}</td>
+              <td style="padding:12px 0 0;font-size:15px;font-weight:700">subtotal${pricing ? `<br><span style="font-weight:400;color:#5c6166;font-size:13px">${esc(pricing)}</span>` : ""}</td>
               <td align="right" style="padding:12px 0 0;font-size:15px;font-weight:700;white-space:nowrap">${esc(money(subtotal))}</td>
             </tr>
           </table>
@@ -147,9 +149,9 @@ async function send(apiKey, { to, subject, html, text, idempotencyKey, tag }) {
 
 // The customer's copy of an order. Account orders: one per order (by its #). Guests:
 // at most one a day per address. Logs a failure, never the address or the order.
-async function confirmOrder(apiKey, { email, name, items, subtotal, ref, family, account }) {
+async function confirmOrder(apiKey, { email, name, items, subtotal, ref, pricing, account }) {
   if (!ON || !apiKey || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || ""))) return { ok: false, skipped: true };
-  const mail = orderConfirmation({ name, items, subtotal, ref, family, account });
+  const mail = orderConfirmation({ name, items, subtotal, ref, pricing, account });
   const day = new Date().toISOString().slice(0, 10);
   const idempotencyKey = ref ? `hlix/order-confirm/${ref}` : `hlix/order-confirm-guest/${sha256(String(email).toLowerCase())}/${day}`;
   const r = await send(apiKey, { to: email, ...mail, idempotencyKey, tag: "order_confirmation" });

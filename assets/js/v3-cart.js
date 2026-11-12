@@ -18,7 +18,7 @@
   function $(s, c) { return (c || d).querySelector(s); }
   function $$(s, c) { return Array.prototype.slice.call((c || d).querySelectorAll(s)); }
   function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
-  // Website prices are whole dollars; family & friends prices can have cents.
+  // Website prices are whole dollars; member prices can have cents.
   function money(n) {
     var c = Math.round((Number(n) || 0) * 100);
     return "$" + (c % 100 ? (c / 100).toFixed(2) : (c / 100).toLocaleString("en-US"));
@@ -154,13 +154,32 @@
     return unit === "pack" ? cents / 100 : Math.ceil(cents / 10) / 100;
   }
 
+  // ------------------------------------------------------------------
+  // silver and gold: a percent off the website price (account.data.discount: 25 or 50),
+  // on every vial, powder or ready to use, to the cent. By the vial only. The database
+  // prices every order itself (shop_place_order); these are only what the pages show.
+  // ------------------------------------------------------------------
+  function member() {
+    var a = account.data, off = a && (a.tier === "silver" || a.tier === "gold") ? Number(a.discount) : 0;
+    return off > 0 && off < 100 ? { tier: a.tier, off: off } : null;
+  }
+  // a website price (whole dollars) with the member's discount off, or the same price
+  function memberPrice(price) {
+    var m = member();
+    return m && price > 0 ? Math.round(price * (100 - m.off)) / 100 : price;
+  }
+
   // Every line at its current price: family & friends prices for them, the live website
-  // price for everyone else (v2-prices.js). A pack keeps its price if there's none.
+  // price (less a member's discount) for everyone else (v2-prices.js). A pack keeps its
+  // price if there's none.
   function reprice() {
     var cart = get(), changed = false;
     cart.forEach(function (it) {
       var u = familyPrice(it.sku, it.unit);
-      if (u === null && it.unit !== "pack" && window.HLIXPrices) u = window.HLIXPrices.unit(it.sku, it.form);
+      if (u === null && it.unit !== "pack" && window.HLIXPrices) {
+        u = window.HLIXPrices.unit(it.sku, it.form);
+        if (u !== null) u = memberPrice(u);
+      }
       if (u !== null && u !== it.unitPrice) { it.unitPrice = u; changed = true; }
     });
     if (changed) save(cart, true); // only prices changed: nothing to save to the account
@@ -193,6 +212,8 @@
     setQty: function (i, q) { var cart = get(); if (!cart[i]) return; cart[i].qty = Math.max(1, q | 0); save(cart); },
     remove: function (i) { var cart = get(); cart.splice(i, 1); save(cart); },
     familyPrice: familyPrice,
+    member: member,
+    memberPrice: memberPrice,
     money: money,
     photo: photo,
     url: url,

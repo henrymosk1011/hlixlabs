@@ -34,7 +34,7 @@ hlix/
 │   ├── css/planner.css     planner-embed.html's styles (the admin's Calendar)
 │   ├── js/main.js, product.js, calculator.js, search.js, chatbot.js   v1's JS
 │   ├── js/v3.js            Main site's ui: menus, search palette, catalog filters, product picker
-│   ├── js/v3-cart.js, v3-checkout.js   Main site's cart (and its copy on the account, family & friends prices), checkout
+│   ├── js/v3-cart.js, v3-checkout.js   Main site's cart (and its copy on the account, family & friends and member prices), checkout
 │   ├── js/v2-calc.js, v2-planner.js, v2-chat.js, v2-prices.js, v2-account.js   Shared by both designs: calculator, dose planner, chat, live prices, account page
 │   ├── js/v3-boot.js, v2-boot.js, v2-boot-embed.js, v1-prefix.js   The first script on each page (no inline scripts: see "Security")
 │   ├── js/v2.js, v2-cart.js, v2-checkout.js   The /v2/ design's ui, cart and checkout
@@ -385,6 +385,17 @@ price" box with **single vial / pack of 10**, cart lines can be packs, and the
 account page says so. `GET /api/account` returns those prices (`prices`, a pack
 of 10 by SKU) only for that account; the database prices the order itself and
 refuses packs from anyone else (the admin's `0027_family_pricing.sql`).
+
+**Silver and Gold.** An admin can also make an account a Silver member (25% off
+the website price) or a Gold member (50% off), on the same page. A $100 vial is $75
+for Silver and $50 for Gold; the discount comes off the price the site shows, powder
+or ready to use, to the cent. By the vial only (packs stay family & friends). Product
+pages show a "silver / gold member price" box (the same box as family & friends,
+without the pack choice) with the regular price crossed out, the cart and checkout
+use their price (`memberPrice()` in `v3-cart.js`), the account page says "gold
+member · 50% off", and the order emails say which pricing it was. `GET /api/account`
+returns `discount` (percent off) for them; the database prices the order itself (the
+admin's `0031_member_discounts.sql`).
 
 **Turned off / temporary passwords.** An admin can turn an account off (Users in
 the admin): it's signed out everywhere, can't sign in (the site says the account
