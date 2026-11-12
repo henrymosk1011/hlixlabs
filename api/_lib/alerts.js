@@ -4,7 +4,7 @@
 //   accountCreated    someone made an account                        (api/account.js signup)
 //   accountDeleted    someone deleted their own account               (api/account.js delete)
 //   the cart visit    what a signed-in customer added to their cart on a visit, sent once
-//                     the visit is over                (api/account.js, api/order.js, below)
+//                     the visit is over        (api/account.js, api/order.js, api/alerts.js)
 //   paymentReceived   a payment came in. Nothing sends it yet: there's no payment processor.
 //                     When one is wired up, its webhook calls alertPaid() once it has checked
 //                     the payment is real (README, "Emails to you").
@@ -16,14 +16,13 @@
 //
 // The cart email waits for the visit to end. A browser can't reliably say when someone
 // leaves (closing a tab on a phone often sends nothing, and opening another page of the
-// site looks the same as leaving), so the email is held in Resend (scheduled) and goes out
-// once the customer has been quiet for 15 minutes: every page they open and every cart
-// change pushes it back, and leaving the site (closing the tab, switching to another app or
-// tab) brings it forward to 3 minutes. Placing an order cancels it (the order email says it
-// all), and so does deleting the account. What's pending lives in an HttpOnly cookie on
-// their browser: the held email's id, when it's due, their name, and their cart as the
-// visit began (so the email says what they added, not what was already there). Guests'
-// carts stay in their browser, so there's nothing to send for them.
+// site looks the same as leaving), so the database keeps each signed-in customer's open
+// visit (the admin's 0034_cart_visit_alerts.sql) and calls a visit over after 15 quiet
+// minutes (no page opened, no cart change), or 3 minutes after they left the site (closed
+// the tab, switched to another app or tab: v3-cart.js says so) unless they came back.
+// Every minute it posts the visits that are over to /api/alerts, which sends the emails.
+// Placing an order, or deleting the account, means no email. Guests' carts stay in their
+// browser, so there's nothing to send for them.
 
 const crypto = require("crypto");
 const M = require("./mail");
@@ -31,16 +30,11 @@ const S = require("./session");
 
 const NOTIFY = process.env.NOTIFY_EMAIL || "henrymm@gmail.com";
 const ADMIN_URL = (process.env.ADMIN_URL || "https://admin.hlixlabs.com").replace(/\/+$/, "");
-const IDLE = 15 * 60; // seconds of quiet that end a visit
-const AWAY = 3 * 60; // ... once they've left the site
-const VISIT = "__Host-hlix_cv"; // the visit (HttpOnly)
-const HELD = "hlix_cv"; // "1" while a cart email is held: pages then say when they're left
+const HELD = "hlix_cv"; // "1" while a cart visit is open: pages then say when they leave
 const UUID = /^[0-9a-f-]{36}$/i;
 
 const key = () => process.env.RESEND_API_KEY || "";
 const on = () => process.env.OWNER_ALERTS !== "off" && !!key();
-const nowS = () => Math.floor(Date.now() / 1000);
-const iso = (s) => new Date(s * 1000).toISOString();
 const { esc, money } = M;
 const clip = (v, n) => String(v == null ? "" : v).replace(/[\u0000-\u001f\u007f]+/g, " ").trim().slice(0, n);
 
@@ -145,7 +139,7 @@ function paymentReceived({ ref, name, email, amount, total, paid, method, txn })
 // Send one to hlix. Never throws; logs a failure without who it was about.
 async function alert(kind, mail, opts = {}) {
   if (!on()) return { ok: false, skipped: true };
-  const r = await M.send(key(), { to: NOTIFY, ...mail, tag: `alert_${kind}`, replyTo: opts.replyTo, idempotencyKey: opts.idempotencyKey, scheduledAt: opts.scheduledAt });
+  const r = await M.send(key(), { to: NOTIFY, ...mail, tag: `alert_${kind}`, replyTo: opts.replyTo, idempotencyKey: opts.idempotencyKey });
   if (!r.ok && r.status !== 409) console.error(`alert ${kind} not sent`, r.status, r.why);
   return r;
 }
@@ -189,109 +183,41 @@ function addedLines(before, cart) {
   return out;
 }
 
-function readVisit(req, userId) {
-  const raw = S.cookies(req)[VISIT];
-  if (!raw || raw.length > 3500 || !userId) return null;
-  try {
-    const v = JSON.parse(Buffer.from(raw, "base64url").toString("utf8"));
-    if (!v || v.u !== userId || !Array.isArray(v.b) || v.b.length > 60) return null;
-    if (v.id !== null && !UUID.test(String(v.id))) return null;
-    const b = new Map();
-    for (const e of v.b) {
-      const m = /^(.{1,40})~([pr])~([pv])~(\d{1,3})$/.exec(String(e));
-      if (m) b.set(`${m[1]}~${m[2]}~${m[3]}`, Number(m[4]));
-    }
-    return { u: v.u, id: v.id, at: Number(v.at) || 0, h: String(v.h || "").slice(0, 32), n: clip(v.n, 120), b };
-  } catch (e) {
-    return null;
-  }
+// Tell the database about their visit (the admin's 0034_cart_visit_alerts.sql), as the
+// signed-in customer: "cart" before saving a cart change (opens the visit with the cart as
+// it is now), "seen" (a page, or back on the site), "away" (left the site), "end" (they
+// ordered: no email). "seen" and "away" only while a visit is open (the hlix_cv cookie), so
+// ordinary browsing costs nothing. Never fails what they were doing.
+async function visit(req, res, token, event) {
+  if (!on() || !token) return;
+  if ((event === "seen" || event === "away") && !S.cookies(req)[HELD]) return;
+  const r = await S.rpc("shop_cart_visit", { p_event: event }, token);
+  if (!r.ok) return;
+  const open = r.data === true;
+  S.setCookie(res, HELD, open ? "1" : "", open ? 20 * 60 : 0, false);
 }
-function writeVisit(res, v) {
-  if (!v) {
-    S.setCookie(res, VISIT, "", 0);
-    S.setCookie(res, HELD, "", 0, false);
-    return;
-  }
-  const b = [...v.b].slice(0, 50).map(([k, q]) => `${k}~${q}`);
-  const raw = Buffer.from(JSON.stringify({ u: v.u, id: v.id, at: v.at, h: v.h, n: v.n, b })).toString("base64url");
-  S.setCookie(res, VISIT, raw, 6 * 60 * 60);
-  const left = v.id ? v.at - nowS() : 0;
-  S.setCookie(res, HELD, left > 0 ? "1" : "", left > 0 ? left + 60 : 0, false);
+// No visit to report on any more (the account is gone, or they signed out).
+function forget(res) {
+  S.setCookie(res, HELD, "", 0, false);
 }
 
-// The visit this browser is on, if it's still going (its email not sent yet).
-function liveVisit(req, token) {
-  const v = readVisit(req, String(S.claims(token).sub || ""));
-  return v && !(v.id && v.at <= nowS()) ? v : null;
-}
-// Before saving a cart: true when this save starts a visit, so the caller has to read the
-// cart as it is now (cartSaved's `before`) first.
-function startsVisit(req, token) {
-  return on() && !liveVisit(req, token);
-}
-
-// After a signed-in customer's cart is saved. before: { cart, name } as they were before
-// this save, when startsVisit() said so.
-async function cartSaved(req, res, { token, cart, before }) {
-  if (!on()) return;
-  const c = S.claims(token);
-  const userId = String(c.sub || ""), email = clip(c.email, 254);
-  if (!UUID.test(userId)) return;
-  const now = nowS();
-  let v = liveVisit(req, token);
-  if (!v) {
-    if (!before) return; // can't tell what was already there, so say nothing rather than guess
-    v = { u: userId, id: null, at: 0, h: "", n: clip(before.name, 120), b: amounts(before.cart) };
+// The visits that are over, posted every minute by the database (api/alerts.js): one email
+// each, unless they added nothing. The visit's id keeps a retried post from sending twice.
+async function sendVisits(visits) {
+  let sent = 0;
+  for (const v of visits) {
+    if (!v || !UUID.test(String(v.id)) || !UUID.test(String(v.user_id))) continue;
+    const cart = (Array.isArray(v.cart) ? v.cart : []).slice(0, 60).map((it) => ({ ...it, unitPrice: Number.isFinite(Number(it && it.unitPrice)) ? Number(it.unitPrice) : undefined }));
+    const added = addedLines(amounts(v.baseline), cart);
+    if (!added.length) continue;
+    const email = clip(v.email, 254);
+    const r = await alert("cart", cartVisit({ name: v.name, email, userId: v.user_id, added, cart }), { replyTo: replyTo(email), idempotencyKey: `hlix/alert-cart/${v.id}` });
+    if (r.ok) sent++;
   }
-  const added = addedLines(v.b, cart);
-  const h = added.length ? hash(JSON.stringify([added, cart].map((l) => l.map((it) => [lineKey(it), it.qty, it.unitPrice])))) : "";
-  if (v.id && h && h === v.h) {
-    // Same email as the one held: just give it the full quiet time again.
-    const r = await M.reschedule(key(), v.id, iso(now + IDLE));
-    if (r.ok) v.at = now + IDLE;
-  } else {
-    if (v.id) await M.cancel(key(), v.id);
-    v.id = null; v.at = 0; v.h = "";
-    if (added.length) {
-      const r = await alert("cart", cartVisit({ name: v.n, email, userId, added, cart }), { replyTo: replyTo(email), scheduledAt: iso(now + IDLE) });
-      if (r.ok && r.id) { v.id = r.id; v.at = now + IDLE; v.h = h; }
-    }
-  }
-  writeVisit(res, v);
-}
-
-// They opened a page (or came back to the site): the visit goes on. away: they left the
-// site, so it ends in 3 minutes unless they come back.
-async function cartPresence(req, res, token, away) {
-  if (!on() || !S.cookies(req)[VISIT]) return;
-  const v = readVisit(req, String(S.claims(token).sub || ""));
-  if (!v || !v.id) return;
-  const now = nowS();
-  if (v.at <= now) return writeVisit(res, { ...v, id: null, at: 0, h: "" });
-  const want = now + (away ? AWAY : IDLE);
-  // Leaving only brings it forward; a page only pushes it back (by 2 minutes or more, to
-  // keep the calls to Resend down).
-  if (away ? want >= v.at : want - v.at < 120) return;
-  const r = await M.reschedule(key(), v.id, iso(want));
-  if (r.ok) v.at = want;
-  else if (r.status >= 400 && r.status < 500 && r.status !== 429) { v.id = null; v.at = 0; v.h = ""; } // already sent or gone
-  writeVisit(res, v);
-}
-
-// The visit is over. cancel: they ordered or deleted the account (that email says it all),
-// so the held one never goes; otherwise (signing out) it goes in 3 minutes.
-async function cartEnd(req, res, token, cancel) {
-  if (!on() || !S.cookies(req)[VISIT]) return;
-  const v = readVisit(req, String(S.claims(token).sub || ""));
-  if (v && v.id && v.at > nowS()) {
-    if (cancel) await M.cancel(key(), v.id);
-    else if (v.at > nowS() + AWAY) await M.reschedule(key(), v.id, iso(nowS() + AWAY));
-  }
-  writeVisit(res, null);
+  return sent;
 }
 
 module.exports = {
-  created, deleted, alertPaid, startsVisit, cartSaved, cartPresence, cartEnd,
+  on, created, deleted, alertPaid, visit, forget, sendVisits,
   accountCreated, accountDeleted, cartVisit, paymentReceived, addedLines, amounts,
-  IDLE, AWAY,
 };

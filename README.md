@@ -421,6 +421,8 @@ Vercel environment variables (all optional):
 - `REPLY_TO_EMAIL` — where customers' replies go. Defaults to
   `contact@hlixlabs.com`.
 - `OWNER_ALERTS=off` — stops the emails to you (below). On by default.
+- `ALERTS_SECRET` — lets the database post finished cart visits to `/api/alerts`
+  (below). Sensitive.
 - `ADMIN_URL` — the admin's address in those emails. Defaults to
   `https://admin.hlixlabs.com`.
 
@@ -472,17 +474,22 @@ verified in Resend:
   orders and client stay in the admin.
 - **a signed-in customer adds things to their cart**: one email per visit, sent
   once the visit is over, listing what they added on that visit and their whole
-  cart. A browser can't reliably say when someone leaves, so the email is held in
-  Resend (a scheduled email) and goes out once they've been quiet for **15
-  minutes**: each page they open and each cart change pushes it back, and leaving
-  the site (closing the tab, switching to another app or tab) brings it forward to
-  **3 minutes** (`v3-cart.js` tells the server, only while an email is held: the
-  `hlix_cv` cookie). Placing an order or deleting the account cancels it (that
-  email says it all); signing out sends it in 3 minutes. What's held lives in an
-  HttpOnly cookie on their browser (`__Host-hlix_cv`: the email's id, when it's
-  due, and their cart as the visit began). Guests' carts never leave their
-  browser, so there's nothing to send for them. The times are `IDLE` and `AWAY` in
-  `alerts.js`.
+  cart. A browser can't reliably say when someone leaves, so the database keeps
+  each customer's open visit (the admin's `0034_cart_visit_alerts.sql`: their cart
+  as the visit began, when they were last seen, when they left) and calls it over
+  after **15 quiet minutes** (no page opened, no cart change), or **3 minutes**
+  after they left the site (closed the tab, switched to another app or tab:
+  `v3-cart.js` tells the server, only while a visit is open, the `hlix_cv` cookie)
+  unless they came back. Signing out counts as leaving; placing an order or
+  deleting the account means no email (that email says it all). Every minute
+  (pg_cron) the database posts the visits that are over to `api/alerts.js`, which
+  sends the emails. Guests' carts never leave their browser, so there's nothing to
+  send for them. The times are in `private.cart_alerts_send()`.
+
+  That post carries a secret: `ALERTS_SECRET` in Vercel (sensitive) must match
+  `hlix_alerts_secret` in the Supabase project's Vault, which the migration makes.
+  Without it `/api/alerts` refuses everything. The website's Resend key stays
+  send-only: it can't read, cancel or change emails.
 - **a payment comes in**: ready, but nothing sends it yet, because there's no
   payment processor. When one is added, its webhook (a new `api/` function) checks
   the payment is real (the processor's signature), records it on the order, then

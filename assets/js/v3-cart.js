@@ -272,9 +272,10 @@
   // another tab changed the cart
   window.addEventListener("storage", function (e) { if (e.key === KEY) render(get()); });
 
-  // While an email to hlix about this visit's cart is held (the hlix_cv cookie, set by
-  // api/_lib/alerts.js), say when they leave the site and when they come back, so it goes
-  // out soon after they've gone. Going to another page of the site isn't leaving.
+  // While a signed-in customer's cart visit is open (the hlix_cv cookie, set by
+  // api/_lib/alerts.js), say when they leave the site and when they come back, so hlix's
+  // email about it goes soon after they've gone. Going to another page of the site isn't
+  // leaving.
   var internal = false, internalT = null, gone = false;
   function held() { return /(?:^|;\s*)hlix_cv=1(?:;|$)/.test(document.cookie); }
   function presence(away) {

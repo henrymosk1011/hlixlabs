@@ -83,7 +83,7 @@ async function me(req, res) {
     const fp = await S.rpc("shop_family_prices", {}, token);
     if (fp.ok && fp.data && typeof fp.data === "object" && !Array.isArray(fp.data)) prices = fp.data;
   }
-  await A.cartPresence(req, res, token, false); // they're still here: their cart visit goes on
+  await A.visit(req, res, token, "seen"); // they're still here: their cart visit goes on
   return send(res, 200, {
     signedIn: true, emails: S.EMAILS_ON,
     email: d.email, tier, discount, prices, profile: d.profile, cart: d.cart, orders: d.orders,
@@ -142,7 +142,8 @@ const actions = {
 
   async signout(req, res, b) {
     const token = await S.session(req, res);
-    if (token) await A.cartEnd(req, res, token, false); // their visit is over
+    if (token) await A.visit(req, res, token, "away"); // their visit is over
+    A.forget(res);
     // "everywhere": every device this account is signed in on.
     if (token) await S.auth(`logout?scope=${b.everywhere === true ? "global" : "local"}`, { token });
     S.clearSession(res);
@@ -257,26 +258,21 @@ const actions = {
       if (Number.isFinite(unit) && unit >= 0 && unit <= 1000000) line.unitPrice = unit;
       if (line.sku) cart.push(line);
     }
-    // The first save of a visit: their cart as it was, so hlix hears what they add, not
-    // what was already there (alerts.js).
-    let before = null;
-    if (A.startsVisit(req, token)) {
-      const m = await S.rpc("shop_me", {}, token);
-      if (m.ok && m.data) before = { cart: m.data.cart, name: m.data.profile && m.data.profile.name };
-    }
+    // Before saving: the database opens their visit with the cart as it is now (so hlix
+    // hears what they add on it, not what was already there), or notes they're still here.
+    await A.visit(req, res, token, "cart");
     const r = await S.rpc("shop_save_cart", { p_cart: cart }, token);
     if (!r.ok) return send(res, r.status === 401 ? 401 : 400, { error: S.friendly(r, "Your cart couldn't be saved.") });
-    await A.cartSaved(req, res, { token, cart, before });
     return send(res, 200, { ok: true });
   },
 
   // The page says they left the site (closed the tab, switched away) or came back, while
-  // a cart email is held (alerts.js).
+  // their cart visit is open (alerts.js).
   async presence(req, res, b, ip) {
     const token = await S.session(req, res);
     if (!token) return send(res, 200, { ok: true });
     if (S.limited(`presence:${ip}`, 120, 10 * 60 * 1000)) return send(res, 429, { error: "Too many requests." });
-    await A.cartPresence(req, res, token, b.away === true);
+    await A.visit(req, res, token, b.away === true ? "away" : "seen");
     return send(res, 200, { ok: true });
   },
 
@@ -301,7 +297,7 @@ const actions = {
       await S.auth("logout?scope=local", { token: check.data.access_token }); // the session made just for this
       return send(res, r.status === 401 || r.status === 403 ? 403 : 400, { error: S.friendly(r, "Your account couldn't be deleted. Write to contact@hlixlabs.com and we'll do it for you.") });
     }
-    await A.cartEnd(req, res, token, true); // no cart email: this one says it all
+    A.forget(res); // their open cart visit went with the account: no cart email, this one says it all
     S.clearSession(res);
     await A.deleted({ name: r.data.name, email: r.data.email || mail, orders: r.data.orders, tier: r.data.tier });
     return send(res, 200, { ok: true });

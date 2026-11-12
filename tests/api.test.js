@@ -27,6 +27,8 @@ function reset() {
     metadata: {},
     savedProfile: null,
     deleted: false,
+    visitOpen: false,
+    visitEvents: [],
   };
   calls = [];
   resendSent = [];
@@ -64,6 +66,12 @@ global.fetch = async (url, opt = {}) => {
   if (rpc === "shop_save_profile") { db.savedProfile = body.p; return reply(200, null); }
   if (rpc === "shop_delete_account") { db.deleted = true; return reply(200, { email: "jane@example.com", name: "Jane Doe", orders: 2, tier: "gold" }); }
   if (rpc === "shop_password_changed") return reply(200, null);
+  if (rpc === "shop_cart_visit") {
+    db.visitEvents.push(body.p_event);
+    if (body.p_event === "cart") db.visitOpen = true;
+    if (body.p_event === "end") db.visitOpen = false;
+    return reply(200, db.visitOpen);
+  }
   return reply(404, {});
 };
 
@@ -103,7 +111,6 @@ function call(method, body, jar = {}) {
 const signedIn = (claims) => ({ "__Host-hlix_at": jwt(claims), "__Host-hlix_rt": "refresh-token-1", hlix_in: "1" });
 const line = (sku, qty, extra = {}) => ({ sku, form: "powder", unit: "vial", qty, name: sku, dose: "", unitPrice: 50, ...extra });
 const resendCalls = () => calls.filter((c) => c.url.startsWith("https://api.resend.com"));
-const visitOf = (jar) => JSON.parse(Buffer.from(jar["__Host-hlix_cv"], "base64url").toString());
 
 // ----------------------------------------------------------------- tests ---
 
@@ -135,7 +142,7 @@ test("sign-up with an email that already has an account: no 'new account' email"
   assert.equal(resendSent.length, 0);
 });
 
-test("OWNER_ALERTS=off: nothing goes to hlix", async () => {
+test("OWNER_ALERTS=off: nothing goes to hlix, and no visits are kept", async () => {
   reset();
   process.env.OWNER_ALERTS = "off";
   db.signup = { id: USER, email: "jane@example.com", identities: [{ id: "x" }] };
@@ -143,142 +150,128 @@ test("OWNER_ALERTS=off: nothing goes to hlix", async () => {
   const r = await call("POST", { action: "cart", cart: [line("HLX-RT10", 2)] }, signedIn());
   assert.equal(r.status, 200);
   assert.equal(resendCalls().length, 0);
+  assert.equal(db.visitEvents.length, 0);
   delete process.env.OWNER_ALERTS;
 });
 
-test("cart visit: one email, held until the visit ends, saying what was added", async () => {
+test("cart visit: opened before the cart is saved, kept going by pages, ended by leaving", async () => {
   reset();
   const jar = signedIn();
-  const t0 = nowS();
-  // first add of the visit: their cart as it was is read before saving
-  let r = await call("POST", { action: "cart", cart: [db.cart[0], line("HLX-RT10", 2)] }, jar);
-  assert.equal(r.status, 200);
-  const order = calls.filter((c) => /rpc\/shop_(me|save_cart)/.test(c.url)).map((c) => c.url.split("/").pop());
-  assert.deepEqual(order, ["shop_me", "shop_save_cart"]);
-  assert.equal(resendSent.length, 1);
-  let m = resendSent[0];
-  assert.equal(m.subject, "hlix: Jane Doe added 2 items to their cart");
-  assert.deepEqual(m.to, ["owner@example.com"]);
-  assert.equal(m.reply_to, "jane@example.com");
-  const due = Date.parse(m.scheduled_at) / 1000;
-  assert.ok(due >= t0 + 15 * 60 - 2 && due <= t0 + 15 * 60 + 5, "held for 15 minutes");
-  assert.match(m.html, /Added on this visit/);
-  const addedPart = m.html.split("Their cart now")[0];
-  assert.doesNotMatch(addedPart, /BPC 157/, "what was already in the cart isn't 'added'");
-  assert.match(m.html.split("Their cart now")[1], /BPC 157/);
-  assert.equal(jar.hlix_cv, "1", "pages know a cart email is held");
-  assert.equal(visitOf(jar).id, m.id);
-
-  // another add: the held email is replaced (not a second one), no new read of the old cart
-  calls.length = 0;
-  r = await call("POST", { action: "cart", cart: [db.cart[0], line("HLX-RT10", 2), line("HLX-SM5", 1)] }, jar);
-  assert.equal(r.status, 200);
-  assert.ok(!calls.some((c) => /rpc\/shop_me/.test(c.url)));
-  assert.ok(calls.some((c) => c.url.endsWith(`/emails/${m.id}/cancel`)), "old held email cancelled");
-  assert.equal(resendSent.length, 2);
-  assert.equal(resendSent[1].subject, "hlix: Jane Doe added 3 items to their cart");
-  const firstId = m.id;
-  m = resendSent[1];
-  assert.equal(visitOf(jar).id, m.id);
-
-  // the same cart saved again: the held email just waits longer
-  calls.length = 0;
-  await call("POST", { action: "cart", cart: [db.cart[0], line("HLX-RT10", 2), line("HLX-SM5", 1)] }, jar);
-  assert.equal(resendSent.length, 2);
-  assert.ok(resendCalls().every((c) => c.method === "PATCH" && c.url.endsWith(m.id)));
-
-  // they take out what they added: nothing to tell, the held email is cancelled
-  calls.length = 0;
-  await call("POST", { action: "cart", cart: [db.cart[0]] }, jar);
-  assert.ok(calls.some((c) => c.url.endsWith(`/emails/${m.id}/cancel`)));
-  assert.equal(resendSent.length, 2);
-  assert.equal(visitOf(jar).id, null);
-  assert.equal(jar.hlix_cv, undefined, "nothing held, so pages stop reporting");
-  assert.notEqual(firstId, m.id);
-});
-
-test("cart visit: opening pages pushes the email back, leaving brings it forward", async () => {
-  reset();
-  const jar = signedIn();
-  await call("POST", { action: "cart", cart: [line("HLX-RT10", 1)] }, jar);
-  const id = resendSent[0].id;
-
-  // a page right away: nothing to move (it's already 15 minutes off)
-  calls.length = 0;
+  // a page before they've added anything: no visit, so nothing to tell
   await call("GET", undefined, jar);
-  assert.equal(resendCalls().length, 0);
+  assert.deepEqual(db.visitEvents, []);
 
-  // they leave the site: due in 3 minutes
-  let t = nowS();
-  await call("POST", { action: "presence", away: true }, jar);
-  let patch = resendCalls().find((c) => c.method === "PATCH");
-  assert.ok(patch && patch.url.endsWith(id));
-  let due = Date.parse(patch.body.scheduled_at) / 1000;
-  assert.ok(due >= t + 3 * 60 - 2 && due <= t + 3 * 60 + 5);
-  assert.ok(visitOf(jar).at <= t + 3 * 60 + 5);
+  await call("POST", { action: "cart", cart: [db.cart[0], line("HLX-RT10", 2)] }, jar);
+  const order = calls.filter((c) => /rpc\/shop_(cart_visit|save_cart)/.test(c.url)).map((c) => c.url.split("/").pop());
+  assert.deepEqual(order, ["shop_cart_visit", "shop_save_cart"], "the visit starts with the cart as it was");
+  assert.deepEqual(db.visitEvents, ["cart"]);
+  assert.equal(jar.hlix_cv, "1", "pages know a visit is open");
+  assert.equal(resendCalls().length, 0, "no email while the visit goes on");
 
-  // leaving again changes nothing
-  calls.length = 0;
-  await call("POST", { action: "presence", away: true }, jar);
-  assert.equal(resendCalls().length, 0);
-
-  // they come back (a page): 15 minutes again
-  t = nowS();
   await call("GET", undefined, jar);
-  patch = resendCalls().find((c) => c.method === "PATCH");
-  due = Date.parse(patch.body.scheduled_at) / 1000;
-  assert.ok(due >= t + 15 * 60 - 2);
+  await call("POST", { action: "presence", away: true }, jar);
+  await call("POST", { action: "presence", away: false }, jar);
+  assert.deepEqual(db.visitEvents, ["cart", "seen", "away", "seen"]);
+
+  // the database closed it (sent): the next page finds no visit and stops reporting
+  db.visitOpen = false;
+  await call("GET", undefined, jar);
+  assert.equal(jar.hlix_cv, undefined);
+  db.visitEvents.length = 0;
+  await call("GET", undefined, jar);
+  assert.deepEqual(db.visitEvents, [], "nothing more to report");
 });
 
-test("cart visit: a visit cookie from someone else is ignored", async () => {
-  reset();
-  const jar = signedIn();
-  await call("POST", { action: "cart", cart: [line("HLX-RT10", 1)] }, jar);
-  const theirs = jar["__Host-hlix_cv"];
-  const other = signedIn({ sub: OTHER, email: "sam@example.com" });
-  other["__Host-hlix_cv"] = theirs;
-  calls.length = 0;
-  await call("POST", { action: "cart", cart: [line("HLX-SM5", 1)] }, other);
-  assert.ok(!calls.some((c) => /\/cancel$/.test(c.url)), "never cancels someone else's email");
-  assert.ok(calls.some((c) => /rpc\/shop_me/.test(c.url)), "starts its own visit");
-  assert.equal(visitOf(other).u, OTHER);
-});
-
-test("cart visit: an account order cancels the held email; signing out sends it in 3 minutes", async () => {
+test("cart visit: signing out ends it in 3 minutes; an order ends it with no email", async () => {
   reset();
   let jar = signedIn();
   await call("POST", { action: "cart", cart: [line("HLX-RT10", 1)] }, jar);
-  const id = resendSent[0].id;
-  // what api/order.js does once the order is placed
-  calls.length = 0;
-  await new Promise((resolve) => {
-    const headers = {};
-    const res = { setHeader: (k, v) => { headers[k.toLowerCase()] = v; }, getHeader: (k) => headers[k.toLowerCase()] };
-    const req = { headers: { cookie: Object.entries(jar).map(([k, v]) => `${k}=${v}`).join("; ") } };
-    A.cartEnd(req, res, jar["__Host-hlix_at"], true).then(() => {
-      assert.ok(calls.some((c) => c.url.endsWith(`/emails/${id}/cancel`)));
-      assert.ok([].concat(headers["set-cookie"]).some((c) => /^__Host-hlix_cv=;/.test(c)));
-      resolve();
-    });
-  });
+  await call("POST", { action: "signout" }, jar);
+  assert.deepEqual(db.visitEvents, ["cart", "away"]);
+  assert.equal(jar.hlix_cv, undefined);
 
+  // what api/order.js does once an account order is placed
   reset();
   jar = signedIn();
   await call("POST", { action: "cart", cart: [line("HLX-RT10", 1)] }, jar);
-  calls.length = 0;
-  const t = nowS();
-  await call("POST", { action: "signout" }, jar);
-  const patch = resendCalls().find((c) => c.method === "PATCH");
-  assert.ok(patch, "held email brought forward");
-  assert.ok(Date.parse(patch.body.scheduled_at) / 1000 <= t + 3 * 60 + 5);
-  assert.equal(jar["__Host-hlix_cv"], undefined);
+  const headers = {};
+  const res = { setHeader: (k, v) => { headers[k.toLowerCase()] = v; }, getHeader: (k) => headers[k.toLowerCase()] };
+  await A.visit({ headers: { cookie: "hlix_cv=1" } }, res, jar["__Host-hlix_at"], "end");
+  assert.deepEqual(db.visitEvents, ["cart", "end"]);
+  assert.ok([].concat(headers["set-cookie"]).some((c) => /^hlix_cv=;/.test(c)));
+});
+
+// ------------------------------------------------------------ /api/alerts ---
+const alertsApi = require("../api/alerts.js");
+function postAlerts(body, authorization) {
+  return new Promise((resolve) => {
+    let status = 0;
+    const res = { setHeader() {}, getHeader() {}, status(s) { status = s; return this; }, json(d) { resolve({ status, data: d }); } };
+    alertsApi({ method: "POST", body, headers: authorization ? { authorization } : {} }, res);
+  });
+}
+const SECRET = "a".repeat(64);
+const visitRow = (over = {}) => ({
+  id: "abcdef12-2222-4333-8444-555555555555", user_id: USER, email: "jane@example.com", name: "Jane Doe",
+  baseline: [line("HLX-BC5", 1, { name: "BPC 157", dose: "5mg", unitPrice: 30 })],
+  cart: [line("HLX-BC5", 1, { name: "BPC 157", dose: "5mg", unitPrice: 30 }), line("HLX-RT10", 2, { unitPrice: 70 })],
+  ...over,
+});
+
+test("/api/alerts: refuses anything without the secret", async () => {
+  reset();
+  process.env.ALERTS_SECRET = SECRET;
+  for (const auth of [undefined, "Bearer wrong", `Bearer ${SECRET}x`, SECRET, `bearer ${SECRET}`]) {
+    const r = await postAlerts({ visits: [visitRow()] }, auth);
+    assert.equal(r.status, 401, String(auth));
+  }
+  process.env.ALERTS_SECRET = "";
+  assert.equal((await postAlerts({ visits: [visitRow()] }, "Bearer ")).status, 401, "no secret set up: refuses everything");
+  assert.equal(resendSent.length, 0);
+});
+
+test("/api/alerts: one email per visit, saying what was added", async () => {
+  reset();
+  process.env.ALERTS_SECRET = SECRET;
+  const r = await postAlerts({ visits: [visitRow(), visitRow({ id: "abcdef12-2222-4333-8444-000000000000", baseline: [line("HLX-RT10", 5)], cart: [line("HLX-RT10", 2)] })] }, `Bearer ${SECRET}`);
+  assert.equal(r.status, 200);
+  assert.equal(r.data.sent, 1, "a visit where nothing was added sends nothing");
+  const m = resendSent[0];
+  assert.deepEqual(m.to, ["owner@example.com"]);
+  assert.equal(m.reply_to, "jane@example.com");
+  assert.equal(m.subject, "hlix: Jane Doe added 2 items to their cart");
+  assert.equal(m.idem, "hlix/alert-cart/abcdef12-2222-4333-8444-555555555555", "a retried post sends it once");
+  const [addedPart, nowPart] = m.html.split("Their cart now");
+  assert.doesNotMatch(addedPart, /BPC 157/, "what was already there isn't 'added'");
+  assert.match(addedPart, /\$140/);
+  assert.match(nowPart, /BPC 157/);
+  assert.match(nowPart, /Subtotal: \$170/);
+  assert.match(m.html, new RegExp(`#/users/${USER}`));
+});
+
+test("/api/alerts: junk in a visit is skipped or escaped", async () => {
+  reset();
+  process.env.ALERTS_SECRET = SECRET;
+  const r = await postAlerts({ visits: [null, { id: "not-a-uuid" }, visitRow({ name: "<img src=x onerror=alert(1)>", cart: [line("HLX-RT10", 1, { name: "<b>x</b>", sku: "NOT-IN-CATALOG" })], baseline: "nonsense" })] }, `Bearer ${SECRET}`);
+  assert.equal(r.status, 200);
+  assert.equal(r.data.sent, 1);
+  assert.doesNotMatch(resendSent[0].html, /<img|<b>x/);
+  assert.match(resendSent[0].html, /&lt;img src=x/);
+});
+
+test("/api/alerts: only POST", async () => {
+  const r = await new Promise((resolve) => {
+    let status = 0;
+    alertsApi({ method: "GET", headers: {} }, { setHeader() {}, getHeader() {}, status(s) { status = s; return this; }, json(d) { resolve({ status, data: d }); } });
+  });
+  assert.equal(r.status, 405);
 });
 
 test("delete my account: needs the right password, then tells hlix", async () => {
   reset();
   const jar = signedIn();
   await call("POST", { action: "cart", cart: [line("HLX-RT10", 1)] }, jar);
-  const held = resendSent[0].id;
+  assert.equal(jar.hlix_cv, "1");
 
   let r = await call("POST", { action: "delete", password: "wrong-password-9" }, jar);
   assert.equal(r.status, 400);
@@ -296,7 +289,7 @@ test("delete my account: needs the right password, then tells hlix", async () =>
   const del = calls.find((c) => /rpc\/shop_delete_account/.test(c.url));
   const used = JSON.parse(Buffer.from(del.auth.split(" ")[1].split(".")[1], "base64url").toString());
   assert.equal(used.amr[0].method, "password", "deleted with the session made from the password just typed");
-  assert.ok(calls.some((c) => c.url.endsWith(`/emails/${held}/cancel`)), "no cart email after it");
+  assert.equal(jar.hlix_cv, undefined, "their visit went with the account");
   const m = resendSent[resendSent.length - 1];
   assert.equal(m.subject, "hlix: account deleted, Jane Doe");
   assert.match(m.html, /2 orders stay/);

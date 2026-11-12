@@ -129,7 +129,8 @@ function orderConfirmation({ name, items, subtotal, ref, pricing, account }) {
 }
 
 // One call to Resend's API. Never throws: returns { ok, status, data, why }. Waits a second
-// and tries once more if Resend says too many requests at once (429).
+// and tries once more if Resend says too many requests at once (429). (The website's key
+// can only send: it can't read, cancel or change emails.)
 async function resend(apiKey, method, path, body, extraHeaders) {
   for (let attempt = 0; ; attempt++) {
     try {
@@ -152,26 +153,13 @@ async function resend(apiKey, method, path, body, extraHeaders) {
 }
 
 // Sends one email through Resend. Never throws: returns { ok, status, id, why }.
-// replyTo: where replies go (default REPLY_TO_EMAIL). scheduledAt: an ISO time to hold it
-// until (Resend sends it then, unless it's cancelled or moved first).
-async function send(apiKey, { to, subject, html, text, idempotencyKey, tag, replyTo, scheduledAt }) {
+// replyTo: where replies go (default REPLY_TO_EMAIL).
+async function send(apiKey, { to, subject, html, text, idempotencyKey, tag, replyTo }) {
   const r = await resend(apiKey, "POST", "/emails", {
     from: FROM, to: [to], reply_to: replyTo || REPLY_TO, subject, html, text,
     tags: tag ? [{ name: "type", value: tag }] : undefined,
-    scheduled_at: scheduledAt || undefined,
   }, idempotencyKey ? { "idempotency-key": idempotencyKey } : undefined);
   return { ok: r.ok, status: r.status, id: r.ok && r.data && typeof r.data.id === "string" ? r.data.id : null, why: r.why };
-}
-
-const EMAIL_ID = /^[0-9a-f-]{36}$/i;
-// A held (scheduled) email: send it at another time instead, or not at all.
-function reschedule(apiKey, id, scheduledAt) {
-  if (!EMAIL_ID.test(String(id))) return Promise.resolve({ ok: false, status: 400 });
-  return resend(apiKey, "PATCH", `/emails/${id}`, { scheduled_at: scheduledAt });
-}
-function cancel(apiKey, id) {
-  if (!EMAIL_ID.test(String(id))) return Promise.resolve({ ok: false, status: 400 });
-  return resend(apiKey, "POST", `/emails/${id}/cancel`);
 }
 
 // The customer's copy of an order. Account orders: one per order (by its #). Guests:
@@ -187,4 +175,4 @@ async function confirmOrder(apiKey, { email, name, items, subtotal, ref, pricing
   return r;
 }
 
-module.exports = { ON, confirmOrder, orderConfirmation, greetingName, send, reschedule, cancel, esc, money, lineLabel, lineQty };
+module.exports = { ON, confirmOrder, orderConfirmation, greetingName, send, esc, money, lineLabel, lineQty };

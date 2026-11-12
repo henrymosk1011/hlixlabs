@@ -23,6 +23,10 @@ There's no payment processor yet. When one is added, its webhook must call
 `alertPaid()` from `api/_lib/alerts.js` after verifying the payment, so the owner gets
 the "payment received" email (README, "Emails to you").
 
+The website's Resend key is send-only on purpose (it can't read, cancel or change emails):
+don't swap it for a full-access key. Anything that has to wait (like the cart visit
+emails) waits in the database, not in Resend.
+
 ## Commits
 
 Author commits as `henrymosk1011 <110219347+henrymosk1011@users.noreply.github.com>`
