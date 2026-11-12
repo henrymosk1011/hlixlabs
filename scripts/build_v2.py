@@ -8,8 +8,8 @@ reachable at /v2/, but noindex and linked from nowhere, like /v1/.
 
 Writes v2/ and, at the repo root, planner-embed.html: the dose planner the admin's
 Calendar page frames (planner_app(), assets/css/planner.css), which stays at the root
-whatever design the site has. planner_section() (the calculator page's planner) is
-also what the main site's calculator page uses.
+whatever design the site has. planner_app() is also the planner on the main site's
+/planner page (build_v3.py) and on /v2/calculator.
 
 Every link in v2/ is written root-absolute (/v2/catalog, /assets/...): the site drops
 trailing slashes (vercel.json), so /v2/ is served as /v2, where relative links would
@@ -73,26 +73,8 @@ def syringe_svg(uid):
 </svg>'''
 
 
-def mini_vial_svg(uid):
-    """Small upright vial for the dose planner; the liquid's height follows the
-    --lvl custom property (0–1) and its color --vc, both set on any ancestor."""
-    ticks = "".join(f'<line x1="{29 if y == 50 else 31}" y1="{y}" x2="35" y2="{y}"/>' for y in (34, 50, 66))
-    return f'''<svg viewBox="0 0 40 84" aria-hidden="true">
-  <defs>
-    <clipPath id="mv-{uid}-clip"><rect x="5.5" y="18.5" width="29" height="63" rx="6.5"/></clipPath>
-    <linearGradient id="mv-{uid}-liq" x1="0" y1="0" x2="0" y2="1"><stop class="mv__s1" offset="0"/><stop class="mv__s2" offset="1"/></linearGradient>
-  </defs>
-  <rect class="mv__cap" x="10.5" y="2.5" width="19" height="10" rx="2.5"/>
-  <rect class="mv__neck" x="13.5" y="12.5" width="13" height="6" rx="1"/>
-  <g clip-path="url(#mv-{uid}-clip)"><g class="mv__liq"><rect x="4" y="18" width="32" height="66" fill="url(#mv-{uid}-liq)"/><rect class="mv__men" x="4" y="18" width="32" height="1.6"/></g></g>
-  <rect class="mv__body" x="5.5" y="18.5" width="29" height="63" rx="6.5"/>
-  <g class="mv__ticks">{ticks}</g>
-</svg>'''
-
-
 CHEV_L = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>'
 CHEV_R = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>'
-CHEV_D = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>'
 
 
 VIALS = ROOT / "assets" / "img" / "vials"
@@ -207,10 +189,11 @@ FONTS = '''<link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet">'''
 
 
-def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class="", noindex=False):
+def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class="", noindex=False, css=()):
     p = "../" * depth          # this design's root, for pages
     a = p + UP                 # the site root, for files (assets/)
     js = "".join(f'<script src="{a}assets/js/{s}?v={VER}" defer></script>' for s in scripts)
+    links = "".join(f'<link rel="stylesheet" href="{a}assets/css/{c}?v={VER}">' for c in css)  # a page's own, after v2.css
     return f'''<!DOCTYPE html>
 <html lang="en">
 <head>
@@ -220,7 +203,7 @@ def shell(*, title, desc, page, body, depth=0, groups=(), scripts=(), body_class
 <title>{title} · hlix</title>
 <meta name="description" content="{esc(desc)}">{'\n<meta name="robots" content="noindex, nofollow">' if noindex or OUT != ROOT else ''}
 {FONTS}
-<link rel="stylesheet" href="{a}assets/css/v2.css?v={VER}">
+<link rel="stylesheet" href="{a}assets/css/v2.css?v={VER}">{links}
 <script src="{a}assets/js/v2-boot.js?v={VER}" data-base="{p}"></script>
 </head>
 <body class="{body_class}" data-page="{page}">
@@ -640,103 +623,6 @@ def opts(group, values, unit, default, *, custom=True, unit_small=None):
     return out
 
 
-def planner_section(embed=False):
-    """The dose planner (v2-planner.js): vial tabs (each with its own name, size and schedule), a month
-    calendar, and a day editor the JS slots under the tapped week. The calculator page shows it under the
-    calculator; planner-embed.html shows it on its own (embed=True: no heading, and the plan comes from the
-    page framing it), which is how the admin dashboard's Calendar page runs this exact planner. The vials,
-    calendar and "left in vial" panel sit on a sheet (data-planner, the JS root), light unless the plan says
-    dark; the JS draws one month or three into [data-cal-months]."""
-    sizes = [2, 5, 10, 15, 20, 30, 50, 100, 1000]
-    pvial = opts("pvial", sizes, "mg", 5)
-    nvial = opts("nvial", sizes, "mg", None)
-    nevery = "".join(f'<button type="button" class="opt" data-val="{v}">{label}</button>' for v, label in [(1, "daily"), (2, "every other day"), (7, "weekly")])
-    dates = lambda pre: (f'<div class="pl-dates"><span class="pl-k">start → end</span><div class="pl-dates__row">'
-                         f'<input type="date" data-{pre}-start aria-label="start: the first dose"><span class="pl-dates__to" aria-hidden="true">→</span>'
-                         f'<input type="date" data-{pre}-end aria-label="end: the last day it\'s used"><button type="button" class="pl-auto" data-{pre}-end-auto hidden>auto</button></div>'
-                         f'<small class="pl-dates__hint" data-{pre}-hint></small></div>')
-    pdose = (opts("pdose", [0.5, 1, 2, 2.5, 3, 5, 10], "mg", None) + '<button type="button" class="opt" data-val="0">none</button>'
-             '<button type="button" class="opt opt--stop" data-ed-stop>stop here</button>')
-    prep = "".join(
-        f'<button type="button" class="opt{" is-active" if v == 0 else ""}" data-val="{v}">{label}</button>'
-        for v, label in [(0, "just this day"), (1, "daily"), (2, "every other day"), (7, "weekly")]
-    )
-    swatches = "".join(
-        f'<button type="button" class="pl-sw" data-c="{i}" data-color="{i}" aria-label="{c}"></button>'
-        for i, c in enumerate(["green", "blue", "violet", "pink", "lime", "silver"])
-    )
-    tiles = "".join(
-        f'<div class="pl-t" data-pl-t="{k}"><p class="pl-t__k">{k}</p><p class="pl-t__d" data-pl-d>&nbsp;</p>'
-        f'<div class="mv">{mini_vial_svg(k)}</div>'
-        f'<p class="pl-t__v"><b data-pl-v>5</b><small>mg</small></p><p class="pl-t__u" data-pl-u>nothing used</p></div>'
-        for k in ("day", "week", "month")
-    )
-    head = "" if embed else '''<div class="planner__head">
-      <div><p class="kicker" data-reveal="fade">// dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
-      <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. the calendar drains as the vial does, so you can see what's left on any day, week or month.</p>
-    </div>
-    '''
-    return f'''<section class="planner">
-    {head}<div class="planner__sheet" data-planner{" data-embed" if embed else ""} data-reveal>
-    <fieldset class="step pl-vials" data-reveal>
-      <legend><span class="step__t">your vials</span><b class="step__e" data-pl-echo>5 mg</b></legend>
-      <div class="pl-tabs" data-pl-tabs></div>
-      <div class="pl-new" data-pl-new role="group" aria-label="new vial" hidden>
-        <p class="pl-new__t">new vial</p>
-        <div class="pl-new__grid">
-          <label class="pl-name"><span class="pl-k">name</span><input type="text" data-new-name maxlength="28" placeholder="e.g. BPC-157 #2" list="pl-names" autocomplete="off" spellcheck="false"></label>
-          <div class="pl-size"><span class="pl-k">size</span><div class="opts" data-new-size>{nvial}</div></div>
-          <div class="pl-new__doses"><span class="pl-k">doses</span><div class="opts" data-new-how><button type="button" class="opt" data-how="same">same as <span data-new-same></span></button><button type="button" class="opt" data-how="set">a dose</button><button type="button" class="opt" data-how="none">none yet</button></div>
-            <div class="pl-new__dose" data-new-dose-row hidden><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" data-new-dose aria-label="dose in mg"><div class="opts" data-new-every>{nevery}</div></div>
-          </div>
-          {dates("new")}
-        </div>
-        <div class="pl-new__acts"><button type="button" class="pl-cpick__ok" data-new-ok>add vial</button><button type="button" class="pl-cpick__x" data-new-x>cancel</button></div>
-      </div>
-      <div class="pl-set" data-pl-set>
-        <button type="button" class="pl-set__head" data-pl-set-toggle aria-expanded="false" aria-controls="pl-set-body"><i class="pl-set__dot"></i><span class="pl-set__sum" data-pl-set-sum>&nbsp;</span><b class="pl-set__go"><span data-pl-set-word>settings</span>{CHEV_D}</b></button>
-        <div class="pl-set__body" id="pl-set-body" data-pl-set-body hidden>
-        <label class="pl-name"><span class="pl-k">name</span><input type="text" data-pl-name maxlength="28" placeholder="e.g. BPC-157" list="pl-names" autocomplete="off" spellcheck="false"></label>
-        <div class="pl-color"><span class="pl-k">color</span><div class="pl-swatches" data-pl-colors>{swatches}<button type="button" class="pl-sw pl-sw--custom" data-pl-custom-open aria-label="custom color" aria-expanded="false" aria-controls="pl-cpick"></button></div></div>
-        <div class="pl-cpick" id="pl-cpick" data-pl-cpick role="group" aria-label="custom color" hidden><span class="pl-k">custom color</span><div class="pl-cpick__row"><input type="color" data-pl-custom value="#33e6b0" aria-label="pick a color"><input type="text" class="pl-cpick__hex" data-pl-hex maxlength="7" autocomplete="off" spellcheck="false" aria-label="color code, like #33e6b0"><button type="button" class="pl-cpick__ok" data-pl-cpick-ok>apply</button><button type="button" class="pl-cpick__x" data-pl-cpick-x>cancel</button></div></div>
-        <div class="pl-size"><span class="pl-k">size</span><div class="opts" data-pl-vial>{pvial}</div></div>
-        {dates("pl")}
-        <button type="button" class="pl-remove" data-pl-remove hidden>remove vial</button>
-        </div>
-      </div>
-      <datalist id="pl-names"></datalist>
-    </fieldset>
-    <div class="planner__body">
-      <div class="cal" data-cal data-reveal>
-        <div class="cal__head">
-          <h3 class="cal__month" data-cal-title>&nbsp;</h3>
-          <div class="cal__view"><div class="cal__seg" role="group" aria-label="months shown"><button type="button" data-cal-span="1" aria-pressed="true">month</button><button type="button" data-cal-span="3" aria-pressed="false">3 months</button></div><button type="button" class="cal__btn cal__look" data-cal-look>{MOON}{SUN}<span>dark</span></button></div>
-          <div class="cal__nav"><button type="button" class="cal__btn" data-cal-nav="-1" aria-label="previous month">{CHEV_L}</button><button type="button" class="cal__btn cal__today" data-cal-today>today</button><button type="button" class="cal__btn" data-cal-nav="1" aria-label="next month">{CHEV_R}</button></div>
-        </div>
-        <div class="cal__months" data-cal-months></div>
-        <div class="cal__foot"><span data-cal-sum>&nbsp;</span><button type="button" class="cal__clear" data-cal-clear hidden>clear plan</button></div>
-        <div class="cal__ed" data-cal-ed hidden><div class="cal__ed-in"><div class="cal__ed-box" role="group" aria-label="dose for this day">
-          <div class="ed__head"><b data-ed-date></b><span class="ed__meta" data-ed-meta></span><button type="button" class="ed__x" data-ed-close aria-label="close">{CLOSE}</button></div>
-          <div class="ed__row" data-ed-vial-row hidden><span class="ed__k">vial</span><div class="opts" data-ed-vials></div></div>
-          <div class="ed__row"><span class="ed__k">dose</span><div class="opts" data-ed-dose>{pdose}</div></div>
-          <div class="ed__row"><span class="ed__k">repeat</span><div class="opts" data-ed-rep>{prep}</div></div>
-          <p class="ed__hint" data-ed-hint hidden></p>
-        </div></div></div>
-      </div>
-      <aside class="pl-out" data-reveal="fade">
-        <div class="pl-out__head"><p class="out__k">left in vial</p><b data-pl-size>vial 1 · 5 mg</b></div>
-        <div class="pl-tiles">{tiles}</div>
-        <dl class="rows pl-rows">
-          <div><dt data-pl-out-k>runs dry</dt><dd data-pl-out>—</dd></div>
-          <div><dt>planned</dt><dd data-pl-plan>no doses yet</dd></div>
-        </dl>
-        <p class="warn" data-pl-warn hidden></p>
-        <div class="pl-all" data-pl-all hidden><p class="out__k">all vials · <span data-pl-all-day></span></p><div data-pl-all-list></div></div>
-      </aside>
-    </div>
-    </div>
-  </section>'''
-
 
 # ------------------------------------------------------------ the admin's calendar ---
 
@@ -758,8 +644,7 @@ def planner_app(embed=True):
     the month (or three), the day editor, each week's totals. The vial: what's left in the one picked, its
     dates, and its settings. The Vials and vial cards sit together (.pc-side): beside the calendar when
     there's room, around it when there isn't; the admin can frame each part on its own (see "part" in
-    v2-planner.js). The archived /v2/ calculator keeps planner_section() and v2.css; the same v2-planner.js
-    runs both, through the same data-* hooks."""
+    v2-planner.js). The /v2/ calculator shows it too, under that design's own heading."""
     sizes = [2, 5, 10, 15, 20, 30, 50, 100, 1000]
     def size_opts(default):
         out = "".join(f'<button type="button" class="opt{" is-active" if v == default else ""}" data-val="{v}">{v} mg</button>' for v in sizes)
@@ -882,7 +767,13 @@ def page_calculator(groups):
     planu = "".join(
         f'<button type="button" class="opt{" is-active" if u == "months" else ""}" data-val="{u}">{u}</button>' for u in ["weeks", "months", "years"]
     )
-    planner = planner_section()
+    planner = f'''<section class="planner">
+    <div class="planner__head">
+      <div><p class="kicker" data-reveal="fade">// dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
+      <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. each day shows what's left in the vial, so you can see it run down by the day, week or month. sign in and it's saved to your account.</p>
+    </div>
+    {planner_app(embed=False)}
+  </section>'''
     body = f'''
 <section class="phead"><div class="wrap">
   <p class="kicker" data-reveal="fade">// dosage calculator</p>
@@ -926,7 +817,7 @@ def page_calculator(groups):
   <div class="dock__row"><span>draw to</span><span class="dock__val"><b data-o="dock">10</b>units</span></div>
   <div class="syr syr--dock" data-syr>{syringe_svg("dock")}</div>
 </div>'''
-    return shell(title="dosage calculator", desc="peptide reconstitution and dosage calculator.", page="calculator", body=body, groups=groups, scripts=("v2-calc.js", "v2-planner.js"), body_class="calc-page")
+    return shell(title="dosage calculator", desc="peptide reconstitution and dosage calculator.", page="calculator", body=body, groups=groups, scripts=("v2-calc.js", "v2-planner.js"), body_class="calc-page", css=("planner.css",))
 
 
 def page_planner_embed():

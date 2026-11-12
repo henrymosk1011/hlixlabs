@@ -924,9 +924,8 @@ a.cinfo:hover, button.cinfo:hover { border-color: var(--line-2); }
 .fam__units button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 
 /* ------------------------------------------------------------
-   calculator (v2-calc.js drives the [data-*] hooks); the generic
-   .step / .opts / .opt / .out__k / .rows / .warn rules are also
-   what the dose planner's stylesheet builds on
+   calculator (v2-calc.js drives the [data-*] hooks). the dose
+   planner (planner.css) scopes its own .opts / .opt / .opt-in
    ------------------------------------------------------------ */
 .step { min-width: 0; margin: 0 0 clamp(28px, 4vh, 44px); padding: 0; border: 0; }
 .step legend { display: flex; align-items: baseline; gap: 12px; width: 100%; padding: 0 0 14px; }
@@ -975,13 +974,44 @@ a.cinfo:hover, button.cinfo:hover { border-color: var(--line-2); }
 .dock { display: none; }
 .v1-link { display: inline-block; margin-left: 12px; padding: 4px 9px; border: 1px solid var(--line-2); border-radius: 999px; color: var(--dim); font: 500 11px/1 var(--f-mono); }
 
-/* the dose planner section (its sheet, calendar and panel come from v3-planner.css) */
-.planner { margin: 0; padding: clamp(40px, 8vh, 96px) 0 clamp(64px, 12vh, 140px); border-top: 1px solid var(--line); }
-.planner__head { margin-bottom: clamp(24px, 4vh, 44px); }
-.planner__head .kicker { color: var(--accent); font: 500 12px var(--f-mono); letter-spacing: 0.12em; }
-.planner__title { margin-top: 12px; font: 800 clamp(2.4rem, 6vw, 5rem)/0.9 var(--f-display); letter-spacing: -0.06em; }
-.planner__sheet { border-radius: var(--r-xl); }
-.planner .opt { border-radius: var(--r); }
+/* the dose planner's page (planner.html): this page's heading, where the plan is kept, how it works, and
+   the planner itself (planner.css); and the card that leads there from the calculator page */
+.plansync { margin-top: 16px; padding: 11px 14px; border: 1px solid var(--line-2); border-radius: 14px; color: var(--dim); font-size: 14px; line-height: 1.45; }
+.plansync > span { display: none; gap: 9px; align-items: flex-start; }
+.plansync[data-state="local"] > [data-when="local"], .plansync[data-state="loading"] > [data-when="loading"], .plansync[data-state="saving"] > [data-when="saving"],
+.plansync[data-state="account"] > [data-when="account"], .plansync[data-state="offline"] > [data-when="offline"] { display: flex; }
+.plansync svg { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--accent); }
+.plansync a { color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+.plansync[data-state="account"] { border-color: rgba(var(--accent-rgb), 0.45); color: var(--fg); }
+.plansync[data-state="offline"] { border-color: rgba(242, 184, 75, 0.45); }
+.plansync[data-state="offline"] svg { color: var(--warn); }
+.planhow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: clamp(20px, 3vh, 32px) 0 0; padding: 0; list-style: none; }
+.planhow li { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); color: var(--dim); font-size: 14px; line-height: 1.45; }
+.planhow b { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font: 600 12px var(--f-mono); }
+.planpage { padding-bottom: clamp(64px, 12vh, 140px); }
+.planpage__calc { margin-top: 20px; color: var(--dim); font-size: 14px; }
+.planpage__calc a { display: inline-flex; align-items: center; gap: 6px; color: var(--fg); text-decoration: underline; text-underline-offset: 3px; }
+.planpage__calc svg { width: 15px; height: 15px; }
+@media (max-width: 900px) {
+  .planhow { grid-template-columns: 1fr; gap: 6px; }
+  .planhow li { padding: 9px 12px; font-size: 13px; }
+  .planhow b { width: 20px; height: 20px; font-size: 11px; }
+}
+
+.plan-cta { padding-bottom: clamp(48px, 8vh, 96px); }
+.plan-cta__card { display: grid; grid-template-columns: minmax(0, 1.2fr) minmax(220px, 0.8fr); align-items: center; gap: 24px clamp(24px, 4vw, 56px); min-height: 0; }
+.plan-cta__copy { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.plan-cta__card h2 { font: 800 clamp(2rem, 3.4vw, 3rem)/0.95 var(--f-display); letter-spacing: -0.055em; }
+.plan-cta__card p { max-width: 52ch; color: var(--dim); }
+.plan-cta__card .minical { margin-top: 0; }
+.plan-cta__card .link { margin-top: 4px; }
+@media (max-width: 760px) { .plan-cta__card { grid-template-columns: 1fr; } }
+
+.acct__plan { gap: 8px; text-decoration: none; transition: border-color 0.3s; }
+.acct__plan:hover { border-color: var(--accent); }
+.acct__plan h2 { display: flex; align-items: center; gap: 10px; }
+.acct__plan h2 svg { flex: none; width: 24px; height: 24px; color: var(--accent); }
+.acct__plan p { color: var(--dim); }
 
 /* syringe illustration (--fill 0..1, set by v2-calc.js) */
 .syr svg { width: 100%; height: auto; overflow: visible; }

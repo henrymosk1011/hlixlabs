@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#050607">
 <title>dosage calculator · hlix</title>
-<meta name="description" content="peptide reconstitution and dosage calculator, with a dose planner.">
+<meta name="description" content="peptide reconstitution and dosage calculator: draw-to units, how long a vial lasts and how many you need.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/v3.css?v=1794479590"><link rel="stylesheet" href="assets/css/planner.css?v=1794479590">
-<script src="assets/js/v3-boot.js?v=1794479590" data-base="" data-assets=""></script>
+<link rel="stylesheet" href="assets/css/v3.css?v=1794480789">
+<script src="assets/js/v3-boot.js?v=1794480789" data-base="" data-assets=""></script>
 </head>
 <body class="calc-page" data-page="calculator">
 <a class="skip" href="#main">skip to content</a>
@@ -19,7 +19,7 @@
     <a class="brand" href="./" aria-label="hlix home">hlix<i></i></a>
     <nav class="top__nav" aria-label="primary">
       <button class="top__link top__shop" type="button" data-mega-toggle aria-expanded="false" aria-controls="mega">shop <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      <a class="top__link" href="calculator" aria-current="page">calculator</a><a class="top__link" href="about">about</a><a class="top__link" href="contact">contact</a>
+      <a class="top__link" href="calculator" aria-current="page">calculator</a><a class="top__link" href="planner">planner</a><a class="top__link" href="about">about</a><a class="top__link" href="contact">contact</a>
     </nav>
     <button class="top__search" type="button" data-search-open aria-label="search the catalog"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg><span>search compounds or goals</span><kbd>/</kbd></button>
     <div class="top__act">
@@ -44,6 +44,7 @@
         <p class="label">published lab reports</p>
         <a href="peptides/glp2-t#coa"><img src="assets/img/vials/hlx-tr5-recon-s.webp" alt="" width="48" height="60" loading="lazy"><span>glp2-t<small>2 reports</small></span></a><a href="peptides/glp3-r#coa"><img src="assets/img/vials/hlx-rt5-recon-s.webp" alt="" width="48" height="60" loading="lazy"><span>glp3-r<small>3 reports</small></span></a>
         <a class="mega__tool" href="calculator"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg><span>dosage calculator<small>draw-to units, supply, vials needed</small></span></a>
+        <a class="mega__tool" href="planner"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg><span>dose planner<small>your vials and doses on a calendar</small></span></a>
       </div>
     </div>
   </div>
@@ -57,8 +58,8 @@
       <h1 class="phead__title" data-reveal style="--d:1">dosage calculator.</h1>
     </div>
     <div data-reveal style="--d:2">
-      <p class="phead__sub">set the vial, the water and the dose; read the draw. then map doses on the planner below.</p>
-      <nav class="jump"><a href="#calc" class="pill is-on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg> calculator</a><a href="#planner" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg> dose planner</a></nav>
+      <p class="phead__sub">set the vial, the water and the dose; read the draw, how long a vial lasts and how many you need. to schedule your doses and keep track of each vial, use the dose planner.</p>
+      <nav class="jump"><a href="#calc" class="pill is-on"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M8 6h8M8 11h1M12 11h1M16 11h1M8 15h1M12 15h1M16 15h1M8 19h1M12 19h1M16 19h1"/></svg> calculator</a><a href="planner" class="pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg> dose planner <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a></nav>
     </div>
   </div>
 </section>
@@ -108,85 +109,17 @@
     </aside>
   </div>
 </div>
-<div class="wrap" id="planner">
-  <section class="planner">
-    <div class="planner__head">
-      <div><p class="label label--dot" data-reveal>dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
-      <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. each day shows what's left in the vial, so you can see it run down by the day, week or month.</p>
+<section class="wrap plan-cta" id="planner" aria-label="dose planner">
+  <a class="tool tool--plan plan-cta__card" href="planner" data-reveal>
+    <div class="plan-cta__copy">
+      <span class="label"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/></svg> dose planner</span>
+      <h2>now plan your doses.</h2>
+      <p>list the vials you're running, schedule doses on a calendar (daily, weekly or your own days), and see what's left in each vial and when it runs dry. sign in and your plan is saved to your account, on any device.</p>
+      <span class="link">open the dose planner <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg></span>
     </div>
-    <div class="pc-host"><div class="pc" data-planner>
-  <div class="pc-side">
-
-  <section class="pc-card pc-vials" aria-labelledby="pc-vials-h">
-    <header class="pc-head">
-      <div><h2 class="pc-h" id="pc-vials-h">Vials</h2><p class="pc-sub">Left <span data-pl-all-day>after today</span></p></div>
-      <b class="pc-hidden" data-pl-echo></b>
-    </header>
-    <div class="pl-tabs pc-list" data-pl-tabs></div>
-    <div class="pl-new pc-new" data-pl-new role="group" aria-label="New vial" hidden>
-      <p class="pc-new__t">New vial</p>
-      <label class="pc-field"><span class="pc-label">Name</span><input type="text" class="pc-input" data-new-name maxlength="28" placeholder="e.g. BPC-157 #2" list="pl-names" autocomplete="off" spellcheck="false"></label>
-      <div class="pc-field"><span class="pc-label">Size</span><div class="opts" data-new-size><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="15">15 mg</button><button type="button" class="opt" data-val="20">20 mg</button><button type="button" class="opt" data-val="30">30 mg</button><button type="button" class="opt" data-val="50">50 mg</button><button type="button" class="opt" data-val="100">100 mg</button><button type="button" class="opt" data-val="1000">1000 mg</button><button type="button" class="opt" data-val="custom">Custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" aria-label="Size in mg" hidden></div></div>
-      <div class="pc-field"><span class="pc-label">Doses</span>
-        <div class="opts" data-new-how><button type="button" class="opt" data-how="same">Same as <span data-new-same></span></button><button type="button" class="opt" data-how="set">A dose</button><button type="button" class="opt" data-how="none">None yet</button></div>
-        <div class="pl-new__dose" data-new-dose-row hidden><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" data-new-dose aria-label="Dose in mg"><div class="opts" data-new-every><button type="button" class="opt" data-val="1">Daily</button><button type="button" class="opt" data-val="2">Every other day</button><button type="button" class="opt" data-val="7">Weekly</button></div></div>
-      </div>
-      <div class="pl-dates pc-field"><span class="pc-label">Start → end</span><div class="pl-dates__row"><input type="date" data-new-start aria-label="Start: the first dose"><span class="pl-dates__to" aria-hidden="true">→</span><input type="date" data-new-end aria-label="End: the last day it's used"><button type="button" class="pl-auto" data-new-end-auto hidden>Auto</button></div><small class="pl-dates__hint" data-new-hint></small></div>
-      <div class="pc-acts"><button type="button" class="pc-btn pc-btn--primary" data-new-ok>Add vial</button><button type="button" class="pc-btn" data-new-x>Cancel</button></div>
-    </div>
-    <datalist id="pl-names"></datalist>
-    <div class="pc-hidden" data-pl-all hidden><div data-pl-all-list></div></div>
-  </section>
-
-  <section class="pc-card pc-vial" aria-label="The vial picked">
-    <header class="pc-head pc-vial__head">
-      <i class="pc-dot" aria-hidden="true"></i>
-      <div class="pc-vial__name" data-pl-set-sum>&nbsp;</div>
-      <button type="button" class="pc-btn pc-btn--sm pl-set__go" data-pl-set-toggle aria-expanded="false" aria-controls="pl-set-body"><span data-pl-set-word>Edit vial</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></button>
-      <b class="pc-hidden" data-pl-size></b>
-    </header>
-    <div class="pl-set pc-set" data-pl-set>
-      <div class="pl-set__body pc-set__body" id="pl-set-body" data-pl-set-body hidden>
-        <label class="pc-field"><span class="pc-label">Name</span><input type="text" class="pc-input" data-pl-name maxlength="28" placeholder="e.g. BPC-157" list="pl-names" autocomplete="off" spellcheck="false"></label>
-        <div class="pc-field"><span class="pc-label">Color</span><div class="pl-swatches" data-pl-colors><button type="button" class="pl-sw" data-c="0" data-color="0" aria-label="Green"></button><button type="button" class="pl-sw" data-c="1" data-color="1" aria-label="Blue"></button><button type="button" class="pl-sw" data-c="2" data-color="2" aria-label="Violet"></button><button type="button" class="pl-sw" data-c="3" data-color="3" aria-label="Pink"></button><button type="button" class="pl-sw" data-c="4" data-color="4" aria-label="Lime"></button><button type="button" class="pl-sw" data-c="5" data-color="5" aria-label="Silver"></button><button type="button" class="pl-sw pl-sw--custom" data-pl-custom-open aria-label="Custom color" aria-expanded="false" aria-controls="pl-cpick"></button></div></div>
-        <div class="pl-cpick pc-field" id="pl-cpick" data-pl-cpick role="group" aria-label="Custom color" hidden><span class="pc-label">Custom color</span><div class="pl-cpick__row"><input type="color" data-pl-custom value="#33e6b0" aria-label="Pick a color"><input type="text" class="pc-input pl-cpick__hex" data-pl-hex maxlength="7" autocomplete="off" spellcheck="false" aria-label="Color code, like #33e6b0"><button type="button" class="pc-btn pc-btn--primary pl-cpick__ok" data-pl-cpick-ok>Apply</button><button type="button" class="pc-btn" data-pl-cpick-x>Cancel</button></div></div>
-        <div class="pc-field"><span class="pc-label">Size</span><div class="opts" data-pl-vial><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt is-active" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="15">15 mg</button><button type="button" class="opt" data-val="20">20 mg</button><button type="button" class="opt" data-val="30">30 mg</button><button type="button" class="opt" data-val="50">50 mg</button><button type="button" class="opt" data-val="100">100 mg</button><button type="button" class="opt" data-val="1000">1000 mg</button><button type="button" class="opt" data-val="custom">Custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" aria-label="Size in mg" hidden></div></div>
-        <div class="pl-dates pc-field"><span class="pc-label">Start → end</span><div class="pl-dates__row"><input type="date" data-pl-start aria-label="Start: the first dose"><span class="pl-dates__to" aria-hidden="true">→</span><input type="date" data-pl-end aria-label="End: the last day it's used"><button type="button" class="pl-auto" data-pl-end-auto hidden>Auto</button></div><small class="pl-dates__hint" data-pl-hint></small></div>
-        <button type="button" class="pc-link pc-link--danger pl-remove" data-pl-remove hidden>Remove vial</button>
-      </div>
-    </div>
-    <div class="pc-stats"><div class="pc-stat" data-pl-t="day"><span class="pc-stat__k" data-pl-d>&nbsp;</span><span class="pc-stat__v"><b data-pl-v>0</b> mg</span><span class="pc-stat__bar" aria-hidden="true"><i></i></span><span class="pc-stat__u" data-pl-u>Nothing used</span></div><div class="pc-stat" data-pl-t="week"><span class="pc-stat__k" data-pl-d>&nbsp;</span><span class="pc-stat__v"><b data-pl-v>0</b> mg</span><span class="pc-stat__bar" aria-hidden="true"><i></i></span><span class="pc-stat__u" data-pl-u>Nothing used</span></div><div class="pc-stat" data-pl-t="month"><span class="pc-stat__k" data-pl-d>&nbsp;</span><span class="pc-stat__v"><b data-pl-v>0</b> mg</span><span class="pc-stat__bar" aria-hidden="true"><i></i></span><span class="pc-stat__u" data-pl-u>Nothing used</span></div></div>
-    <dl class="pc-rows">
-      <div><dt data-pl-out-k>Runs dry</dt><dd data-pl-out>—</dd></div>
-      <div><dt>Planned</dt><dd data-pl-plan>No doses yet</dd></div>
-    </dl>
-    <p class="pc-warn" data-pl-warn hidden></p>
-  </section>
-  </div>
-
-  <section class="pc-card pc-cal" data-cal aria-label="Calendar">
-    <header class="pc-cal__head">
-      <h2 class="pc-cal__title" data-cal-title>&nbsp;</h2>
-      <div class="pc-cal__tools">
-        <div class="pc-seg" role="group" aria-label="Months shown"><button type="button" data-cal-span="1" aria-pressed="true">Month</button><button type="button" data-cal-span="3" aria-pressed="false">3 months</button></div>
-        <div class="pc-nav"><button type="button" class="pc-icon" data-cal-nav="-1" aria-label="Previous month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button><button type="button" class="pc-btn pc-btn--sm" data-cal-today>Today</button><button type="button" class="pc-icon" data-cal-nav="1" aria-label="Next month"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button></div>
-        <button type="button" class="pc-icon pc-look" data-cal-look title="Light or dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg><span class="pc-hidden">Dark</span></button>
-      </div>
-    </header>
-    <div class="cal__months" data-cal-months></div>
-    <footer class="pc-cal__foot"><span data-cal-sum>&nbsp;</span><button type="button" class="pc-link cal__clear" data-cal-clear hidden>Clear plan</button></footer>
-    <div class="cal__ed" data-cal-ed hidden><div class="cal__ed-in"><div class="cal__ed-box" role="group" aria-label="Dose for this day">
-      <div class="ed__head"><b data-ed-date></b><span class="ed__meta" data-ed-meta></span><button type="button" class="pc-icon ed__x" data-ed-close aria-label="Close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M18 6 6 18M6 6l12 12"/></svg></button></div>
-      <div class="ed__row" data-ed-vial-row hidden><span class="ed__k">Vial</span><div class="opts" data-ed-vials></div></div>
-      <div class="ed__row"><span class="ed__k">Dose</span><div class="opts" data-ed-dose><button type="button" class="opt" data-val="0.5">0.5 mg</button><button type="button" class="opt" data-val="1">1 mg</button><button type="button" class="opt" data-val="2">2 mg</button><button type="button" class="opt" data-val="2.5">2.5 mg</button><button type="button" class="opt" data-val="3">3 mg</button><button type="button" class="opt" data-val="5">5 mg</button><button type="button" class="opt" data-val="10">10 mg</button><button type="button" class="opt" data-val="custom">Custom</button><input class="opt-in" type="number" inputmode="decimal" min="0" step="any" placeholder="mg" aria-label="Dose in mg" hidden><button type="button" class="opt" data-val="0">None</button><button type="button" class="opt opt--stop" data-ed-stop>Stop here</button></div></div>
-      <div class="ed__row"><span class="ed__k">Repeat</span><div class="opts" data-ed-rep><button type="button" class="opt is-active" data-val="0">Just this day</button><button type="button" class="opt" data-val="1">Daily</button><button type="button" class="opt" data-val="2">Every other day</button><button type="button" class="opt" data-val="7">Weekly</button></div></div>
-      <p class="ed__hint" data-ed-hint hidden></p>
-    </div></div></div>
-  </section>
-
-</div></div>
-  </section>
-</div>
+    <div class="minical" aria-hidden="true"><i class="has" style="--lvl:1.00"></i><i style="--lvl:1.00"></i><i class="has" style="--lvl:0.93"></i><i style="--lvl:0.93"></i><i class="has" style="--lvl:0.85"></i><i style="--lvl:0.85"></i><i class="has" style="--lvl:0.78"></i><i style="--lvl:0.78"></i><i class="has" style="--lvl:0.70"></i><i style="--lvl:0.70"></i><i class="has" style="--lvl:0.62"></i><i style="--lvl:0.62"></i><i class="has" style="--lvl:0.55"></i><i style="--lvl:0.55"></i><i class="has" style="--lvl:0.47"></i><i style="--lvl:0.47"></i><i class="has" style="--lvl:0.40"></i><i style="--lvl:0.40"></i><i class="has" style="--lvl:0.33"></i><i style="--lvl:0.33"></i><i class="has" style="--lvl:0.25"></i><i style="--lvl:0.25"></i><i class="has" style="--lvl:0.18"></i><i style="--lvl:0.18"></i><i class="has" style="--lvl:0.10"></i><i style="--lvl:0.10"></i><i class="has" style="--lvl:0.03"></i><i style="--lvl:0.03"></i></div>
+  </a>
+</section>
 <div class="dock" data-dock aria-hidden="true">
   <div class="dock__row"><span>draw to</span><span class="dock__val"><b data-o="dock">10</b>units</span></div>
 </div>
@@ -200,7 +133,7 @@
         <button class="btn btn--ghost btn--sm" type="button" data-open-chat><svg viewBox="0 0 24 24" fill="currentColor"><path d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z"/><path d="M18.259 8.715 18 9.75l-.259-1.035a3.375 3.375 0 0 0-2.455-2.456L14.25 6l1.036-.259a3.375 3.375 0 0 0 2.455-2.456L18 2.25l.259 1.035a3.375 3.375 0 0 0 2.456 2.456L21.75 6l-1.035.259a3.375 3.375 0 0 0-2.456 2.456ZM16.894 20.567 16.5 21.75l-.394-1.183a2.25 2.25 0 0 0-1.423-1.423L13.5 18.75l1.183-.394a2.25 2.25 0 0 0 1.423-1.423L16.5 15.75l.394 1.183a2.25 2.25 0 0 0 1.423 1.423L19.5 18.75l-1.183.394a2.25 2.25 0 0 0-1.423 1.423Z"/></svg> ask the hlix ai</button>
       </div>
       <div class="foot__col"><h4>shop</h4><a href="catalog?cat=metabolic">metabolic research</a><a href="catalog?cat=growth">growth &amp; gh secretagogues</a><a href="catalog?cat=recovery">healing &amp; recovery</a><a href="catalog?cat=cognitive">cognitive &amp; neuro health</a><a href="catalog?cat=longevity">longevity &amp; anti-aging</a><a href="catalog?cat=hormonal">hormonal &amp; sexual health</a><a href="catalog?cat=specialty">specialty research</a><a href="catalog?cat=supplies">supplies</a></div>
-      <div class="foot__col"><h4>tools</h4><a href="calculator">dosage calculator</a><a href="calculator#planner">dose planner</a><button type="button" data-search-open>search</button><button type="button" data-open-chat>ai assistant</button></div>
+      <div class="foot__col"><h4>tools</h4><a href="calculator">dosage calculator</a><a href="planner">dose planner</a><button type="button" data-search-open>search</button><button type="button" data-open-chat>ai assistant</button></div>
       <div class="foot__col"><h4>hlix</h4><a href="about">about</a><a href="contact">contact</a><a href="account">your account</a><a href="mailto:contact@hlixlabs.com">contact@hlixlabs.com</a></div>
     </div>
     <div class="foot__legal">
@@ -231,7 +164,7 @@
       <a href="./"><span>01</span>home</a>
       <a href="catalog"><span>02</span>shop</a>
       <a href="calculator"><span>03</span>calculator</a>
-      <a href="calculator#planner"><span>04</span>dose planner</a>
+      <a href="planner"><span>04</span>dose planner</a>
       <a href="about"><span>05</span>about</a>
       <a href="contact"><span>06</span>contact</a>
       <a href="account"><span>07</span>account</a>
@@ -260,11 +193,11 @@
 </div>
 <div class="lb" data-lb aria-hidden="true"><button class="ibtn lb__x" type="button" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
 <div class="toast" data-toast role="status" aria-live="polite"></div>
-<script src="assets/js/search-index.js?v=1794479590"></script>
-<script src="assets/js/v2-prices.js?v=1794479590"></script>
-<script src="assets/js/v3-cart.js?v=1794479590"></script>
-<script src="assets/js/v3.js?v=1794479590"></script>
-<script src="assets/js/v2-calc.js?v=1794479590" defer></script><script src="assets/js/v2-planner.js?v=1794479590" defer></script>
-<script src="assets/js/v2-chat.js?v=1794479590"></script>
+<script src="assets/js/search-index.js?v=1794480789"></script>
+<script src="assets/js/v2-prices.js?v=1794480789"></script>
+<script src="assets/js/v3-cart.js?v=1794480789"></script>
+<script src="assets/js/v3.js?v=1794480789"></script>
+<script src="assets/js/v2-calc.js?v=1794480789" defer></script>
+<script src="assets/js/v2-chat.js?v=1794480789"></script>
 </body>
 </html>

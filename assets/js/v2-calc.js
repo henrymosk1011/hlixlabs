@@ -173,15 +173,19 @@
     put("planU", state.planUnit);
 
     document.dispatchEvent(new CustomEvent("hlix:calc", { detail: state }));
+    // once they've set it themselves: the vial and water, for the dose planner's page ("draw N units")
+    if (rendered) try { localStorage.setItem("hlix-calc", JSON.stringify({ vial: state.vial, water: state.water })); } catch (e) {}
+    rendered = true;
   }
 
+  var rendered = false;
   render();
 
   // ---- mobile dock: hide while the static "draw to" card is on screen, and from the dose planner down ----
   // (checked on scroll rather than with an IntersectionObserver, which misses a jump straight past the card)
   var dock = document.querySelector("[data-dock]");
   var out = root.querySelector(".calc__out");
-  var planner = document.querySelector(".planner");
+  var planner = document.querySelector(".planner, .plan-cta"); // the planner (/v2/), or the card that leads to it
   if (dock && out) {
     var dockQueued = false;
     var dockCheck = function () {

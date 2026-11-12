@@ -8,7 +8,9 @@
 
   var H = window.HLIX2 || {};
   var tween = H.tween || function (a, b, d, u, done) { u(b); if (done) done(); };
-  var calc = H.calc || {};
+  var calc = H.calc || (function () { // on its own page: the calculator's last vial and water (v2-calc.js keeps them)
+    try { var c = JSON.parse(localStorage.getItem("hlix-calc") || "null"); return c && typeof c === "object" ? c : {}; } catch (e) { return {}; }
+  })();
   var embed = root.hasAttribute("data-embed");
   // the admin's Calendar runs copies of planner-embed.html side by side, each showing part of the planner: the
   // vials bar (tabs, the new-vial form and the vial's settings) on its own ("vials", the page's #vials), which
@@ -144,7 +146,8 @@
   // a vial's color can be one another vial wears too (a new bottle of the same thing, say); a new vial without one
   // gets one nobody's using. `end`, if any, is the last day it's used: nothing after it, whatever's left
   function addVialObj(o) {
-    var v = { id: o.id && !find(o.id) ? o.id : newId(), name: o.name || "", size: o.size, color: 0, doses: o.doses || {}, rules: o.rules || [] };
+    var id = typeof o.id === "string" && /^[A-Za-z0-9._:-]{1,100}$/.test(o.id) && !find(o.id) ? o.id : newId();
+    var v = { id: id, name: o.name || "", size: o.size, color: 0, doses: o.doses || {}, rules: o.rules || [] };
     if (okDate(o.end)) v.end = o.end;
     var c = o.color;
     v.color = isHex(c) ? c.toLowerCase() : c >= 0 && c < PRESETS && c === Math.floor(c) ? c : freeColor();
@@ -211,12 +214,23 @@
       if (part !== "panel") tell("save", { plan: plan });
       return;
     }
-    try { localStorage.setItem(STORE, JSON.stringify(plan)); } catch (e) {}
+    try { localStorage.setItem(acct.on ? ACCT : STORE, JSON.stringify(plan)); } catch (e) {}
+    if (acct.on) pushSoon();
   }
+
+  // ---- the website: the plan is kept in this browser and, signed in, in the account ----
+  // signed out, it's this browser's (localStorage "hlix-plan"). signed in (the site's hlix_in cookie, then
+  // GET /api/account?plan=1), it's the account's, on any device, saved a moment after each change, with a
+  // copy here ("hlix-plan:account") so the page opens on it at once; signing out drops the copy (v3-cart.js).
+  // the first time an account has no plan, the one this browser had becomes its plan. [data-pl-sync], if
+  // the page has one, says which it is
+  var ACCT = "hlix-plan:account";
+  var acct = { on: false, known: false, busy: false, dirty: false, timer: 0, checked: 0 };
+  function hinted() { return /(?:^|;\s*)hlix_in=1(?:;|$)/.test(document.cookie); }
+  function stored(k) { try { return JSON.parse(localStorage.getItem(k) || "null"); } catch (e) { return null; } }
   if (!embed) {
-    var saved = null;
-    try { saved = JSON.parse(localStorage.getItem(STORE) || "null"); } catch (e) {}
-    load(saved);
+    acct.on = hinted();
+    load((acct.on && stored(ACCT)) || stored(STORE));
   }
 
   var view = new Date(today.getFullYear(), today.getMonth(), 1); // month on screen
@@ -1415,7 +1429,95 @@
     paint();
     summarize();
   }
-  if (!embed) { start(); return; }
+  var syncEl = document.querySelector("[data-pl-sync]");
+  function setSync(st) { if (syncEl) syncEl.setAttribute("data-state", st); }
+  // the plan another device (or this one, earlier) saved: shown as it is, the day open in the editor kept open
+  function show(p) {
+    var wasEd = editing;
+    load(p);
+    closePick(); closeNew(); endDrag(); disarm(); disarmRemove();
+    vialCustom = false;
+    shown = {};
+    start();
+    if (wasEd && slotOf(wasEd)) openEditor(wasEd);
+  }
+  function pushSoon() {
+    acct.dirty = true;
+    clearTimeout(acct.timer);
+    if (acct.known) acct.timer = setTimeout(push, 700); // before the account answers, the check sends it
+  }
+  function push(keepalive) {
+    if (!acct.on || !acct.known || acct.busy) return;
+    clearTimeout(acct.timer);
+    acct.busy = true;
+    acct.dirty = false;
+    setSync("saving");
+    var sent = JSON.stringify({ action: "plan", plan: planOf() });
+    fetch("/api/account", { method: "POST", credentials: "same-origin", keepalive: !!keepalive, headers: { "content-type": "application/json", accept: "application/json" }, body: sent })
+      .then(function (r) {
+        acct.busy = false;
+        if (r.status === 401) return toLocal(true); // signed out meanwhile: keep these changes, in this browser
+        if (!r.ok) throw new Error(String(r.status));
+        setSync(acct.dirty ? "saving" : "account");
+        if (acct.dirty) pushSoon();
+      })
+      .catch(function () {
+        acct.busy = false;
+        acct.dirty = true;
+        setSync("offline");
+        clearTimeout(acct.timer);
+        acct.timer = setTimeout(push, 15000); // it's kept here meanwhile; try again
+      });
+  }
+  // signed out after all (or elsewhere): this browser's own plan again, and no copy of the account's.
+  // keep: their sign-in ran out while they were changing it: what's on the page stays, as this browser's
+  function toLocal(keep) {
+    var had = acct.on;
+    acct.on = false;
+    acct.known = true;
+    acct.dirty = false;
+    clearTimeout(acct.timer);
+    try { localStorage.removeItem(ACCT); } catch (e) {}
+    if (keep) save();
+    else if (had) show(stored(STORE));
+    setSync("local");
+  }
+  function check() {
+    acct.checked = Date.now();
+    return fetch("/api/account?plan=1", { credentials: "same-origin", headers: { accept: "application/json" } })
+      .then(function (r) { if (!r.ok) throw new Error(String(r.status)); return r.json(); })
+      .then(function (d) {
+        if (!d || !d.signedIn) return toLocal();
+        var first = !acct.known;
+        acct.on = true;
+        acct.known = true;
+        if (d.plan && typeof d.plan === "object") {
+          if (acct.dirty && first) return push(); // changed here before the account answered: those changes win
+          if (acct.dirty || acct.busy) return; // changed here since: those go up next
+          if (JSON.stringify(d.plan) !== JSON.stringify(planOf())) show(d.plan);
+          try { localStorage.setItem(ACCT, JSON.stringify(planOf())); } catch (e) {}
+          setSync("account");
+        } else {
+          try { localStorage.setItem(ACCT, JSON.stringify(planOf())); } catch (e) {}
+          push(); // a new account plan: the one on this page (this browser's, the first time)
+        }
+      })
+      .catch(function () { setSync(acct.on ? "offline" : "local"); });
+  }
+  if (!embed) {
+    start();
+    setSync(acct.on ? "loading" : "local");
+    check();
+    // back to the page: another device may have changed it; leaving it: what's left to save goes now
+    document.addEventListener("visibilitychange", function () {
+      if (document.visibilityState === "visible") {
+        if (acct.on && !acct.dirty && !acct.busy && Date.now() - acct.checked > 20000) check();
+        else if (!acct.on && hinted() && Date.now() - acct.checked > 5000) check(); // signed in on another tab
+      } else if (acct.dirty && acct.known) push(true);
+    });
+    window.addEventListener("pagehide", function () { if (acct.dirty && acct.known) push(true); });
+    return;
+  }
 
   // ---- embedded (planner-embed.html, framed by the admin dashboard's Calendar page) ----
   // the admin holds the plan: it sends it in ("load", and again whenever it's saved on another device) and

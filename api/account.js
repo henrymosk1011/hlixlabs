@@ -1,8 +1,9 @@
 // Vercel serverless function — customer accounts on hlixlabs.com.
 //
 //   GET  /api/account                     who's signed in: email, saved details, cart, orders
+//   GET  /api/account?plan=1              their dose plan (the planner, /planner): { signedIn, plan }
 //   POST /api/account { action, ... }     signup, signin, signout, forgot, link, password,
-//                                         profile, cart, presence, delete
+//                                         profile, cart, plan, presence, delete
 //
 // Sessions are HttpOnly cookies set here (see api/_lib/session.js); page scripts never see
 // a token. The database decides what a customer can read or change (the admin's
@@ -59,6 +60,32 @@ async function refuseAdmin(token) {
     return true;
   }
   return false;
+}
+
+// The planner's plan: an object as v2-planner.js saves it ({ v, active, look, months, vials }), at most
+// 60 vials and 140 kB. The planner cleans whatever it's given when it reads it back; the database
+// checks the same limits (the admin's 0035_shop_plans.sql).
+const PLAN_KEYS = ["v", "active", "look", "months", "vials"];
+function cleanPlan(p) {
+  if (!p || typeof p !== "object" || Array.isArray(p)) return null;
+  if (!Array.isArray(p.vials) || p.vials.length > 60) return null;
+  const out = {};
+  for (const k of PLAN_KEYS) if (p[k] !== undefined) out[k] = p[k];
+  out.vials = p.vials.filter((v) => v && typeof v === "object" && !Array.isArray(v));
+  return JSON.stringify(out).length <= 140000 ? out : null;
+}
+const wantsPlan = (req) => (req.query && req.query.plan !== undefined) || /[?&]plan(?:[=&]|$)/.test(String(req.url || ""));
+
+async function plan(req, res) {
+  const token = await S.session(req, res);
+  if (!token) return send(res, 200, { signedIn: false });
+  const r = await S.rpc("shop_plan", {}, token);
+  if (r.status === 401 || r.status === 403) {
+    S.clearSession(res);
+    return send(res, 200, { signedIn: false });
+  }
+  if (!r.ok) return send(res, 502, { error: S.friendly(r, "Your plan couldn't be loaded. Try again in a moment.") });
+  return send(res, 200, { signedIn: true, plan: r.data && typeof r.data === "object" && !Array.isArray(r.data) ? r.data : null });
 }
 
 async function me(req, res) {
@@ -266,6 +293,18 @@ const actions = {
     return send(res, 200, { ok: true });
   },
 
+  // Their dose plan, as the planner has it now (it saves a moment after each change).
+  async plan(req, res, b, ip) {
+    const token = await S.session(req, res);
+    if (!token) return send(res, 401, { error: "Sign in first." });
+    if (S.limited(`plan:${ip}`, 300, 10 * 60 * 1000)) return send(res, 429, { error: "Too many changes. Wait a moment." });
+    const p = cleanPlan(b.plan);
+    if (!p) return send(res, 400, { error: "That plan couldn't be saved." });
+    const r = await S.rpc("shop_save_plan", { p_plan: p }, token);
+    if (!r.ok) return send(res, r.status === 401 ? 401 : 400, { error: S.friendly(r, "Your plan couldn't be saved.") });
+    return send(res, 200, { ok: true });
+  },
+
   // The page says they left the site (closed the tab, switched away) or came back, while
   // their cart visit is open (alerts.js).
   async presence(req, res, b, ip) {
@@ -306,7 +345,14 @@ const actions = {
 
 module.exports = async (req, res) => {
   S.noStore(res);
-  if (req.method === "GET") return me(req, res);
+  if (req.method === "GET") {
+    try {
+      return await (wantsPlan(req) ? plan(req, res) : me(req, res));
+    } catch (err) {
+      console.error("account GET", err && err.message);
+      return send(res, 500, { error: "Something went wrong. Try again in a moment." });
+    }
+  }
   if (req.method !== "POST") {
     res.setHeader("Allow", "GET, POST");
     return send(res, 405, { error: "Method not allowed" });

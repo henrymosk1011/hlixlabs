@@ -29,6 +29,7 @@ function reset() {
     deleted: false,
     visitOpen: false,
     visitEvents: [],
+    plan: null, // the account's dose plan (shop_plan / shop_save_plan)
   };
   calls = [];
   resendSent = [];
@@ -63,6 +64,8 @@ global.fetch = async (url, opt = {}) => {
   if (rpc === "am_admin") return reply(200, false);
   if (rpc === "shop_me") return reply(200, { email: "jane@example.com", profile: db.profile, cart: db.cart, orders: [], tier: "regular" });
   if (rpc === "shop_save_cart") { db.cart = body.p_cart; return reply(200, null); }
+  if (rpc === "shop_plan") return reply(200, db.plan);
+  if (rpc === "shop_save_plan") { db.plan = body.p_plan; return reply(200, null); }
   if (rpc === "shop_save_profile") { db.savedProfile = body.p; return reply(200, null); }
   if (rpc === "shop_delete_account") { db.deleted = true; return reply(200, { email: "jane@example.com", name: "Jane Doe", orders: 2, tier: "gold" }); }
   if (rpc === "shop_password_changed") return reply(200, null);
@@ -80,7 +83,7 @@ const A = require("../api/_lib/alerts.js");
 
 // ----------------------------------------------------------- request kit ---
 let ipN = 0;
-function call(method, body, jar = {}) {
+function call(method, body, jar = {}, url = "/api/account") {
   return new Promise((resolve) => {
     const headers = {};
     let status = 0;
@@ -103,6 +106,7 @@ function call(method, body, jar = {}) {
     const cookie = Object.entries(jar).map(([k, v]) => `${k}=${v}`).join("; ");
     account({
       method,
+      url,
       body,
       headers: { host: "hlixlabs.com", origin: "https://hlixlabs.com", "sec-fetch-site": "same-origin", "content-type": "application/json", cookie, "x-real-ip": `10.1.0.${ipN++ % 250}` },
     }, res);
@@ -345,4 +349,48 @@ test("added lines: new lines and the extra on lines that went up", () => {
   const before = A.amounts([line("A", 1), line("B", 2), line("C", 1, { unit: "pack" })]);
   const added = A.addedLines(before, [line("A", 1), line("B", 5), line("C", 1), line("D", 1)]);
   assert.deepEqual(added.map((it) => [it.sku, it.unit, it.qty]), [["B", "vial", 3], ["C", "vial", 1], ["D", "vial", 1]]);
+});
+
+// --------------------------------------------------------------- dose plans ---
+
+const vial = (id, extra = {}) => ({ id, name: "BPC-157", size: 10, color: 0, doses: { "2026-11-02": 0.5 }, rules: [{ from: "2026-11-02", dose: 0.5, every: 1 }], ...extra });
+
+test("dose plan: signed out there's none to load, and none can be saved", async () => {
+  reset();
+  const r = await call("GET", undefined, {}, "/api/account?plan=1");
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.data, { signedIn: false });
+  const s = await call("POST", { action: "plan", plan: { v: 3, vials: [vial("a")] } }, {});
+  assert.equal(s.status, 401);
+  assert.equal(db.plan, null);
+  assert.ok(!calls.some((c) => /rpc\/shop_(plan|save_plan)/.test(c.url)), "the database isn't asked");
+});
+
+test("dose plan: signed in, it's saved to the account and comes back (only the planner's own keys)", async () => {
+  reset();
+  const jar = signedIn();
+  const empty = await call("GET", undefined, jar, "/api/account?plan=1");
+  assert.deepEqual(empty.data, { signedIn: true, plan: null });
+  const plan = { v: 3, active: "a", look: "dark", months: 3, vials: [vial("a"), vial("b", { name: "TB-500" })], extra: "dropped" };
+  const saved = await call("POST", { action: "plan", plan }, jar);
+  assert.equal(saved.status, 200);
+  assert.deepEqual(db.plan, { v: 3, active: "a", look: "dark", months: 3, vials: plan.vials });
+  const back = await call("GET", undefined, jar, "/api/account?plan=1");
+  assert.deepEqual(back.data, { signedIn: true, plan: db.plan });
+  // the account page's own GET is unchanged: no plan in it
+  const me = await call("GET", undefined, jar);
+  assert.equal(me.data.signedIn, true);
+  assert.equal(me.data.plan, undefined);
+});
+
+test("dose plan: what isn't a plan is refused, and nothing is saved", async () => {
+  reset();
+  const jar = signedIn();
+  for (const plan of [null, [vial("a")], "plan", { v: 3 }, { v: 3, vials: "x" }, { v: 3, vials: Array.from({ length: 61 }, (_, i) => vial(`v${i}`)) },
+    { v: 3, vials: [vial("a", { name: "x".repeat(150000) })] }]) {
+    const r = await call("POST", { action: "plan", plan }, jar);
+    assert.equal(r.status, 400, JSON.stringify(plan).slice(0, 60));
+  }
+  assert.equal(db.plan, null);
+  assert.ok(!calls.some((c) => /rpc\/shop_save_plan/.test(c.url)));
 });

@@ -1,9 +1,8 @@
-/* hlix — the dose planner: the admin dashboard's Calendar (planner-embed.html) and the main site's calculator
-   page (build_v3.py), markup from planner_app() in scripts/build_v2.py, run by assets/js/v2-planner.js. A calm,
+/* hlix — the dose planner: the admin dashboard's Calendar (planner-embed.html), the main site's /planner page
+   (build_v3.py) and /v2/calculator, markup from planner_app() in scripts/build_v2.py, run by assets/js/v2-planner.js. A calm,
    card-based calendar: three cards (Vials, Calendar, the vial picked), neutral surfaces, the vials' colors
    carrying the meaning, sentence case. Light unless the plan says dark (the moon / sun button). Everything is
-   scoped to .pc (and .pc-host), so it sits in a site page without touching it or taking its styles; the
-   archived /v2/ calculator keeps its own planner look (v2.css). */
+   scoped to .pc (and .pc-host), so it sits in a site page without touching it or taking its styles. */
 
 /* ---------------------------------------------------------------- tokens */
 .pc {

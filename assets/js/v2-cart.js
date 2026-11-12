@@ -108,7 +108,7 @@
     afterSignIn: function () { return (account.ready = load(true)); },
     // Signed out: this browser forgets the cart (it's the account's, not the browser's).
     signedOut: function () {
-      try { localStorage.removeItem(SYNCED); } catch (e) {}
+      try { localStorage.removeItem(SYNCED); localStorage.removeItem("hlix-plan:account"); } catch (e) {} // and the copy of their dose plan (v2-planner.js)
       root.classList.remove("signed-in");
       account.data = { signedIn: false };
       saveCart([], true);

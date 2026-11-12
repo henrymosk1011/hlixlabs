@@ -7,8 +7,8 @@ the minimal, bold, lowercase, dark + mint look.
 
     python3 scripts/build_v3.py
 
-Pages: index, catalog, about, contact, calculator, checkout, account and one
-per product under peptides/. Its own files are assets/css/v3.css and
+Pages: index, catalog, about, contact, calculator, planner, checkout, account
+and one per product under peptides/. Its own files are assets/css/v3.css and
 assets/js/v3-boot.js, v3.js, v3-cart.js, v3-checkout.js. It shares the rest
 with the archived v2 design (/v2/, scripts/build_v2.py): the catalog data,
 vial photos, lab reports, search index, live prices (v2-prices.js), the chat
@@ -176,7 +176,7 @@ def topbar(p, a, page, groups):
     <a class="brand" href="{p or './'}" aria-label="hlix home">hlix<i></i></a>
     <nav class="top__nav" aria-label="primary">
       <button class="top__link top__shop" type="button" data-mega-toggle aria-expanded="false" aria-controls="mega"{shop_cur}>shop {CHEV}</button>
-      {link("calculator", "calculator", "calculator")}{link("about", "about", "about")}{link("contact", "contact", "contact")}
+      {link("calculator", "calculator", "calculator")}{link("planner", "planner", "planner")}{link("about", "about", "about")}{link("contact", "contact", "contact")}
     </nav>
     <button class="top__search" type="button" data-search-open aria-label="search the catalog">{SEARCH}<span>search compounds or goals</span><kbd>/</kbd></button>
     <div class="top__act">
@@ -201,6 +201,7 @@ def topbar(p, a, page, groups):
         <p class="label">published lab reports</p>
         {lab}
         <a class="mega__tool" href="{p}calculator">{CALC}<span>dosage calculator<small>draw-to units, supply, vials needed</small></span></a>
+        <a class="mega__tool" href="{p}planner">{CALENDAR}<span>dose planner<small>your vials and doses on a calendar</small></span></a>
       </div>
     </div>
   </div>
@@ -224,7 +225,7 @@ def overlays(p, a):
       <a href="{p or './'}"><span>01</span>home</a>
       <a href="{p}catalog"><span>02</span>shop</a>
       <a href="{p}calculator"><span>03</span>calculator</a>
-      <a href="{p}calculator#planner"><span>04</span>dose planner</a>
+      <a href="{p}planner"><span>04</span>dose planner</a>
       <a href="{p}about"><span>05</span>about</a>
       <a href="{p}contact"><span>06</span>contact</a>
       <a href="{p}account"><span>07</span>account</a>
@@ -278,7 +279,7 @@ def footer(p, groups):
         <button class="btn btn--ghost btn--sm" type="button" data-open-chat>{SPARK} ask the hlix ai</button>
       </div>
       <div class="foot__col"><h4>shop</h4>{cats}</div>
-      <div class="foot__col"><h4>tools</h4><a href="{p}calculator">dosage calculator</a><a href="{p}calculator#planner">dose planner</a><button type="button" data-search-open>search</button><button type="button" data-open-chat>ai assistant</button></div>
+      <div class="foot__col"><h4>tools</h4><a href="{p}calculator">dosage calculator</a><a href="{p}planner">dose planner</a><button type="button" data-search-open>search</button><button type="button" data-open-chat>ai assistant</button></div>
       <div class="foot__col"><h4>hlix</h4><a href="{p}about">about</a><a href="{p}contact">contact</a><a href="{p}account">your account</a><a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a></div>
     </div>
     <div class="foot__legal">
@@ -439,12 +440,7 @@ def page_home(groups):
     parts = [f'{esc(v["dose"])} (<span data-live-price="{esc(v["sku"])}">{money(v["price"])}</span>)' for v in sample["variants"]]
     answer = f"{esc(sample['name'].lower())} comes in {len(parts)} sizes: " + ", ".join(parts[:-1]) + f" and {parts[-1]}, priced per vial."
 
-    # planner teaser: a static month whose squares drain like the real planner
-    days = ""
-    for i in range(28):
-        lvl = max(0.0, 1 - (i // 2) * 0.075)
-        dose = ' class="has"' if i % 2 == 0 and lvl > 0 else ""
-        days += f'<i{dose} style="--lvl:{lvl:.2f}"></i>'
+    days = minical_days()
 
     n_reports = len(COA)
     body = f'''
@@ -517,12 +513,12 @@ def page_home(groups):
         <div class="syr tool__syr" data-syr-demo>{v2.syringe_svg("home")}</div>
         <span class="link">open the calculator {ARROW}</span>
       </a>
-      <a class="tool tool--plan" href="calculator#planner" data-reveal style="--d:1">
+      <a class="tool tool--plan" href="planner" data-reveal style="--d:1">
         <span class="label">{CALENDAR} dose planner</span>
-        <h3>map the vial.</h3>
-        <p>log doses on a calendar and watch each vial drain, day by day.</p>
+        <h3>plan your doses.</h3>
+        <p>list your vials, schedule doses on a calendar and see what's left in each, day by day. sign in to keep it in your account.</p>
         <div class="minical" aria-hidden="true">{days}</div>
-        <span class="link">plan a vial {ARROW}</span>
+        <span class="link">open the planner {ARROW}</span>
       </a>
       <div class="tool tool--ai" data-reveal style="--d:2">
         <span class="label">{SPARK} ai assistant</span>
@@ -882,16 +878,14 @@ def page_contact(groups):
 
 # ----------------------------------------------------------- calculator ---
 
-def planner():
-    """The main site's dose planner: v3's heading over the planner the admin's Calendar uses (planner_app(),
-    styled by assets/css/planner.css), its plan kept in this browser (localStorage)."""
-    return f'''<section class="planner">
-    <div class="planner__head">
-      <div><p class="label label--dot" data-reveal>dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
-      <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. each day shows what's left in the vial, so you can see it run down by the day, week or month.</p>
-    </div>
-    {v2.planner_app(embed=False)}
-  </section>'''
+def minical_days():
+    """A static month whose squares drain like the planner's (the home page's and the calculator's planner cards)."""
+    days = ""
+    for i in range(28):
+        lvl = max(0.0, 1 - (i // 2) * 0.075)
+        dose = ' class="has"' if i % 2 == 0 and lvl > 0 else ""
+        days += f'<i{dose} style="--lvl:{lvl:.2f}"></i>'
+    return days
 
 
 def page_calculator(groups):
@@ -928,8 +922,8 @@ def page_calculator(groups):
       <h1 class="phead__title" data-reveal style="--d:1">dosage calculator.</h1>
     </div>
     <div data-reveal style="--d:2">
-      <p class="phead__sub">set the vial, the water and the dose; read the draw. then map doses on the planner below.</p>
-      <nav class="jump"><a href="#calc" class="pill is-on">{CALC} calculator</a><a href="#planner" class="pill">{CALENDAR} dose planner</a></nav>
+      <p class="phead__sub">set the vial, the water and the dose; read the draw, how long a vial lasts and how many you need. to schedule your doses and keep track of each vial, use the dose planner.</p>
+      <nav class="jump"><a href="#calc" class="pill is-on">{CALC} calculator</a><a href="planner" class="pill">{CALENDAR} dose planner {ARROW}</a></nav>
     </div>
   </div>
 </section>
@@ -967,14 +961,62 @@ def page_calculator(groups):
     </aside>
   </div>
 </div>
-<div class="wrap" id="planner">
-  {planner()}
-</div>
+<section class="wrap plan-cta" id="planner" aria-label="dose planner">
+  <a class="tool tool--plan plan-cta__card" href="planner" data-reveal>
+    <div class="plan-cta__copy">
+      <span class="label">{CALENDAR} dose planner</span>
+      <h2>now plan your doses.</h2>
+      <p>list the vials you're running, schedule doses on a calendar (daily, weekly or your own days), and see what's left in each vial and when it runs dry. sign in and your plan is saved to your account, on any device.</p>
+      <span class="link">open the dose planner {ARROW}</span>
+    </div>
+    <div class="minical" aria-hidden="true">{minical_days()}</div>
+  </a>
+</section>
 <div class="dock" data-dock aria-hidden="true">
   <div class="dock__row"><span>draw to</span><span class="dock__val"><b data-o="dock">10</b>units</span></div>
 </div>'''
-    return shell(title="dosage calculator", desc="peptide reconstitution and dosage calculator, with a dose planner.", page="calculator", body=body,
-                 groups=groups, scripts=("v2-calc.js", "v2-planner.js"), body_class="calc-page", css=("planner.css",))
+    return shell(title="dosage calculator", desc="peptide reconstitution and dosage calculator: draw-to units, how long a vial lasts and how many you need.", page="calculator", body=body,
+                 groups=groups, scripts=("v2-calc.js",), body_class="calc-page")
+
+
+# ------------------------------------------------------------- planner ---
+
+def page_planner(groups):
+    """The dose planner on a page of its own: the planner the admin's Calendar uses (planner_app(), styled by
+    assets/css/planner.css), run by v2-planner.js. Signed out, the plan is kept in this browser; signed in,
+    in the account (/api/account, the admin's 0035_shop_plans.sql), on any device. [data-pl-sync] says which."""
+    how = "".join(
+        f'<li><b>{n}</b><span>{t}</span></li>'
+        for n, t in [("1", "add a vial for each peptide you're running: its name and size."),
+                     ("2", "tap a day to log a dose, and repeat it daily, weekly or on your own days."),
+                     ("3", "see what's left in each vial, day by day, and when it runs dry.")]
+    )
+    body = f'''
+<section class="phead phead--tight">
+  <div class="wrap phead__grid">
+    <div>
+      <p class="label label--dot kicker" data-reveal>tools</p>
+      <h1 class="phead__title" data-reveal style="--d:1">dose planner.</h1>
+    </div>
+    <div data-reveal style="--d:2">
+      <p class="phead__sub">your vials and your dose schedule on one calendar, with what's left in each vial and when to reorder.</p>
+      <p class="plansync" data-pl-sync data-state="local" role="status" aria-live="polite">
+        <span data-when="local">{PIN}<span>saved in this browser. <a href="account">sign in</a> to keep your plan in your account, on any device.</span></span>
+        <span data-when="loading">{USER}<span>loading your saved plan…</span></span>
+        <span data-when="saving">{USER}<span>saving to your account…</span></span>
+        <span data-when="account">{USER}<span>saved to your account.</span></span>
+        <span data-when="offline">{USER}<span>couldn't reach your account. your changes are kept in this browser and saved when it's back.</span></span>
+      </p>
+    </div>
+  </div>
+  <div class="wrap"><ol class="planhow" data-reveal style="--d:3">{how}</ol></div>
+</section>
+<div class="wrap planpage">
+  {v2.planner_app(embed=False)}
+  <p class="planpage__calc">reconstituting a vial? <a href="calculator">{CALC} the dosage calculator</a> works out how much water and how many units to draw.</p>
+</div>'''
+    return shell(title="dose planner", desc="plan your peptide doses: your vials on a calendar, what's left in each and when it runs out. saved to your account.", page="planner", body=body,
+                 groups=groups, scripts=("v2-planner.js",), body_class="planner-page", css=("planner.css",))
 
 
 # ------------------------------------------------------------- checkout ---
@@ -1062,6 +1104,7 @@ def page_account(groups):
             (CART, "your cart, everywhere", "saved to your account, on every device you sign in on."),
             (PIN, "your address, saved", "checkout fills it in for you."),
             (DOC, "your orders, in one place", "what you asked for, where it stands, and tracking once it ships."),
+            (CALENDAR, "your dose plan, saved", "your vials and dose schedule on the planner, on any device."),
         ]
     )
     body = f'''
@@ -1125,6 +1168,11 @@ def page_account(groups):
         <div class="acct__empty" data-acct-orders-empty hidden><p>no orders yet.</p><a class="btn btn--ghost btn--sm" href="catalog">browse the catalog {ARROW}</a></div>
       </section>
       <div class="acct__side">
+        <a class="form-card acct__plan" href="planner">
+          <h2>{CALENDAR}dose planner</h2>
+          <p>your vials and dose schedule, saved to your account.</p>
+          <span class="link">open your plan {ARROW}</span>
+        </a>
         <form class="form-card acct__form" data-acct-form="profile">
           <h2>shipping details</h2>
           <div class="fields2">
@@ -1187,6 +1235,7 @@ def main():
     (OUT / "about.html").write_text(page_about(groups))
     (OUT / "contact.html").write_text(page_contact(groups))
     (OUT / "calculator.html").write_text(page_calculator(groups))
+    (OUT / "planner.html").write_text(page_planner(groups))
     (OUT / "checkout.html").write_text(page_checkout(groups))
     (OUT / "account.html").write_text(page_account(groups))
     for g in groups:

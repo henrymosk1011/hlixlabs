@@ -20,6 +20,7 @@ hlix/
 ├── about.html
 ├── contact.html
 ├── calculator.html        Reconstitution & dosage calculator
+├── planner.html           Dose planner (/planner): vials and doses on a calendar, saved to the account
 ├── planner-embed.html     The calculator's dose planner on its own, for the admin (see below)
 ├── checkout.html          Review the cart and send an order request
 ├── account.html           Sign in / make an account: orders, saved address, password (see "Accounts")
@@ -30,7 +31,7 @@ hlix/
 │   ├── css/style.css       v1's design system
 │   ├── css/v3.css          Main site's design system
 │   ├── css/v2.css          The /v2/ design's styles (its own, older dose planner look included)
-│   ├── css/planner.css     The dose planner's styles: the calculator page and planner-embed.html (the admin's Calendar)
+│   ├── css/planner.css     The dose planner's styles: /planner, /v2/calculator and planner-embed.html (the admin's Calendar)
 │   ├── js/main.js, product.js, calculator.js, search.js, chatbot.js   v1's JS
 │   ├── js/v3.js            Main site's ui: menus, search palette, catalog filters, product picker
 │   ├── js/v3-cart.js, v3-checkout.js   Main site's cart (and its copy on the account, family & friends and member prices), checkout
@@ -127,15 +128,23 @@ styled by `assets/css/v3.css`: dark, mint, lowercase, heavy display type.
 
 What it shares with the `/v2/` design: the dose planner's script (`v2-planner.js`),
 the calculator math (`v2-calc.js`), the chat (`v2-chat.js`), live prices
-(`v2-prices.js`) and the account page's logic (`v2-account.js`). The calculator
-page's dose planner is the one the admin's Calendar shows: `planner_app()` in
-`build_v2.py` styled by `assets/css/planner.css` (loaded after `v3.css`, everything
-scoped to `.pc`), under the page's own "dose planner" heading; the Vials and the
-vial picked sit beside the calendar on a wide screen and stay in sight as you
-scroll it. `/v2/calculator` keeps its older planner (`planner_section()`, `v2.css`).
-Change the planner in `build_v2.py` / `planner.css` and rebuild both
-(`build_v2.py`, then `build_v3.py`). The cart (`hlix_cart` in the browser, and
-the account's copy) is the same for both designs.
+(`v2-prices.js`) and the account page's logic (`v2-account.js`).
+
+**The dose planner** has a page of its own, `/planner` (in the nav, the menu, the
+footer and the home page's tools): planning doses is ongoing, so it isn't tucked
+under the calculator. The calculator page says what it's for and ends with a card
+that leads there (`/calculator#planner` still lands on it). The planner is the one
+the admin's Calendar shows: `planner_app()` in `build_v2.py` styled by
+`assets/css/planner.css` (loaded after `v3.css`, everything scoped to `.pc`), under
+the page's own heading, a "how it works" strip and a line saying where the plan is
+kept; the Vials and the vial picked sit beside the calendar on a wide screen and stay
+in sight as you scroll it. `/v2/calculator` shows the same planner. Signed out, a
+plan is kept in the browser; signed in, in the account (below, "Accounts"). The
+calculator remembers its vial and water once you set them (`hlix-calc` in the
+browser) so the planner's day editor can still say how many units to draw. Change
+the planner in `build_v2.py` / `planner.css` and rebuild both (`build_v2.py`, then
+`build_v3.py`). The cart (`hlix_cart` in the browser, and the account's copy) is the
+same for both designs.
 
 `/v3/...` addresses (the preview this design was tried out at) redirect to the
 same page at the root (`vercel.json`).
@@ -370,7 +379,17 @@ Signed in, their cart is saved to the account and follows them to any device
 (signing in merges the cart they had into it; signing out clears it from that
 browser), checkout fills in their saved shipping details, their orders go
 straight into the hlix admin, and the account page shows their orders, saved
-details and a password change. They can also delete their account there ("delete
+details and a password change.
+
+**Their dose plan.** Signed in, the dose planner (`/planner`) keeps their vials and
+schedule in their account, on any device: `GET /api/account?plan=1` loads it, `POST
+{ action: "plan" }` saves it a moment after each change (the database's
+`shop_plan` / `shop_save_plan`, the admin's `0035_shop_plans.sql`: only their own,
+private to them, gone with the account). The first time an account has none, the
+plan they had in that browser becomes it. The page keeps a copy in the browser
+(`hlix-plan:account`) so it opens on it at once; signing out removes the copy, and
+the browser's own signed-out plan (`hlix-plan`) is left as it was. If the account
+can't be reached, changes stay in the browser and are saved when it's back. They can also delete their account there ("delete
 my account", under "sign out on every device"): it asks for their password again,
 then their sign-in, saved details and cart are gone and they're signed out
 everywhere; their orders stay in the admin (the admin's
