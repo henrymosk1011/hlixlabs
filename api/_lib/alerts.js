@@ -56,7 +56,7 @@ const muted = (html) => `<p style="margin:14px 0 0;font-size:13px;line-height:1.
 const button = (href, label) => `<p style="margin:18px 0 0"><a href="${esc(href)}" style="display:inline-block;padding:10px 16px;border-radius:999px;background:#0e0f10;color:#ffffff;font-size:14px;font-weight:600;text-decoration:none">${esc(label)}</a></p>`;
 const who = (name, email) => (name ? `<b>${esc(name)}</b><br>` : "") + `<a href="mailto:${esc(email)}" style="color:#0a7f5d">${esc(email)}</a>`;
 const userUrl = (id) => (UUID.test(String(id || "")) ? `${ADMIN_URL}/#/users/${id}` : `${ADMIN_URL}/#/users`);
-const TIER = { regular: "website prices", silver: "silver member (25% off)", gold: "gold member (50% off)", family: "family & friends" };
+const TIER = { regular: "website prices", silver: "silver member (25% off)", gold: "gold member (50% off)", family: "family & friends (your cost)" };
 
 function accountCreated({ name, email, userId, confirm }) {
   const nm = clip(name, 120), mail = clip(email, 254);
@@ -87,33 +87,71 @@ function accountDeleted({ name, email, orders, tier }) {
 }
 
 const formOf = (it) => (it.form === "powder" ? "powder" : "ready to use");
-const unitOf = (it) => (it.unit === "pack" ? "pack" : "vial");
+// Per unit (a vial, or a pack of 10): your cost and what they pay, as the database worked
+// them out (0036_cart_alert_costs.sql: the supplier pack price, a tenth of it per vial; their
+// price with their membership, the way an order is priced). Their price falls back to what
+// the site showed them; your cost has no fallback ("not set").
+const num = (v) => (v === null || v === undefined || v === "" || !Number.isFinite(Number(v)) ? null : Number(v));
+const costOf = (it) => num(it.cost);
+const priceOf = (it) => (num(it.price) !== null ? num(it.price) : num(it.unitPrice));
+function totals(lines) {
+  let cost = 0, price = 0, unknown = 0;
+  for (const it of lines) {
+    if (costOf(it) === null) unknown += it.qty; else cost += costOf(it) * it.qty;
+    if (priceOf(it) !== null) price += priceOf(it) * it.qty;
+  }
+  return { cost, price, unknown };
+}
+const each = (it, v) => (it.qty > 1 ? `${money(v)} ${it.unit === "pack" ? "a pack" : "each"}` : "");
+const SMALL = "color:#5c6166;font-size:12px";
+const CELL = "padding:8px 0 8px 12px;border-bottom:1px solid #e4e4e0;font-size:14px;line-height:1.4;white-space:nowrap;vertical-align:top";
+function amountCell(it, v) {
+  if (v === null) return `<td align="right" style="${CELL};color:#5c6166">not set</td>`;
+  const per = each(it, v);
+  return `<td align="right" style="${CELL}">${esc(money(v * it.qty))}${per ? `<br><span style="${SMALL}">${esc(per)}</span>` : ""}</td>`;
+}
 function cartTable(lines) {
+  const head = `<tr><th align="left" style="padding:0 0 6px;${SMALL};font-weight:600">item</th><th align="right" style="padding:0 0 6px 12px;${SMALL};font-weight:600">your cost</th><th align="right" style="padding:0 0 6px 12px;${SMALL};font-weight:600">their price</th></tr>`;
   const rows = lines.map((it) => `
       <tr>
-        <td style="padding:8px 0;border-bottom:1px solid #e4e4e0;font-size:14px;line-height:1.4">${esc(M.lineLabel(it))}<br><span style="color:#5c6166;font-size:13px">${esc(formOf(it))} · ${esc(M.lineQty(it))}</span></td>
-        <td align="right" style="padding:8px 0;border-bottom:1px solid #e4e4e0;font-size:14px;white-space:nowrap">${Number.isFinite(it.unitPrice) ? esc(money(it.unitPrice * it.qty)) : ""}</td>
+        <td style="padding:8px 0;border-bottom:1px solid #e4e4e0;font-size:14px;line-height:1.4;vertical-align:top">${esc(M.lineLabel(it))}<br><span style="${SMALL}">${esc(formOf(it))} · ${esc(M.lineQty(it))}</span></td>
+        ${amountCell(it, costOf(it))}
+        ${amountCell(it, priceOf(it))}
       </tr>`).join("");
-  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 12px">${rows}</table>`;
+  const t = totals(lines);
+  const foot = `
+      <tr>
+        <td style="padding:10px 0 0;font-size:14px;font-weight:700">total</td>
+        <td align="right" style="padding:10px 0 0 12px;font-size:14px;font-weight:700;white-space:nowrap">${esc(money(t.cost))}${t.unknown ? `<br><span style="${SMALL};font-weight:400">+ ${t.unknown === 1 ? "1 not set" : `${t.unknown} not set`}</span>` : ""}</td>
+        <td align="right" style="padding:10px 0 0 12px;font-size:14px;font-weight:700;white-space:nowrap">${esc(money(t.price))}</td>
+      </tr>`;
+  return `<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 18px;border-collapse:collapse">${head}${rows}${foot}</table>`;
 }
-const textLines = (lines) => lines.map((it) => `- ${M.lineLabel(it)} (${formOf(it)}), ${M.lineQty(it)}${Number.isFinite(it.unitPrice) ? `: ${money(it.unitPrice * it.qty)}` : ""}`);
-const subtotal = (lines) => lines.reduce((s, it) => s + (Number.isFinite(it.unitPrice) ? it.unitPrice * it.qty : 0), 0);
+const textAmount = (it, v) => (v === null ? "not set" : `${money(v * it.qty)}${it.qty > 1 ? ` (${each(it, v)})` : ""}`);
+function textTable(lines) {
+  const t = totals(lines);
+  return [
+    ...lines.map((it) => `- ${M.lineLabel(it)} (${formOf(it)}), ${M.lineQty(it)}: your cost ${textAmount(it, costOf(it))}, their price ${textAmount(it, priceOf(it))}`),
+    `  total: your cost ${money(t.cost)}${t.unknown ? ` + ${t.unknown} not set` : ""}, their price ${money(t.price)}`,
+  ];
+}
 
 // added: what they put in on this visit (the extra amount, for a line they already had).
-function cartVisit({ name, email, userId, added, cart }) {
+// tier / discount: their membership, for the line saying how they're priced.
+function cartVisit({ name, email, userId, added, cart, tier }) {
   const nm = clip(name, 120), mail = clip(email, 254);
   const count = added.reduce((s, it) => s + it.qty, 0);
   const subject = `hlix: ${nm || mail} added ${count === 1 ? "1 item" : `${count} items`} to their cart`;
-  const total = subtotal(cart);
-  const note = "No order yet. Prices are what the site showed them (with any membership discount).";
+  const pricing = `Their pricing: ${TIER[tier] || TIER.regular}.`;
+  const note = "No order yet. Your cost: the supplier pack price (a tenth of it per vial). Their price: what they'd pay with their membership, worked out the way an order is.";
   return {
     subject,
-    html: page("Cart activity on hlixlabs.com", p(who(nm, mail)) + p("Added on this visit:") + cartTable(added)
+    html: page("Cart activity on hlixlabs.com", p(who(nm, mail)) + p(esc(pricing))
+      + p("<b>Added on this visit</b>") + cartTable(added)
       + p("<b>Their cart now</b>") + cartTable(cart)
-      + (total ? p(`<b>Subtotal: ${esc(money(total))}</b>`) : "")
       + muted(esc(note)) + button(userUrl(userId), "See them in the admin")),
-    text: ["Cart activity on hlixlabs.com", "", nm, mail, "", "Added on this visit:", ...textLines(added), "", "Their cart now:", ...textLines(cart),
-      total ? `Subtotal: ${money(total)}` : "", "", note, "", userUrl(userId)].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n"),
+    text: ["Cart activity on hlixlabs.com", "", nm, mail, pricing, "", "Added on this visit:", ...textTable(added), "", "Their cart now:", ...textTable(cart),
+      "", note, "", userUrl(userId)].filter((l, i, a) => l !== "" || a[i - 1] !== "").join("\n"),
   };
 }
 
@@ -207,11 +245,13 @@ async function sendVisits(visits) {
   let sent = 0;
   for (const v of visits) {
     if (!v || !UUID.test(String(v.id)) || !UUID.test(String(v.user_id))) continue;
-    const cart = (Array.isArray(v.cart) ? v.cart : []).slice(0, 60).map((it) => ({ ...it, unitPrice: Number.isFinite(Number(it && it.unitPrice)) ? Number(it.unitPrice) : undefined }));
+    const cart = (Array.isArray(v.cart) ? v.cart : []).slice(0, 60).filter((it) => it && typeof it === "object")
+      .map((it) => ({ ...it, qty: Math.max(0, Math.min(999, Number(it.qty) | 0)) }));
     const added = addedLines(amounts(v.baseline), cart);
     if (!added.length) continue;
     const email = clip(v.email, 254);
-    const r = await alert("cart", cartVisit({ name: v.name, email, userId: v.user_id, added, cart }), { replyTo: replyTo(email), idempotencyKey: `hlix/alert-cart/${v.id}` });
+    const tier = ["silver", "gold", "family"].includes(v.tier) ? v.tier : "regular";
+    const r = await alert("cart", cartVisit({ name: v.name, email, userId: v.user_id, added, cart, tier }), { replyTo: replyTo(email), idempotencyKey: `hlix/alert-cart/${v.id}` });
     if (r.ok) sent++;
   }
   return sent;
