@@ -434,9 +434,13 @@ verified in Resend:
    `confirm your hlix account`, body `emails/supabase-confirm-signup.html`;
    "Reset password", subject `reset your hlix password`, body
    `emails/supabase-reset-password.html`.
-4. **Authentication**, **Sign In / Providers**, **Email**: turn on **Confirm
+4. **Authentication**, **URL Configuration**: Site URL `https://hlixlabs.com`, and
+   under **Redirect URLs** add `https://hlixlabs.com/account.html`. Without this,
+   Supabase drops the site's return address and the links open its default,
+   `http://localhost:3000`.
+5. **Authentication**, **Sign In / Providers**, **Email**: turn on **Confirm
    email**. Accounts made before stay confirmed.
-5. Vercel (project hlixlabs): `ACCOUNT_EMAILS=on`, then redeploy.
+6. Vercel (project hlixlabs): `ACCOUNT_EMAILS=on`, then redeploy.
 
 ## Security
 
