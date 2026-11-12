@@ -158,8 +158,16 @@ const actions = {
     if (!r.ok) return send(res, 400, { error: "That link has expired or was already used. Ask for a new one." });
     if (await refuseAdmin(at)) return send(res, 403, { error: "That login can't be used here." });
     S.setSession(res, { access_token: at, refresh_token: rt });
+    // A reset link lets them choose a password without the current one. Supabase records
+    // a sign-in from an emailed link as "otp" ("recovery" in its newer flow), and only
+    // someone who opened the email can have those tokens: the same proof a reset needs.
+    // The link's type (from the page) only says which link it was; the session must be
+    // that fresh link sign-in, so an ordinary sign-in can't skip the current password.
     const amr = Array.isArray(S.claims(at).amr) ? S.claims(at).amr : [];
-    const recovery = amr.some((m) => m && m.method === "recovery");
+    const now = Date.now() / 1000;
+    const fromLink = (m) => m && (m.method === "recovery" || m.method === "otp") && now - Number(m.timestamp) < 15 * 60;
+    const recovery = amr.some((m) => m && m.method === "recovery" && fromLink(m))
+      || (b.type === "recovery" && amr.some(fromLink));
     if (recovery) S.setCookie(res, S.RS, "1", 15 * 60);
     return send(res, 200, { ok: true, reset: recovery });
   },

@@ -264,7 +264,7 @@
       status(forms.signin, ("that link didn't work: " + q.get("error_description")).toLowerCase().slice(0, 200), true);
       return Promise.resolve(false);
     }
-    return A.api({ action: "link", access_token: q.get("access_token") || "", refresh_token: q.get("refresh_token") || "" }).then(function (r) {
+    return A.api({ action: "link", type: q.get("type") || "", access_token: q.get("access_token") || "", refresh_token: q.get("refresh_token") || "" }).then(function (r) {
       if (!r.ok) {
         render({ signedIn: false });
         status(forms.signin, (r.data.error || "that link didn't work.").toLowerCase(), true);
