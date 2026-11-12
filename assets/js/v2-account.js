@@ -180,7 +180,11 @@
     }
     $("[data-acct-email]").textContent = data.email || "";
     var tier = $("[data-acct-tier]");
-    if (tier) tier.hidden = data.tier !== "family";
+    // their membership: family & friends (their cost), or silver / gold (a percent off)
+    var off = Number(data.discount) || 0;
+    var tierText = data.tier === "family" ? "family & friends pricing"
+      : (data.tier === "gold" || data.tier === "silver") && off ? data.tier + " member \u00b7 " + off + "% off" : "";
+    if (tier) { tier.hidden = !tierText; if (tierText) tier.textContent = tierText; }
     // A temporary password from hlix: ask them to choose their own.
     var temp = $("[data-acct-temp]");
     if (temp) temp.hidden = !data.tempPassword;

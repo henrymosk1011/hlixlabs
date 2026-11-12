@@ -670,19 +670,35 @@
       return st.btn.getAttribute("data-dunit") === "mg" && amt > 0 ? "$" + (price / amt).toFixed(2) + " / mg" : "";
     }
     // family & friends pricing (v3-cart.js): hlix's cost by the vial or the pack of 10,
-    // for accounts an admin marked as family & friends; the regular price shows crossed out
+    // for accounts an admin marked as family & friends; the regular price shows crossed out.
+    // Silver and gold members (a percent off the website price, by the vial) get the same
+    // box, without the pack of 10.
     var fam = $("[data-family]", pdp);
     var regular = $("[data-regular]", pdp);
+    var famLabel = fam ? $(".fam__top .label", fam) : null;
+    var famUnits = fam ? $(".fam__units", fam) : null;
     var buyBy = "pack"; // family & friends start on the pack of 10
     function famPrice(unitName) {
       return window.HLIXCart && window.HLIXCart.familyPrice ? window.HLIXCart.familyPrice(st.btn.getAttribute("data-sku"), unitName || buyBy) : null;
     }
+    function member() { return window.HLIXCart && window.HLIXCart.member ? window.HLIXCart.member() : null; }
+    function memPrice() { return member() ? window.HLIXCart.memberPrice(unit(st.btn, st.form)) : null; }
     function renderFamily() {
       if (!fam) return;
-      var on = famPrice("vial") !== null;
+      var mp = famPrice("vial") === null ? memPrice() : null;
+      var on = famPrice("vial") !== null || mp !== null;
       fam.hidden = !on;
       if (regular) regular.classList.toggle("is-regular", on);
       if (!on) return;
+      if (famUnits) famUnits.hidden = mp !== null;
+      if (mp !== null) {
+        var m = member();
+        if (famLabel) famLabel.textContent = (m.tier === "gold" ? "gold" : "silver") + " member price \u00b7 " + m.off + "% off";
+        $("[data-family-price]", fam).textContent = window.HLIXCart.money(mp);
+        $("[data-family-per]", fam).textContent = "/ vial";
+        return;
+      }
+      if (famLabel) famLabel.textContent = "family & friends price";
       $$("[data-unit]", fam).forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-unit") === buyBy ? "true" : "false"); });
       $("[data-family-price]", fam).textContent = window.HLIXCart.money(famPrice());
       $("[data-family-per]", fam).textContent = buyBy === "pack" ? "/ pack of 10" : "/ vial";
@@ -690,10 +706,12 @@
     if (fam) $$("[data-unit]", fam).forEach(function (b) {
       b.addEventListener("click", function () { buyBy = b.getAttribute("data-unit") === "pack" ? "pack" : "vial"; render(); });
     });
-    // what one of what's being added costs: the family price when there is one
+    // what one of what's being added costs: the family or member price when there is one
     function charge() {
       var f = famPrice();
-      return f !== null ? { unit: buyBy, price: f } : { unit: "vial", price: unit(st.btn, st.form) };
+      if (f !== null) return { unit: buyBy, price: f };
+      var mp = memPrice();
+      return { unit: "vial", price: mp !== null ? mp : unit(st.btn, st.form) };
     }
 
     // stock for the selected size, from the admin's Inventory (v2-prices.js); every size can
@@ -796,7 +814,8 @@
         dose: st.btn.getAttribute("data-dose"),
         form: st.form,
         unit: c.unit,
-        unitPrice: famPrice() !== null ? c.price : live !== null ? live : c.price,
+        // the live price (less a silver / gold member's discount) when it's loaded
+        unitPrice: famPrice() !== null ? c.price : live !== null ? window.HLIXCart.memberPrice(live) : c.price,
         qty: n
       });
       toast("added " + esc(name.toLowerCase()) + " · " + esc(st.btn.getAttribute("data-dose")) + (c.unit === "pack" ? " · pack of 10" : "") + (n > 1 ? " ×" + n : ""), { label: "view cart", run: function () { open("cart"); } });
