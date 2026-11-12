@@ -496,7 +496,10 @@ verified in Resend:
   orders and client stay in the admin.
 - **a signed-in customer adds things to their cart**: one email per visit, sent
   once the visit is over, listing what they added on that visit and their whole
-  cart. A browser can't reliably say when someone leaves, so the database keeps
+  cart, each line with **your cost** (the supplier pack price, a tenth of it per
+  vial; "not set" when the admin has no cost for it) and **their price** (what
+  they'd pay with their membership, worked out by the database the way an order
+  is: the admin's `0036_cart_alert_costs.sql`), with totals of both. A browser can't reliably say when someone leaves, so the database keeps
   each customer's open visit (the admin's `0034_cart_visit_alerts.sql`: their cart
   as the visit began, when they were last seen, when they left) and calls it over
   after **15 quiet minutes** (no page opened, no cart change), or **3 minutes**

@@ -215,10 +215,11 @@ function postAlerts(body, authorization) {
   });
 }
 const SECRET = "a".repeat(64);
+// As the database posts them (0035): each line with your cost and their price per unit.
 const visitRow = (over = {}) => ({
-  id: "abcdef12-2222-4333-8444-555555555555", user_id: USER, email: "jane@example.com", name: "Jane Doe",
+  id: "abcdef12-2222-4333-8444-555555555555", user_id: USER, email: "jane@example.com", name: "Jane Doe", tier: "gold", discount: 50,
   baseline: [line("HLX-BC5", 1, { name: "BPC 157", dose: "5mg", unitPrice: 30 })],
-  cart: [line("HLX-BC5", 1, { name: "BPC 157", dose: "5mg", unitPrice: 30 }), line("HLX-RT10", 2, { unitPrice: 70 })],
+  cart: [line("HLX-BC5", 1, { name: "BPC 157", dose: "5mg", unitPrice: 30, cost: 9.5, price: 15 }), line("HLX-RT10", 2, { unitPrice: 999, cost: 17.25, price: 35 })],
   ...over,
 });
 
@@ -247,10 +248,31 @@ test("/api/alerts: one email per visit, saying what was added", async () => {
   assert.equal(m.idem, "hlix/alert-cart/abcdef12-2222-4333-8444-555555555555", "a retried post sends it once");
   const [addedPart, nowPart] = m.html.split("Their cart now");
   assert.doesNotMatch(addedPart, /BPC 157/, "what was already there isn't 'added'");
-  assert.match(addedPart, /\$140/);
+  assert.match(addedPart, /your cost/);
+  assert.match(addedPart, /their price/);
+  assert.match(addedPart, /\$34\.50<br><span[^>]*>\$17\.25 each/, "your cost: the line and each vial");
+  assert.match(addedPart, /\$70<br><span[^>]*>\$35 each/, "their price, from the database (not the browser's $999)");
+  assert.doesNotMatch(m.html, /\$999|\$1998/);
   assert.match(nowPart, /BPC 157/);
-  assert.match(nowPart, /Subtotal: \$170/);
+  assert.match(nowPart, /total<\/td>\s*<td[^>]*>\$44<\/td>\s*<td[^>]*>\$85<\/td>/, "totals: your cost $9.50 + $34.50, their price $15 + $70");
+  assert.match(m.html, /Their pricing: gold member \(50% off\)\./);
+  assert.match(m.text, /GLP3-R .*2 vials: your cost \$34\.50 \(\$17\.25 each\), their price \$70 \(\$35 each\)/);
   assert.match(m.html, new RegExp(`#/users/${USER}`));
+});
+
+test("/api/alerts: a product with no cost says 'not set'; a pack and family pricing read right", async () => {
+  reset();
+  process.env.ALERTS_SECRET = SECRET;
+  await postAlerts({ visits: [visitRow({ tier: "family", baseline: [], cart: [
+    line("HLX-SM5", 1, { name: "GLP1-S", dose: "5mg", price: 45 }),
+    line("HLX-RT10", 2, { unit: "pack", cost: 170, price: 170 }),
+  ] })] }, `Bearer ${SECRET}`);
+  const m = resendSent[0];
+  assert.match(m.html, /not set/);
+  assert.match(m.html, /\$340<br><span[^>]*>\$170 a pack/);
+  assert.match(m.html, /\+ 1 not set/, "the cost total says one line has no cost");
+  assert.match(m.html, /Their pricing: family &amp; friends \(your cost\)\./);
+  assert.match(m.text, /your cost not set, their price \$45/);
 });
 
 test("/api/alerts: junk in a visit is skipped or escaped", async () => {
