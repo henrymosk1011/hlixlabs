@@ -72,6 +72,8 @@ PIN = b.icon("pin")
 TAG = svg('<path d="M20.6 13.4 13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8Z"/><circle cx="7.5" cy="7.5" r="1.3"/>')
 FLASK = b.icon("flask")
 USER = b.icon("user")
+EYE = svg('<path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>')
+LOCK = svg('<rect x="4.5" y="11" width="15" height="10" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/>')
 CALENDAR = svg('<rect x="3" y="4.5" width="18" height="16" rx="2.5"/><path d="M3 9.5h18M8 2.5v4M16 2.5v4"/>')
 
 ACTIVE_CLS = ' class="is-active"'
@@ -984,7 +986,9 @@ def page_calculator(groups):
 def page_planner(groups):
     """The dose planner on a page of its own: the planner the admin's Calendar uses (planner_app(), styled by
     assets/css/planner.css), run by v2-planner.js. Signed out, the plan is kept in this browser; signed in,
-    in the account (/api/account, the admin's 0035_shop_plans.sql), on any device. [data-pl-sync] says which."""
+    in the account (/api/account, the admin's 0035_shop_plans.sql), on any device. [data-pl-sync] says which.
+    Signed in, [data-pl-privacy] says hlix can see it (to keep track of their schedule and refills) and holds
+    the "keep my plan private" switch (the admin's 0038_plan_private.sql)."""
     how = "".join(
         f'<li><b>{n}</b><span>{t}</span></li>'
         for n, t in [("1", "add a vial for each peptide you're running: its name and size."),
@@ -1007,6 +1011,14 @@ def page_planner(groups):
         <span data-when="account">{USER}<span>saved to your account.</span></span>
         <span data-when="offline">{USER}<span>couldn't reach your account. your changes are kept in this browser and saved when it's back.</span></span>
       </p>
+      <div class="planpriv" data-pl-privacy data-private="0" hidden>
+        <p class="planpriv__msg">
+          <span data-when="shared">{EYE}<span>we can see your saved plan, so we can keep track of your schedule and your refills.</span></span>
+          <span data-when="private">{LOCK}<span>your plan is private. only you can see it.</span></span>
+        </p>
+        <label class="check planpriv__sw"><input type="checkbox" data-pl-private><span>keep my plan private</span></label>
+        <p class="planpriv__err" data-pl-private-err role="alert" hidden>couldn't change that. try again in a moment.</p>
+      </div>
     </div>
   </div>
   <div class="wrap"><ol class="planhow" data-reveal style="--d:3">{how}</ol></div>
@@ -1170,7 +1182,7 @@ def page_account(groups):
       <div class="acct__side">
         <a class="form-card acct__plan" href="planner">
           <h2>{CALENDAR}dose planner</h2>
-          <p>your vials and dose schedule, saved to your account.</p>
+          <p>your vials and dose schedule, saved to your account. we can see it to keep track of your refills, or you can keep it private.</p>
           <span class="link">open your plan {ARROW}</span>
         </a>
         <form class="form-card acct__form" data-acct-form="profile">

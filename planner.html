@@ -9,8 +9,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Inter+Tight:wght@500;600;700;800;900&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="assets/css/v3.css?v=1794533473"><link rel="stylesheet" href="assets/css/planner.css?v=1794533473">
-<script src="assets/js/v3-boot.js?v=1794533473" data-base="" data-assets=""></script>
+<link rel="stylesheet" href="assets/css/v3.css?v=1794540773"><link rel="stylesheet" href="assets/css/planner.css?v=1794540773">
+<script src="assets/js/v3-boot.js?v=1794540773" data-base="" data-assets=""></script>
 </head>
 <body class="planner-page" data-page="planner">
 <a class="skip" href="#main">skip to content</a>
@@ -66,6 +66,14 @@
         <span data-when="account"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>saved to your account.</span></span>
         <span data-when="offline"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>couldn't reach your account. your changes are kept in this browser and saved when it's back.</span></span>
       </p>
+      <div class="planpriv" data-pl-privacy data-private="0" hidden>
+        <p class="planpriv__msg">
+          <span data-when="shared"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg><span>we can see your saved plan, so we can keep track of your schedule and your refills.</span></span>
+          <span data-when="private"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4.5" y="11" width="15" height="10" rx="2"/><path d="M8 11V7.5a4 4 0 0 1 8 0V11"/></svg><span>your plan is private. only you can see it.</span></span>
+        </p>
+        <label class="check planpriv__sw"><input type="checkbox" data-pl-private><span>keep my plan private</span></label>
+        <p class="planpriv__err" data-pl-private-err role="alert" hidden>couldn't change that. try again in a moment.</p>
+      </div>
     </div>
   </div>
   <div class="wrap"><ol class="planhow" data-reveal style="--d:3"><li><b>1</b><span>add a vial for each peptide you're running: its name and size.</span></li><li><b>2</b><span>tap a day to log a dose, and repeat it daily, weekly or on your own days.</span></li><li><b>3</b><span>see what's left in each vial, day by day, and when it runs dry.</span></li></ol></div>
@@ -214,11 +222,11 @@
 </div>
 <div class="lb" data-lb aria-hidden="true"><button class="ibtn lb__x" type="button" aria-label="close"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18M6 6l12 12"/></svg></button><div class="lb__in"></div></div>
 <div class="toast" data-toast role="status" aria-live="polite"></div>
-<script src="assets/js/search-index.js?v=1794533473"></script>
-<script src="assets/js/v2-prices.js?v=1794533473"></script>
-<script src="assets/js/v3-cart.js?v=1794533473"></script>
-<script src="assets/js/v3.js?v=1794533473"></script>
-<script src="assets/js/v2-planner.js?v=1794533473" defer></script>
-<script src="assets/js/v2-chat.js?v=1794533473"></script>
+<script src="assets/js/search-index.js?v=1794540773"></script>
+<script src="assets/js/v2-prices.js?v=1794540773"></script>
+<script src="assets/js/v3-cart.js?v=1794540773"></script>
+<script src="assets/js/v3.js?v=1794540773"></script>
+<script src="assets/js/v2-planner.js?v=1794540773" defer></script>
+<script src="assets/js/v2-chat.js?v=1794540773"></script>
 </body>
 </html>

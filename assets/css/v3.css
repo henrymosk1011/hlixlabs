@@ -985,6 +985,16 @@ a.cinfo:hover, button.cinfo:hover { border-color: var(--line-2); }
 .plansync[data-state="account"] { border-color: rgba(var(--accent-rgb), 0.45); color: var(--fg); }
 .plansync[data-state="offline"] { border-color: rgba(242, 184, 75, 0.45); }
 .plansync[data-state="offline"] svg { color: var(--warn); }
+/* signed in: we can see the plan, or it's private (the switch) */
+.planpriv { display: grid; gap: 10px; margin-top: 10px; padding: 11px 14px; border: 1px solid var(--line-2); border-radius: 14px; color: var(--dim); font-size: 14px; line-height: 1.45; }
+.planpriv[hidden] { display: none; }
+.planpriv__msg > span { display: none; gap: 9px; align-items: flex-start; }
+.planpriv[data-private="0"] [data-when="shared"], .planpriv[data-private="1"] [data-when="private"] { display: flex; }
+.planpriv__msg svg { flex: none; width: 16px; height: 16px; margin-top: 2px; color: var(--accent); }
+.planpriv[data-private="1"] { color: var(--fg); }
+.planpriv__sw { padding-left: 25px; color: var(--fg); }
+.planpriv__sw input:disabled { opacity: 0.5; }
+.planpriv__err { padding-left: 25px; color: var(--warn); font-size: 13px; }
 .planhow { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: clamp(20px, 3vh, 32px) 0 0; padding: 0; list-style: none; }
 .planhow li { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1px solid var(--line); border-radius: var(--r-lg); background: var(--bg-2); color: var(--dim); font-size: 14px; line-height: 1.45; }
 .planhow b { display: grid; place-items: center; flex: none; width: 24px; height: 24px; border-radius: 50%; background: var(--accent); color: var(--accent-ink); font: 600 12px var(--f-mono); }

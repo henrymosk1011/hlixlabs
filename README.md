@@ -389,7 +389,12 @@ schedule in their account, on any device: `GET /api/account?plan=1` loads it, `P
 { action: "plan" }` saves it a moment after each change (the database's
 `shop_plan` / `shop_save_plan`, the admin's `0035_shop_plans.sql`: only they can change
 it, and it goes with the account; admins with two-factor can look at it, view only, in
-the admin's Calendar and on their user page, `0037_admin_customer_plans.sql`). The first time an account has none, the
+the admin's Calendar and on their user page, `0037_admin_customer_plans.sql`). Signed in,
+the planner page says so under the "saved to your account" line ("we can see your saved
+plan, so we can keep track of your schedule and your refills") with a **keep my plan
+private** switch (`[data-pl-privacy]`; `POST { action: "plan_private", private }`, and
+`private` in the `?plan=1` answer; the admin's `0038_plan_private.sql`). Private, admins
+can't read it at all: the database leaves it out, and the admin only shows that it's private. The first time an account has none, the
 plan they had in that browser becomes it. The page keeps a copy in the browser
 (`hlix-plan:account`) so it opens on it at once; signing out removes the copy, and
 the browser's own signed-out plan (`hlix-plan`) is left as it was. If the account

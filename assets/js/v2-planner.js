@@ -1438,6 +1438,41 @@
   }
   var syncEl = document.querySelector("[data-pl-sync]");
   function setSync(st) { if (syncEl) syncEl.setAttribute("data-state", st); }
+  // signed in, hlix can see the plan (the admin's Calendar and user pages), to keep track of their schedule
+  // and refills, unless they keep it private. [data-pl-privacy], if the page has one, says which and holds the
+  // switch ([data-pl-private]); the account says which it is (GET ?plan=1 "private": no answer, no switch)
+  var privEl = document.querySelector("[data-pl-privacy]");
+  var privBox = privEl && privEl.querySelector("[data-pl-private]");
+  var privErr = privEl && privEl.querySelector("[data-pl-private-err]");
+  var privBusy = false;
+  function setPriv(on, isPrivate) {
+    if (!privEl || !privBox) return;
+    if (!on) { privEl.hidden = true; return; }
+    if (typeof isPrivate !== "boolean" || privBusy) return; // not known (as it was), or a change is on its way
+    privBox.checked = isPrivate;
+    privEl.setAttribute("data-private", isPrivate ? "1" : "0");
+    privEl.hidden = false;
+  }
+  if (privBox) privBox.addEventListener("change", function () {
+    var want = privBox.checked;
+    privBusy = true;
+    privBox.disabled = true;
+    if (privErr) privErr.hidden = true;
+    privEl.setAttribute("data-private", want ? "1" : "0");
+    var done = function (isPrivate, failed) {
+      privBusy = false;
+      privBox.disabled = false;
+      setPriv(true, isPrivate);
+      if (privErr) privErr.hidden = !failed;
+    };
+    fetch("/api/account", { method: "POST", credentials: "same-origin", headers: { "content-type": "application/json", accept: "application/json" }, body: JSON.stringify({ action: "plan_private", private: want }) })
+      .then(function (r) {
+        if (r.status === 401) { done(!want, false); return toLocal(true); } // signed out meanwhile
+        if (!r.ok) throw new Error(String(r.status));
+        return r.json().then(function (d) { done(d && typeof d.private === "boolean" ? d.private : want, false); });
+      })
+      .catch(function () { done(!want, true); });
+  });
   // the plan another device (or this one, earlier) saved: shown as it is, the day open in the editor kept open
   function show(p) {
     var wasEd = editing;
@@ -1488,6 +1523,7 @@
     if (keep) save();
     else if (had) show(stored(STORE));
     setSync("local");
+    setPriv(false);
   }
   function check() {
     acct.checked = Date.now();
@@ -1498,6 +1534,7 @@
         var first = !acct.known;
         acct.on = true;
         acct.known = true;
+        setPriv(true, d.private);
         if (d.plan && typeof d.plan === "object") {
           if (acct.dirty && first) return push(); // changed here before the account answered: those changes win
           if (acct.dirty || acct.busy) return; // changed here since: those go up next

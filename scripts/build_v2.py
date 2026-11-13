@@ -770,7 +770,7 @@ def page_calculator(groups):
     planner = f'''<section class="planner">
     <div class="planner__head">
       <div><p class="kicker" data-reveal="fade">// dose planner</p><h2 class="planner__title" data-split>map the vial.</h2></div>
-      <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. each day shows what's left in the vial, so you can see it run down by the day, week or month. sign in and it's saved to your account.</p>
+      <p class="planner__lede" data-reveal>add a vial for each peptide you're running, then tap any day to log a dose. each day shows what's left in the vial, so you can see it run down by the day, week or month. sign in and it's saved to your account, where we can see it to keep track of your refills (keep it private on the <a href="../planner">dose planner</a> page).</p>
     </div>
     {planner_app(embed=False)}
   </section>'''

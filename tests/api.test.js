@@ -30,6 +30,8 @@ function reset() {
     visitOpen: false,
     visitEvents: [],
     plan: null, // the account's dose plan (shop_plan / shop_save_plan)
+    planPrivate: false, // "keep my plan private" (shop_plan_private / shop_set_plan_private)
+    noPrivacy: false, // a database without 0038: those functions aren't there
   };
   calls = [];
   resendSent = [];
@@ -66,6 +68,9 @@ global.fetch = async (url, opt = {}) => {
   if (rpc === "shop_save_cart") { db.cart = body.p_cart; return reply(200, null); }
   if (rpc === "shop_plan") return reply(200, db.plan);
   if (rpc === "shop_save_plan") { db.plan = body.p_plan; return reply(200, null); }
+  if (/^shop_(set_)?plan_private$/.test(rpc) && db.noPrivacy) return reply(404, { code: "PGRST202", message: "Could not find the function" });
+  if (rpc === "shop_plan_private") return reply(200, db.planPrivate);
+  if (rpc === "shop_set_plan_private") { db.planPrivate = body.p_private; return reply(200, db.planPrivate); }
   if (rpc === "shop_save_profile") { db.savedProfile = body.p; return reply(200, null); }
   if (rpc === "shop_delete_account") { db.deleted = true; return reply(200, { email: "jane@example.com", name: "Jane Doe", orders: 2, tier: "gold" }); }
   if (rpc === "shop_password_changed") return reply(200, null);
@@ -392,13 +397,13 @@ test("dose plan: signed in, it's saved to the account and comes back (only the p
   reset();
   const jar = signedIn();
   const empty = await call("GET", undefined, jar, "/api/account?plan=1");
-  assert.deepEqual(empty.data, { signedIn: true, plan: null });
+  assert.deepEqual(empty.data, { signedIn: true, plan: null, private: false });
   const plan = { v: 3, active: "a", look: "dark", months: 3, vials: [vial("a"), vial("b", { name: "TB-500" })], extra: "dropped" };
   const saved = await call("POST", { action: "plan", plan }, jar);
   assert.equal(saved.status, 200);
   assert.deepEqual(db.plan, { v: 3, active: "a", look: "dark", months: 3, vials: plan.vials });
   const back = await call("GET", undefined, jar, "/api/account?plan=1");
-  assert.deepEqual(back.data, { signedIn: true, plan: db.plan });
+  assert.deepEqual(back.data, { signedIn: true, plan: db.plan, private: false });
   // the account page's own GET is unchanged: no plan in it
   const me = await call("GET", undefined, jar);
   assert.equal(me.data.signedIn, true);
@@ -415,4 +420,41 @@ test("dose plan: what isn't a plan is refused, and nothing is saved", async () =
   }
   assert.equal(db.plan, null);
   assert.ok(!calls.some((c) => /rpc\/shop_save_plan/.test(c.url)));
+});
+
+test("dose plan privacy: signed in, they can keep it private and share it again", async () => {
+  reset();
+  const jar = signedIn();
+  const on = await call("POST", { action: "plan_private", private: true }, jar);
+  assert.equal(on.status, 200);
+  assert.deepEqual(on.data, { ok: true, private: true });
+  assert.equal(db.planPrivate, true);
+  const back = await call("GET", undefined, jar, "/api/account?plan=1");
+  assert.equal(back.data.private, true);
+  const off = await call("POST", { action: "plan_private", private: false }, jar);
+  assert.deepEqual(off.data, { ok: true, private: false });
+  assert.equal(db.planPrivate, false);
+});
+
+test("dose plan privacy: signed out, or not a yes/no, nothing is changed", async () => {
+  reset();
+  const out = await call("POST", { action: "plan_private", private: true }, {});
+  assert.equal(out.status, 401);
+  const jar = signedIn();
+  for (const v of [undefined, null, "true", 1, 0, {}]) {
+    const r = await call("POST", { action: "plan_private", private: v }, jar);
+    assert.equal(r.status, 400, String(v));
+  }
+  assert.equal(db.planPrivate, false);
+  assert.ok(!calls.some((c) => /rpc\/shop_set_plan_private/.test(c.url)), "the database isn't asked");
+});
+
+test("dose plan privacy: a database without the setting still loads the plan, without a switch", async () => {
+  reset();
+  db.noPrivacy = true;
+  db.plan = { v: 3, vials: [vial("a")] };
+  const jar = signedIn();
+  const r = await call("GET", undefined, jar, "/api/account?plan=1");
+  assert.equal(r.status, 200);
+  assert.deepEqual(r.data, { signedIn: true, plan: db.plan });
 });

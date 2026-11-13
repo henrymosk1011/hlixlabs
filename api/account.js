@@ -1,9 +1,9 @@
 // Vercel serverless function — customer accounts on hlixlabs.com.
 //
 //   GET  /api/account                     who's signed in: email, saved details, cart, orders
-//   GET  /api/account?plan=1              their dose plan (the planner, /planner): { signedIn, plan }
+//   GET  /api/account?plan=1              their dose plan (the planner, /planner): { signedIn, plan, private }
 //   POST /api/account { action, ... }     signup, signin, signout, forgot, link, password,
-//                                         profile, cart, plan, presence, delete
+//                                         profile, cart, plan, plan_private, presence, delete
 //
 // Sessions are HttpOnly cookies set here (see api/_lib/session.js); page scripts never see
 // a token. The database decides what a customer can read or change (the admin's
@@ -76,16 +76,21 @@ function cleanPlan(p) {
 }
 const wantsPlan = (req) => (req.query && req.query.plan !== undefined) || /[?&]plan(?:[=&]|$)/.test(String(req.url || ""));
 
+// `private`: whether they keep it from hlix (the admin's 0038_plan_private.sql; hlix can see it
+// otherwise, to keep track of their schedule and refills). Left out if that can't be read: the
+// planner then shows no switch rather than a wrong one.
 async function plan(req, res) {
   const token = await S.session(req, res);
   if (!token) return send(res, 200, { signedIn: false });
-  const r = await S.rpc("shop_plan", {}, token);
+  const [r, pr] = await Promise.all([S.rpc("shop_plan", {}, token), S.rpc("shop_plan_private", {}, token)]);
   if (r.status === 401 || r.status === 403) {
     S.clearSession(res);
     return send(res, 200, { signedIn: false });
   }
   if (!r.ok) return send(res, 502, { error: S.friendly(r, "Your plan couldn't be loaded. Try again in a moment.") });
-  return send(res, 200, { signedIn: true, plan: r.data && typeof r.data === "object" && !Array.isArray(r.data) ? r.data : null });
+  const out = { signedIn: true, plan: r.data && typeof r.data === "object" && !Array.isArray(r.data) ? r.data : null };
+  if (pr.ok && typeof pr.data === "boolean") out.private = pr.data;
+  return send(res, 200, out);
 }
 
 async function me(req, res) {
@@ -303,6 +308,17 @@ const actions = {
     const r = await S.rpc("shop_save_plan", { p_plan: p }, token);
     if (!r.ok) return send(res, r.status === 401 ? 401 : 400, { error: S.friendly(r, "Your plan couldn't be saved.") });
     return send(res, 200, { ok: true });
+  },
+
+  // "Keep my plan private" on the planner: hlix can't see their plan while it's on.
+  async plan_private(req, res, b, ip) {
+    const token = await S.session(req, res);
+    if (!token) return send(res, 401, { error: "Sign in first." });
+    if (typeof b.private !== "boolean") return send(res, 400, { error: "That setting couldn't be saved." });
+    if (S.limited(`planpriv:${ip}`, 30, 10 * 60 * 1000)) return send(res, 429, { error: "Too many changes. Wait a moment." });
+    const r = await S.rpc("shop_set_plan_private", { p_private: b.private }, token);
+    if (!r.ok) return send(res, r.status === 401 ? 401 : 400, { error: S.friendly(r, "That setting couldn't be saved.") });
+    return send(res, 200, { ok: true, private: r.data === true });
   },
 
   // The page says they left the site (closed the tab, switched away) or came back, while
