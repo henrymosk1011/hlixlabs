@@ -25,6 +25,9 @@
   var part = embed && location.hash === "#side" ? "side" : embed && location.hash === "#panel" ? "panel" : embed && location.hash === "#vials" ? "vials" : "all";
   var aside = part === "side" || part === "vials"; // shows (and saves) the vials but not the calendar: picks go to it
   var barOut = false; // the vials are in a frame of their own (so not in this one)
+  // read-only: someone else's plan, to look at (the admin showing a website customer's own plan). vials can be
+  // picked and days looked at; nothing can be added, changed or removed (the admin doesn't save it either)
+  var readOnly = false;
   root.setAttribute("data-part", part);
   var STORE = "hlix-plan";
   var EPS = 1e-9;
@@ -582,6 +585,7 @@
   }
 
   function openEditor(k) {
+    if (readOnly) { focus = k; paint(); summarize(); return; } // just that day, in the panel
     if (editing === k) { closeEditor(); return; }
     var s = slotOf(k), row = Math.floor(s.at / 7);
     var was = editing && ed.parentNode === s.grid ? slotOf(editing) : null; // same month: it only moves if the week changes
@@ -836,6 +840,7 @@
   var armT = 0;
   function disarm() { clearTimeout(armT); clearBtn.classList.remove("is-armed"); }
   clearBtn.addEventListener("click", function () {
+    if (readOnly) return;
     if (!clearBtn.classList.contains("is-armed")) {
       clearBtn.classList.add("is-armed");
       clearBtn.textContent = lc("Tap again to clear");
@@ -920,6 +925,7 @@
     $("span", setSum).textContent = lc(mg(v.size) + (a ? " · " + md(a) + " → " + (z ? md(z) : "…") : " · no doses yet"));
   }
   function openSet(on) {
+    if (on && readOnly) return;
     if (setOpen === on) return;
     setOpen = on;
     if (!on) { closePick(); disarmRemove(); }
@@ -969,6 +975,7 @@
     var b = e.target.closest && e.target.closest("button");
     if (!b) return;
     if (b.hasAttribute("data-vial-add")) {
+      if (readOnly) return;
       if (nw.hidden) openNew(); else closeNew();
       return;
     }
@@ -1005,7 +1012,7 @@
   tabsEl.addEventListener("pointerdown", function (e) {
     swallow = false;
     var b = e.target.closest && e.target.closest("[data-vial]");
-    if (!b || e.button > 0 || state.vials.length < 2) return;
+    if (!b || e.button > 0 || state.vials.length < 2 || readOnly) return;
     drag = { b: b, id: b.getAttribute("data-vial"), x: e.clientX, y: e.clientY, on: false, pid: e.pointerId, to: null, after: false, touch: e.pointerType === "touch", held: false, holdT: 0,
       col: getComputedStyle(tabsEl).flexDirection.indexOf("column") === 0 };
     if (drag.touch) {
@@ -1063,7 +1070,7 @@
   tabsEl.addEventListener("contextmenu", function (e) { if (drag && drag.touch) e.preventDefault(); });
   tabsEl.addEventListener("keydown", function (e) {
     var b = e.target.closest && e.target.closest("[data-vial]");
-    if (!b || !e.altKey) return;
+    if (!b || !e.altKey || readOnly) return;
     var dir = e.key === "ArrowLeft" || e.key === "ArrowUp" ? -1 : e.key === "ArrowRight" || e.key === "ArrowDown" ? 1 : 0;
     if (!dir) return;
     e.preventDefault();
@@ -1565,6 +1572,13 @@
     }
     if (m.type !== "hlix-plan:load") return;
     host = e.origin;
+    var ro = m.readOnly === true;
+    if (ro !== readOnly) { // to look at, or to change: whatever was half done goes
+      readOnly = ro;
+      root.toggleAttribute("data-readonly", ro);
+      lastJSON = null;
+      if (started) { closeEditor(); closeNew(); closePick(); openSet(false); endDrag(); }
+    }
     var json = JSON.stringify(m.plan || null);
     if (started && json === lastJSON) return; // what this shows already (its own change, come back)
     lastJSON = json;

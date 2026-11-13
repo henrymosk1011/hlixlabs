@@ -334,5 +334,11 @@ body.pc-page { padding: 4px; -webkit-font-smoothing: antialiased; }
   .pc-stat__v b { font-size: 17px; }
 }
 
+/* ---------------------------------------------------------------- read-only (someone else's plan, to look at) */
+.pc[data-readonly] [data-vial-add], .pc[data-readonly] [data-pl-set-toggle], .pc[data-readonly] [data-pl-set],
+.pc[data-readonly] [data-pl-new], .pc[data-readonly] [data-cal-clear] { display: none !important; }
+.pc[data-readonly] .pl-tab { cursor: pointer; }
+.pc[data-readonly] button.cal__d:not(.has-dose):hover .cal__v::before { content: none; }
+
 /* ---------------------------------------------------------------- reduced motion */
 .no-motion .pc *, .no-motion .pc *::before, .no-motion .pc *::after { animation: none !important; transition: none !important; }

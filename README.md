@@ -97,7 +97,10 @@ The admin frames the page more than once when it's wide, each copy showing part 
 the planner (`part` in `v2-planner.js`): the calendar, and beside it `#side` (the
 Vials and the vial picked, which saves like the calendar). Narrow, one copy shows
 it all. The admin passes the plan and the day or vial picked between them; a copy
-given back the plan it sent changes nothing. (`#vials` and `#panel`, each card on
+given back the plan it sent changes nothing. A load with `readOnly: true` (a website
+customer's own plan, which only they change) shows it to look at: `data-readonly` on
+`.pc` hides adding, editing and deleting (planner.css), days and vials can still be
+tapped, and the admin saves nothing that comes back. (`#vials` and `#panel`, each card on
 its own, are what an older admin page asked for.)
 
 `vercel.json` keeps every page unframeable except `planner-embed.html`, which
@@ -384,8 +387,9 @@ details and a password change.
 **Their dose plan.** Signed in, the dose planner (`/planner`) keeps their vials and
 schedule in their account, on any device: `GET /api/account?plan=1` loads it, `POST
 { action: "plan" }` saves it a moment after each change (the database's
-`shop_plan` / `shop_save_plan`, the admin's `0035_shop_plans.sql`: only their own,
-private to them, gone with the account). The first time an account has none, the
+`shop_plan` / `shop_save_plan`, the admin's `0035_shop_plans.sql`: only they can change
+it, and it goes with the account; admins with two-factor can look at it, view only, in
+the admin's Calendar and on their user page, `0037_admin_customer_plans.sql`). The first time an account has none, the
 plan they had in that browser becomes it. The page keeps a copy in the browser
 (`hlix-plan:account`) so it opens on it at once; signing out removes the copy, and
 the browser's own signed-out plan (`hlix-plan`) is left as it was. If the account
