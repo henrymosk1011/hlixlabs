@@ -16,5 +16,10 @@
   window.HLIX2 = { base: base };                 // read by the shared scripts (chat, calculator, planner)
   window.HLIX3 = { base: base, assets: assets }; // read by v3.js, v3-cart.js
   // api/account.js sets hlix_in while someone's signed in (the session itself is in cookies no script can read)
-  if (/(?:^|;\s*)hlix_in=1/.test(document.cookie)) h.classList.add("signed-in");
+  if (/(?:^|;\s*)hlix_in=1/.test(document.cookie)) {
+    h.classList.add("signed-in");
+    // a silver, gold or family & friends account, as last loaded here: members-only products
+    // (bac water) show at once; v3-cart.js checks with the account and corrects it
+    try { if (localStorage.getItem("hlix_member") === "1") h.classList.add("is-member"); } catch (e) {}
+  }
 })();

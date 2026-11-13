@@ -26,6 +26,8 @@
     get: function (sku) { return (live && live[sku]) || null; },
     // "in_stock", "on_the_way" or "to_order" for a SKU, or null if not known
     stock: function (sku) { return (stock && stock[sku]) || null; },
+    // a form's price: ready to use ("recon") is 20% more; powder and liquid (bac water, its
+    // only form) are the price itself
     unit: function (sku, form) {
       var p = this.get(sku);
       return p ? (form === "recon" ? p.recon : p.powder) : null;
@@ -54,7 +56,7 @@
       if (min === null) return;
       el.textContent = (el.hasAttribute("data-live-from") ? "from " : "") + moneyStr(min);
     });
-    (window.HLIX_SEARCH_INDEX || []).forEach(function (it) {
+    (window.HLIX_SEARCH_INDEX || []).concat(window.HLIX_MEMBERS_INDEX || []).forEach(function (it) {
       var min = it.skus ? lowest(it.skus) : null;
       if (min !== null) it.priceFrom = min;
     });

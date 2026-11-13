@@ -25,7 +25,8 @@ const TIMEOUT_MS = 4000;
 let cache = null;
 
 // Same rules as money() / recon_price() in scripts/build.py: every price is
-// shown as a whole dollar rounded up, and Reconstituted is Powder + 20%.
+// shown as a whole dollar rounded up, and Reconstituted is Powder + 20%. A
+// liquid (bac water, form "liquid") is the price itself, like powder.
 function powderPrice(base) {
   return Math.ceil(Number(base) - 1e-9);
 }
@@ -34,6 +35,25 @@ function reconPrice(base) {
 }
 function unitPrice(base, form) {
   return form === "recon" ? reconPrice(base) : powderPrice(base);
+}
+
+// Per SKU, from data/products.json (the admin's products.liquid / products.members_only say
+// the same, admin migration 0039):
+//   liquid       sold as one liquid form (bac water): no powder or ready to use, at its price
+//   members only for Silver, Gold and Family & friends accounts; a guest can't order it, and
+//                the database refuses it on any other account's order
+const BY_SKU = new Map(catalog.map((p) => [p.sku, p]));
+const isLiquid = (sku) => !!(BY_SKU.get(sku) || {}).liquid;
+const membersOnly = (sku) => !!(BY_SKU.get(sku) || {}).members_only;
+// An order or cart line's form: always "liquid" for a liquid, else "powder" or "recon".
+function formFor(sku, form) {
+  if (isLiquid(sku)) return "liquid";
+  return form === "powder" ? "powder" : "recon";
+}
+// What a customer is told when a members-only product is in a cart that isn't a member's.
+function membersOnlyError(sku) {
+  const p = BY_SKU.get(sku);
+  return `${p ? p.name : "That product"} is for Silver, Gold and Family & friends members. Remove it from your cart and try again.`;
 }
 
 async function fetchLive() {
@@ -98,4 +118,4 @@ async function getStock() {
   }
 }
 
-module.exports = { getPrices, getStock, powderPrice, reconPrice, unitPrice, SUPABASE_URL, SUPABASE_KEY };
+module.exports = { getPrices, getStock, powderPrice, reconPrice, unitPrice, isLiquid, membersOnly, formFor, membersOnlyError, SUPABASE_URL, SUPABASE_KEY };

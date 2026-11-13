@@ -48,10 +48,15 @@ function lineLabel(it) {
 }
 function lineQty(it) {
   if (it.unit === "pack") return it.qty === 1 ? "1 pack of 10" : `${it.qty} packs of 10`;
-  return it.qty === 1 ? "1 vial" : `${it.qty} vials`;
+  const one = it.form === "liquid" ? "bottle" : "vial"; // bac water comes in bottles
+  return it.qty === 1 ? `1 ${one}` : `${it.qty} ${one}s`;
+}
+// A line's form, in words: powder, ready to use, or liquid (bac water, its only form).
+function formLabel(form) {
+  return form === "powder" ? "powder" : form === "liquid" ? "liquid" : "ready to use";
 }
 
-// items: [{ sku, name, dose, form: "powder" | "recon", unit: "vial" | "pack", qty, unitPrice }]
+// items: [{ sku, name, dose, form: "powder" | "recon" | "liquid", unit: "vial" | "pack", qty, unitPrice }]
 // pricing: the account's membership pricing, e.g. "family & friends pricing" or
 // "gold member pricing (50% off)"; "" for website prices.
 function orderConfirmation({ name, items, subtotal, ref, pricing, account }) {
@@ -60,7 +65,7 @@ function orderConfirmation({ name, items, subtotal, ref, pricing, account }) {
   const accountUrl = `${SITE_URL}/account`;
   const lines = items.map((it) => ({
     label: lineLabel(it),
-    form: it.form === "powder" ? "powder" : "ready to use",
+    form: formLabel(it.form),
     qty: lineQty(it),
     total: money(it.unitPrice * it.qty),
   }));
@@ -175,4 +180,4 @@ async function confirmOrder(apiKey, { email, name, items, subtotal, ref, pricing
   return r;
 }
 
-module.exports = { ON, confirmOrder, orderConfirmation, greetingName, send, esc, money, lineLabel, lineQty };
+module.exports = { ON, confirmOrder, orderConfirmation, greetingName, send, esc, money, lineLabel, lineQty, formLabel };

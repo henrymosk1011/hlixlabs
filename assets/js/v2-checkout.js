@@ -34,7 +34,7 @@
     list.innerHTML = cart.map(function (it) {
       return (
         '<div class="cart__item">' +
-          '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : "powder") + ' · qty ' + esc(it.qty) + (it.unit === "pack" ? (Number(it.qty) === 1 ? " pack of 10" : " packs of 10") : "") + '</span></div>' +
+          '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : it.form === "liquid" ? "liquid" : "powder") + ' · qty ' + esc(it.qty) + (it.unit === "pack" ? (Number(it.qty) === 1 ? " pack of 10" : " packs of 10") : "") + '</span></div>' +
           '<b class="cart__item-price">' + moneyStr(Number(it.unitPrice) * Number(it.qty) || 0) + '</b>' +
         '</div>'
       );

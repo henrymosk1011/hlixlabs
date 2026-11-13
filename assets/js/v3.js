@@ -174,6 +174,10 @@
   // search: the palette (/, ⌘K, every search button) and the home hero field
   // ------------------------------------------------------------------
   var IDX = window.HLIX_SEARCH_INDEX || [];
+  // members-only products (bac water) are searchable only by silver, gold and family & friends
+  // accounts (.is-member, set by v3-cart.js once the account has loaded)
+  function isMember() { return root.classList.contains("is-member"); }
+  function idx() { return isMember() ? IDX.concat(window.HLIX_MEMBERS_INDEX || []) : IDX; }
   var CATS = $$(".mega__cats a").map(function (a) {
     return { label: a.querySelector("span").textContent, href: a.getAttribute("href"), n: a.querySelector("b").textContent };
   });
@@ -220,7 +224,7 @@
   function search(q) {
     q = q.trim().toLowerCase();
     var qc = compact(q);
-    var products = IDX.map(function (it) { return { it: it, s: score(it, q, qc) }; })
+    var products = idx().map(function (it) { return { it: it, s: score(it, q, qc) }; })
       .filter(function (r) { return r.s > 0; })
       .sort(function (a, b) { return b.s - a.s || (a.it.name < b.it.name ? -1 : 1); })
       .map(function (r) { return r.it; });
@@ -255,7 +259,7 @@
     opts = opts || {};
     var html = "";
     if (!q.trim()) {
-      var rec = recent().map(function (s) { return IDX.filter(function (it) { return it.slug === s; })[0]; }).filter(Boolean).slice(0, 4);
+      var rec = recent().map(function (s) { return idx().filter(function (it) { return it.slug === s; })[0]; }).filter(Boolean).slice(0, 4);
       if (rec.length) html += group("recently viewed", rec.map(function (it) { return rowProduct(it, ""); }).join(""));
       html += group("popular research goals", goalChips(TAGS.slice(0, 10), ""));
       html += group("jump to", PAGES.slice(0, 3).map(function (p) { return rowIcon(cfg.base + p.href, ICON.page, esc(p.t), esc(p.s)); }).join(""));
@@ -440,7 +444,8 @@
         order: +c.getAttribute("data-order"),
         sizes: +c.getAttribute("data-sizes"),
         skus: (c.getAttribute("data-skus") || "").split(","),
-        price: parseFloat(c.getAttribute("data-price")) || 0
+        price: parseFloat(c.getAttribute("data-price")) || 0,
+        members: c.hasAttribute("data-members")
       };
     });
 
@@ -470,6 +475,7 @@
     if (moreBtn) moreBtn.addEventListener("click", showAllTags);
 
     function matches(it) {
+      if (it.members && !isMember()) return false;
       if (st.cat !== "all" && it.cat !== st.cat) return false;
       if (st.tags.length && !st.tags.some(function (t) { return it.tags.indexOf(t) > -1; })) return false;
       if (st.q) {
@@ -590,6 +596,8 @@
       });
       if (st.sort.indexOf("price") === 0) apply(false);
     });
+    // a member's account has loaded (or a sign-out): their members-only products come and go
+    d.addEventListener("hlix:account", function () { apply(false); });
 
     apply(false);
   })();
@@ -646,7 +654,9 @@
     function num(b, a) { return parseFloat(b.getAttribute(a)) || 0; }
     function unit(b, form) { return num(b, form === "recon" ? "data-price-recon" : "data-price"); }
     function qty() { return Math.max(1, parseInt(qtyIn.value, 10) || 1); }
-    function formLabel(f) { return f === "recon" ? "ready to use" : "powder"; }
+    function formLabel(f) { return f === "recon" ? "ready to use" : f === "liquid" ? "liquid" : "powder"; }
+    function photoForm(f) { return f === "powder" ? "powder" : "recon"; } // a liquid's photo is the ready-to-use one
+    var one = pdp.getAttribute("data-noun") || "vial"; // "bottle" for a liquid
     function setAll(sel, text) { $$(sel).forEach(function (el) { el.textContent = text; }); }
 
     function swapImg(img, url, alt) {
@@ -662,7 +672,7 @@
     function images() {
       if (!mainImg) return;
       var base = mainImg.getAttribute("data-base"), sku = st.btn.getAttribute("data-img");
-      swapImg(mainImg, base + sku + "-" + st.form + ".webp", name + " " + st.btn.getAttribute("data-dose") + " research vial, " + formLabel(st.form));
+      swapImg(mainImg, base + sku + "-" + photoForm(st.form) + ".webp", name + " " + st.btn.getAttribute("data-dose") + " research " + one + ", " + formLabel(st.form));
       thumbs.forEach(function (t) { swapImg($("img", t), base + sku + "-" + t.getAttribute("data-form-thumb") + "-s.webp"); });
     }
     function perMg(price) {
@@ -695,13 +705,13 @@
         var m = member();
         if (famLabel) famLabel.textContent = (m.tier === "gold" ? "gold" : "silver") + " member price \u00b7 " + m.off + "% off";
         $("[data-family-price]", fam).textContent = window.HLIXCart.money(mp);
-        $("[data-family-per]", fam).textContent = "/ vial";
+        $("[data-family-per]", fam).textContent = "/ " + one;
         return;
       }
       if (famLabel) famLabel.textContent = "family & friends price";
       $$("[data-unit]", fam).forEach(function (b) { b.setAttribute("aria-pressed", b.getAttribute("data-unit") === buyBy ? "true" : "false"); });
       $("[data-family-price]", fam).textContent = window.HLIXCart.money(famPrice());
-      $("[data-family-per]", fam).textContent = buyBy === "pack" ? "/ pack of 10" : "/ vial";
+      $("[data-family-per]", fam).textContent = buyBy === "pack" ? "/ pack of 10" : "/ " + one;
     }
     if (fam) $$("[data-unit]", fam).forEach(function (b) {
       b.addEventListener("click", function () { buyBy = b.getAttribute("data-unit") === "pack" ? "pack" : "vial"; render(); });

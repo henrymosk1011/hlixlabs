@@ -32,7 +32,7 @@
     return cart.slice(0, 50).map(function (it) {
       var q = Math.max(1, Math.min(999, parseInt(it.qty, 10) || 1));
       return {
-        sku: text(it.sku, 40), form: it.form === "powder" ? "powder" : "recon", unit: it.unit === "pack" ? "pack" : "vial", qty: q,
+        sku: text(it.sku, 40), form: it.form === "powder" || it.form === "liquid" ? it.form : "recon", unit: it.unit === "pack" ? "pack" : "vial", qty: q,
         name: text(it.name, 160), dose: text(it.dose, 40), slug: text(it.slug, 120), category: text(it.category, 80),
         unitPrice: Math.max(0, Number(it.unitPrice) || 0),
       };
@@ -166,7 +166,7 @@
   function lineHtml(it, i) {
     return (
       '<div class="cart__item" data-cart-item>' +
-        '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : "powder") + (it.unit === "pack" ? " · pack of 10" : "") + '</span></div>' +
+        '<div class="cart__item-info"><b>' + esc(it.name) + '</b><span>' + esc(it.dose) + ' · ' + esc(it.form === "recon" ? "ready to use" : it.form === "liquid" ? "liquid" : "powder") + (it.unit === "pack" ? " · pack of 10" : "") + '</span></div>' +
         '<div class="cart__item-ctrl">' +
           '<div class="qty qty--sm"><button type="button" data-cart-dec="' + i + '" aria-label="decrease quantity">−</button><span data-cart-qty>' + it.qty + '</span><button type="button" data-cart-inc="' + i + '" aria-label="increase quantity">+</button></div>' +
           '<b class="cart__item-price">' + moneyStr(it.unitPrice * it.qty) + '</b>' +

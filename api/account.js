@@ -11,6 +11,7 @@
 
 const S = require("./_lib/session");
 const A = require("./_lib/alerts"); // emails to hlix: new and deleted accounts, cart visits
+const { formFor } = require("./_lib/prices"); // powder, ready to use ("recon"), or liquid (bac water)
 
 const EMAIL = /^[^\s@<>()[\]\\,;:"]{1,64}@[^\s@<>()[\]\\,;:"]{1,190}\.[^\s@<>()[\]\\,;:"]{2,63}$/;
 const PROFILE = { name: 120, phone: 40, address1: 200, address2: 200, city: 120, state: 120, zip: 40, country: 120 };
@@ -282,7 +283,7 @@ const actions = {
       if (!it || typeof it !== "object") continue;
       const qty = Number(it.qty);
       const line = {
-        sku: str(it.sku, 40), form: it.form === "powder" ? "powder" : "recon", unit: it.unit === "pack" ? "pack" : "vial",
+        sku: str(it.sku, 40), form: formFor(str(it.sku, 40), it.form), unit: it.unit === "pack" ? "pack" : "vial",
         qty: Number.isInteger(qty) ? Math.max(1, Math.min(999, qty)) : 1,
         name: str(it.name, 160), dose: str(it.dose, 40), slug: str(it.slug, 120), category: str(it.category, 80),
       };

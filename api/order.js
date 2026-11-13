@@ -16,7 +16,7 @@
 // With CUSTOMER_EMAILS=on, the customer also gets a confirmation (api/_lib/mail.js):
 // an account's order once it's saved, a guest's once hlix's copy has gone out.
 
-const { getPrices, unitPrice } = require("./_lib/prices");
+const { getPrices, unitPrice, formFor, membersOnly, membersOnlyError } = require("./_lib/prices");
 const S = require("./_lib/session");
 const M = require("./_lib/mail");
 const A = require("./_lib/alerts"); // a signed-in customer's cart visit: no cart email (this order says it all)
@@ -99,7 +99,8 @@ module.exports = async (req, res) => {
     .map((it) => ({
       name: str(it && it.name, MAX_LEN),
       dose: str(it && it.dose, MAX_LEN),
-      form: str(it && it.form, 20),
+      // powder, ready to use ("recon"), or liquid: a liquid (bac water) is always "liquid"
+      form: formFor(str(it && it.sku, MAX_LEN), str(it && it.form, 20)),
       unit: it && it.unit === "pack" ? "pack" : "vial",
       sku: str(it && it.sku, MAX_LEN),
       qty: Math.max(1, Math.min(999, parseInt(it && it.qty, 10) || 0)),
@@ -107,6 +108,15 @@ module.exports = async (req, res) => {
     .filter((it) => it.name && it.qty > 0);
   if (!items.length) {
     res.status(400).json({ error: "Your cart is empty." });
+    return;
+  }
+
+  // Members-only products (bac water) are for Silver, Gold and Family & friends accounts:
+  // never a guest's. A signed-in account's membership is the database's to check (admin
+  // migration 0039), with the same words.
+  const notTheirs = !token && items.find((it) => membersOnly(it.sku));
+  if (notTheirs) {
+    res.status(400).json({ error: membersOnlyError(notTheirs.sku) });
     return;
   }
 
@@ -122,7 +132,7 @@ module.exports = async (req, res) => {
   if (token) {
     const r = await S.rpc("shop_place_order", {
       p: {
-        items: items.map((it) => ({ sku: it.sku, form: it.form === "powder" ? "powder" : "recon", unit: it.unit, qty: it.qty })),
+        items: items.map((it) => ({ sku: it.sku, form: it.form, unit: it.unit, qty: it.qty })),
         ship: {
           name: customer.name, phone: customer.phone, address1: customer.address1, address2: customer.address2,
           city: customer.city, state: customer.state, zip: customer.zip, country: customer.country,
@@ -149,7 +159,7 @@ module.exports = async (req, res) => {
     customer.email = String(placed.email || "");
     items.length = 0;
     for (const it of placed.items || []) {
-      items.push({ name: str(it.name, MAX_LEN), dose: str(it.dose, MAX_LEN), form: it.form === "powder" ? "powder" : "recon", unit: it.unit === "pack" ? "pack" : "vial", sku: str(it.sku, MAX_LEN), qty: Number(it.qty) || 0, unitPrice: Number(it.price) || 0 });
+      items.push({ name: str(it.name, MAX_LEN), dose: str(it.dose, MAX_LEN), form: formFor(str(it.sku, MAX_LEN), it.form), unit: it.unit === "pack" ? "pack" : "vial", sku: str(it.sku, MAX_LEN), qty: Number(it.qty) || 0, unitPrice: Number(it.price) || 0 });
     }
   }
 
@@ -179,7 +189,7 @@ module.exports = async (req, res) => {
 
   const subtotal = items.reduce((s, it) => s + it.unitPrice * it.qty, 0);
   const itemRows = items
-    .map((it) => `<tr><td>${esc(it.name)}</td><td>${esc(it.dose)}</td><td>${it.form === "recon" ? "ready to use" : "powder"}</td><td>${esc(it.sku)}</td><td>${it.qty}${it.unit === "pack" ? (it.qty === 1 ? " pack of 10" : " packs of 10") : ""}</td><td>${money(it.unitPrice * it.qty)}</td></tr>`)
+    .map((it) => `<tr><td>${esc(it.name)}</td><td>${esc(it.dose)}</td><td>${M.formLabel(it.form)}</td><td>${esc(it.sku)}</td><td>${it.qty}${it.unit === "pack" ? (it.qty === 1 ? " pack of 10" : " packs of 10") : ""}</td><td>${money(it.unitPrice * it.qty)}</td></tr>`)
     .join("");
   const html = `
     <h2>${placed ? `New website order #${esc(placed.ref)}` : "New order request"}</h2>

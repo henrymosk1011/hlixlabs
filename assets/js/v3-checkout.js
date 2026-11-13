@@ -34,7 +34,7 @@
       var q = Number(it.qty) || 0;
       var qty = it.unit === "pack" ? q + (q === 1 ? " pack of 10" : " packs of 10") : "qty " + q;
       return '<div class="line"><img class="line__img" src="' + Cart.photo(it) + '" alt="" width="56" height="70">' +
-        '<div class="line__info"><a href="' + Cart.url(it) + '">' + esc(it.name) + "</a><span>" + esc(it.dose) + " · " + (it.form === "recon" ? "ready to use" : "powder") + " · " + qty + "</span></div>" +
+        '<div class="line__info"><a href="' + Cart.url(it) + '">' + esc(it.name) + "</a><span>" + esc(it.dose) + " · " + Cart.formLabel(it.form) + " · " + qty + "</span></div>" +
         '<div class="line__end"><b class="line__price">' + money(Number(it.unitPrice) * q || 0) + "</b></div></div>";
     }).join("");
     subEl.textContent = money(Cart.subtotal());

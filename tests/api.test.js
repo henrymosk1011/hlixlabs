@@ -1,4 +1,4 @@
-// Tests for api/account.js and api/_lib/alerts.js, with Supabase and Resend faked.
+// Tests for api/account.js, api/order.js and api/_lib/alerts.js, with Supabase and Resend faked.
 // Run: npm test   (node --test tests/*.test.js)
 
 const test = require("node:test");
@@ -32,6 +32,8 @@ function reset() {
     plan: null, // the account's dose plan (shop_plan / shop_save_plan)
     planPrivate: false, // "keep my plan private" (shop_plan_private / shop_set_plan_private)
     noPrivacy: false, // a database without 0038: those functions aren't there
+    placed: null, // what shop_place_order was sent
+    placeReply: null, // and what it answers
   };
   calls = [];
   resendSent = [];
@@ -72,6 +74,7 @@ global.fetch = async (url, opt = {}) => {
   if (rpc === "shop_plan_private") return reply(200, db.planPrivate);
   if (rpc === "shop_set_plan_private") { db.planPrivate = body.p_private; return reply(200, db.planPrivate); }
   if (rpc === "shop_save_profile") { db.savedProfile = body.p; return reply(200, null); }
+  if (rpc === "shop_place_order") { db.placed = body.p; return reply(200, db.placeReply); }
   if (rpc === "shop_delete_account") { db.deleted = true; return reply(200, { email: "jane@example.com", name: "Jane Doe", orders: 2, tier: "gold" }); }
   if (rpc === "shop_password_changed") return reply(200, null);
   if (rpc === "shop_cart_visit") {
@@ -84,7 +87,9 @@ global.fetch = async (url, opt = {}) => {
 };
 
 const account = require("../api/account.js");
+const order = require("../api/order.js");
 const A = require("../api/_lib/alerts.js");
+const P = require("../api/_lib/prices.js");
 
 // ----------------------------------------------------------- request kit ---
 let ipN = 0;
@@ -109,7 +114,7 @@ function call(method, body, jar = {}, url = "/api/account") {
       },
     };
     const cookie = Object.entries(jar).map(([k, v]) => `${k}=${v}`).join("; ");
-    account({
+    (url === "/api/order" ? order : account)({
       method,
       url,
       body,
@@ -457,4 +462,61 @@ test("dose plan privacy: a database without the setting still loads the plan, wi
   const r = await call("GET", undefined, jar, "/api/account?plan=1");
   assert.equal(r.status, 200);
   assert.deepEqual(r.data, { signedIn: true, plan: db.plan });
+});
+
+// ------------------------------------------------------------ bac water ---
+// Bac water (HLX-BA10) is members only (Silver, Gold, Family & friends) and one liquid form.
+
+const SHIP = { name: "Jane Doe", email: "jane@example.com", address1: "1 Main St", city: "Austin", state: "TX", zip: "78701", country: "United States" };
+const bac = (extra = {}) => ({ sku: "HLX-BA10", name: "bac.water", dose: "10ml", form: "liquid", unit: "vial", qty: 1, unitPrice: 12, ...extra });
+
+test("bac water: liquid is its only form, priced at the website price", () => {
+  assert.equal(P.isLiquid("HLX-BA10"), true);
+  assert.equal(P.membersOnly("HLX-BA10"), true);
+  assert.equal(P.membersOnly("HLX-BC5"), false);
+  assert.equal(P.formFor("HLX-BA10", "recon"), "liquid");
+  assert.equal(P.formFor("HLX-BA10", "powder"), "liquid");
+  assert.equal(P.formFor("HLX-BC5", "liquid"), "recon", "liquid isn't a form for anything else");
+  assert.equal(P.formFor("HLX-BC5", "powder"), "powder");
+  assert.equal(P.unitPrice(12, "liquid"), 12);
+  assert.equal(P.unitPrice(12, "recon"), 15);
+});
+
+test("bac water: the saved cart keeps it liquid (whatever an old cart called it)", async () => {
+  reset();
+  const r = await call("POST", { action: "cart", cart: [bac(), bac({ form: "recon", qty: 2 }), line("HLX-BC5", 1), line("HLX-BC5", 1, { form: "liquid" })] }, signedIn());
+  assert.equal(r.status, 200);
+  assert.deepEqual(db.cart.map((it) => [it.sku, it.form]), [["HLX-BA10", "liquid"], ["HLX-BA10", "liquid"], ["HLX-BC5", "powder"], ["HLX-BC5", "recon"]]);
+});
+
+test("bac water: a guest's order with it is refused, and nothing is emailed", async () => {
+  reset();
+  const r = await call("POST", { customer: SHIP, items: [line("HLX-BC5", 1), bac()] }, {}, "/api/order");
+  assert.equal(r.status, 400);
+  assert.equal(r.data.error, "bac.water is for Silver, Gold and Family & friends members. Remove it from your cart and try again.");
+  assert.equal(resendCalls().length, 0);
+});
+
+test("bac water: a member's order sends it to the database as liquid, and the email says liquid", async () => {
+  reset();
+  db.placeReply = {
+    id: "0f0f0f0f-0000-4000-8000-000000000001", ref: "B4C7", email: "jane@example.com", duplicate: false,
+    family: false, tier: "gold", discount: 50, subtotal: 12,
+    items: [{ sku: "HLX-BA10", name: "bac.water", dose: "10ml", form: "liquid", unit: "vial", qty: 2, price: 6 }],
+  };
+  const r = await call("POST", { customer: SHIP, items: [bac({ form: "recon", qty: 2 })] }, signedIn(), "/api/order");
+  assert.equal(r.status, 200);
+  assert.equal(r.data.ref, "B4C7");
+  assert.deepEqual(db.placed.items, [{ sku: "HLX-BA10", form: "liquid", unit: "vial", qty: 2 }]);
+  const m = resendSent.find((e) => /order #B4C7/.test(e.subject));
+  assert.ok(m, "hlix gets the order email");
+  assert.match(m.html, /<td>liquid<\/td>/);
+  assert.doesNotMatch(m.html, /ready to use/);
+  assert.match(m.subject, /\$12$/);
+});
+
+test("bac water: the customer's confirmation counts bottles", () => {
+  const M = require("../api/_lib/mail.js");
+  const c = M.orderConfirmation({ name: "Jane", items: [{ sku: "HLX-BA10", name: "bac.water", dose: "10ml", form: "liquid", unit: "vial", qty: 2, unitPrice: 12 }], subtotal: 24, ref: "B4C7", pricing: "", account: true });
+  assert.match(c.text, /- bac\.water 10ml \(liquid\), 2 bottles: \$24/);
 });

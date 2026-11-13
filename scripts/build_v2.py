@@ -1018,7 +1018,9 @@ def write(rel, html):
 
 def main():
     products = b.load_products()
-    groups = b.group_products(products)
+    # Members-only products (bac water) are on the main site only, for the accounts they're
+    # for; this archived design leaves them out (its cart can't tell who's a member).
+    groups = b.public(b.group_products(products))
 
     for d in (OUT / "peptides",):
         if d.exists():

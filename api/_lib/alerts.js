@@ -86,7 +86,7 @@ function accountDeleted({ name, email, orders, tier }) {
   };
 }
 
-const formOf = (it) => (it.form === "powder" ? "powder" : "ready to use");
+const formOf = (it) => M.formLabel(it.form);
 // Per unit (a vial, or a pack of 10): your cost and what they pay, as the database worked
 // them out (0036_cart_alert_costs.sql: the supplier pack price, a tenth of it per vial; their
 // price with their membership, the way an order is priced). Their price falls back to what
@@ -199,7 +199,7 @@ function alertPaid(info) {
 
 // ------------------------------------------------------------- cart visits ---
 
-const lineKey = (it) => `${it.sku}~${it.form === "powder" ? "p" : "r"}~${it.unit === "pack" ? "p" : "v"}`;
+const lineKey = (it) => `${it.sku}~${it.form === "powder" ? "p" : it.form === "liquid" ? "l" : "r"}~${it.unit === "pack" ? "p" : "v"}`;
 function amounts(cart) {
   const m = new Map();
   for (const it of Array.isArray(cart) ? cart : []) {

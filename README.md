@@ -2,7 +2,8 @@
 
 A research peptide catalog: one page per compound (with a vial-size
 selector when a peptide has multiple doses, plus a Powder/Reconstituted
-form toggle on every one), a category-filtered and searchable catalog
+form toggle on every one but bac water, which is one liquid form and for members
+only), a category-filtered and searchable catalog
 (search matches by name or by research-goal tag, e.g. "hair" or "sleep"),
 an About/Contact page, a standalone reconstitution/dosage calculator, and
 an optional AI chat widget backed by a small serverless function, a cart
@@ -38,7 +39,7 @@ hlix/
 │   ├── js/v2-calc.js, v2-planner.js, v2-chat.js, v2-prices.js, v2-account.js   Shared by both designs: calculator, dose planner, chat, live prices, account page
 │   ├── js/v3-boot.js, v2-boot.js, v2-boot-embed.js, v1-prefix.js   The first script on each page (no inline scripts: see "Security")
 │   ├── js/v2.js, v2-cart.js, v2-checkout.js   The /v2/ design's ui, cart and checkout
-│   ├── js/search-index.js  Shared search index, read by every version
+│   ├── js/search-index.js  Shared search index, read by every version (members-only products in HLIX_MEMBERS_INDEX, main site only)
 │   └── img/vials/          Shared photoreal product images
 ├── data/
 │   ├── price_list_source.xlsx   Source of the product list (prices are set in the admin, see "Prices")
@@ -374,6 +375,39 @@ hidden: the page never claims stock it can't confirm. The wording is `STOCK_TEXT
 
 Product pages open on **powder**; family & friends accounts' price box opens on **pack of
 10**, listed first.
+
+## Bac water: members only, one liquid form
+
+Bac water (`HLX-BA10`) is for **Silver, Gold and Family & friends** accounts only, and
+comes one way: **liquid**, a bottle at its price ($12), with no powder / ready-to-use
+choice. Two flags on its entry in `data/products.json` say so (`members_only`, `liquid`;
+`scripts/parse_pricelist.py` sets them for bac.water, `MEMBERS_ONLY` and `LIQUID` there),
+and the admin's database has the same two (`products.members_only`, `products.liquid`,
+the admin's migration 0039), which is what really decides.
+
+- **Who sees it.** Guests and Standard accounts don't: it's out of the menus, the home
+  page, the counts, search (`HLIX_MEMBERS_INDEX` in `search-index.js`, not
+  `HLIX_SEARCH_INDEX`), the chat's catalog and the archived /v1/ and /v2/ designs. Its card
+  in the catalog, its catalog filter ("supplies") and its search results are marked
+  `data-members` and only show once the account has loaded as a member (`.is-member` on
+  `<html>`, set by `v3-cart.js`; `v3-boot.js` shows them at once from the last answer,
+  `hlix_member` in localStorage). Its page (`/peptides/bacwater`, noindex) shows everyone
+  else a "members only" note (sign in, or ask about a membership) instead of the size,
+  form and add to cart.
+- **What it costs.** The website price ($12, set in the admin like any other), less the
+  member's discount: $9 Silver, $6 Gold; family & friends pay their cost as usual (a pack
+  of 10 at the pack cost, a bottle at a tenth). Its form is `"liquid"` everywhere (cart,
+  saved cart, orders, emails): priced like powder, never +20%. `formFor()` in
+  `api/_lib/prices.js` makes any line of a liquid product "liquid".
+- **Ordering it.** The cart lets go of members-only lines for anyone else (`v3-cart.js`).
+  `api/order.js` refuses a guest order with it ("bac.water is for Silver, Gold and Family &
+  friends members. Remove it from your cart and try again."); for an account, the database
+  refuses it unless they're a member, with the same words.
+
+To make another product members only or liquid, add its name to `MEMBERS_ONLY` / `LIQUID`
+in `parse_pricelist.py` (or set the flags in `products.json`), set the same columns in the
+admin's database, and rebuild (`build.py` for the search index, `build_v2.py`,
+`build_v3.py`).
 
 ## Accounts
 

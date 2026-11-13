@@ -342,21 +342,31 @@ def sec_head(n, title, sub="", link=""):
 
 # ---------------------------------------------------------------- cards ---
 
+def noun(g):
+    """What one of it is called: a bottle (liquids, like bac water) or a vial."""
+    return "bottle" if all(b.is_liquid(v) for v in g["variants"]) else "vial"
+
+
+def members_attr(g):
+    """data-members: only Silver, Gold and Family & friends accounts see it (v3.css, v3.js)."""
+    return " data-members" if b.members_only(g) else ""
+
+
 def card(g, p, a, i=0):
     d = g["default"]
     tags_attr = esc(",".join(t.lower() for t in g["tags"]))
     skus = ",".join(v["sku"] for v in g["variants"])
     media = v2.vial_media(d, f"c-{g['slug']}", "s", a)
     hover = (f'<img class="card__alt" alt="" width="480" height="600" data-hover-src="{img_src(d, a, "powder")}">'
-             if v2.has_photo(d) else "")
-    return f'''<a class="card" href="{p}peptides/{g['slug']}" style="--c:{color(g)}" data-card data-cat="{g['category']}" data-name="{esc(g['name'].lower())}" data-tags="{tags_attr}" data-skus="{esc(skus)}" data-price="{g['min_price']:.2f}" data-sizes="{len(g['variants'])}" data-order="{i}">
+             if v2.has_photo(d) and noun(g) == "vial" else "")  # a liquid has no powder photo to show
+    return f'''<a class="card" href="{p}peptides/{g['slug']}" style="--c:{color(g)}" data-card data-cat="{g['category']}" data-name="{esc(g['name'].lower())}" data-tags="{tags_attr}" data-skus="{esc(skus)}" data-price="{g['min_price']:.2f}" data-sizes="{len(g['variants'])}" data-order="{i}"{members_attr(g)}>
   <div class="card__media">{media}{hover}<span class="tag-stock" data-card-stock hidden></span><span class="card__view">view {ARROW}</span></div>
   <div class="card__body">
     <p class="card__cat"><i></i>{esc(g['category_label'].lower())}</p>
     <h3 class="card__name">{esc(g['name'])}</h3>
     <p class="card__sizes">{dose_chips(g)}</p>
   </div>
-  <p class="card__price"><span{live_price_attrs(g)}>{price_from(g)}</span><small>per vial</small></p>
+  <p class="card__price"><span{live_price_attrs(g)}>{price_from(g)}</span><small>per {noun(g)}</small></p>
 </a>'''
 
 
@@ -485,7 +495,7 @@ def page_home(groups):
 
 <section class="sec" id="categories">
   <div class="wrap">
-    {sec_head("01", "shop by category.", "eight shelves, from metabolic research to bench supplies.", f'<a class="link" href="catalog">view all {ARROW}</a>')}
+    {sec_head("01", "shop by category.", f"{shelves(cats)}.", f'<a class="link" href="catalog">view all {ARROW}</a>')}
     <div class="bento">{tiles}</div>
   </div>
 </section>
@@ -544,16 +554,32 @@ def page_home(groups):
     return shell(title="research-grade, clearly priced", desc=b.BASE_DESCRIPTION, page="home", body=body, groups=groups, body_class="home")
 
 
+NUMBERS = "zero one two three four five six seven eight nine ten eleven twelve".split()
+
+
+def shelves(cats):
+    """"seven shelves, from metabolic research to specialty research": the categories shown."""
+    n = NUMBERS[len(cats)] if len(cats) < len(NUMBERS) else str(len(cats))
+    if len(cats) < 2:
+        return f"{n} shelf" if len(cats) == 1 else "the shelves"
+    return f"{n} shelves, from {cats[0][1].lower()} to {cats[-1][1].lower()}"
+
+
 # -------------------------------------------------------------- catalog ---
 
 def page_catalog(groups):
+    """Every product's card, the members-only ones (data-members) only shown to Silver, Gold
+    and Family & friends accounts; the counts, categories and goals are the public ones."""
     p, a = "", "../" * DEPTH
-    cats = cat_list(groups)
-    radios = f'<button type="button" class="fcat is-active" data-fcat="all" aria-pressed="true"><i style="--c:var(--fg)"></i><span>all compounds</span><b>{len(groups)}</b></button>' + "".join(
-        f'<button type="button" class="fcat" data-fcat="{s}" aria-pressed="false"><i style="--c:{CATEGORY_COLORS.get(s, "#33e6b0")}"></i><span>{esc(l.lower())}</span><b>{n}</b></button>'
-        for s, l, n in cats
+    pub = b.public(groups)
+    cats = cat_list(pub)
+    # a category only members-only products are in (supplies: bac water) is a members-only filter
+    mcats = [(s, l, n) for s, l, n in cat_list(groups) if s not in {c[0] for c in cats}]
+    radios = f'<button type="button" class="fcat is-active" data-fcat="all" aria-pressed="true"><i style="--c:var(--fg)"></i><span>all compounds</span><b>{len(pub)}</b></button>' + "".join(
+        f'<button type="button" class="fcat" data-fcat="{s}" aria-pressed="false"{" data-members" if (s, l, n) in mcats else ""}><i style="--c:{CATEGORY_COLORS.get(s, "#33e6b0")}"></i><span>{esc(l.lower())}</span><b>{n}</b></button>'
+        for s, l, n in cats + mcats
     )
-    tags = tag_counts(groups)
+    tags = tag_counts(pub)
     TOP = 16
     chips = "".join(
         f'<button type="button" class="fchip" data-ftag="{esc(t)}" aria-pressed="false"{" data-extra hidden" if i >= TOP else ""}>{esc(t)}<b>{n}</b></button>'
@@ -561,7 +587,7 @@ def page_catalog(groups):
     )
     more = f'<button type="button" class="fmore" data-ftag-more>show all {len(tags)} goals</button>' if len(tags) > TOP else ""
     quick = f'<button type="button" class="qcat is-active" data-fcat="all">all</button>' + "".join(
-        f'<button type="button" class="qcat" data-fcat="{s}" style="--c:{CATEGORY_COLORS.get(s, "#33e6b0")}">{esc(l.lower())}</button>' for s, l, _ in cats
+        f'<button type="button" class="qcat" data-fcat="{s}" style="--c:{CATEGORY_COLORS.get(s, "#33e6b0")}"{" data-members" if (s, l, n) in mcats else ""}>{esc(l.lower())}</button>' for s, l, n in cats + mcats
     )
     cards = "".join(card(g, p, a, i) for i, g in enumerate(groups))
     sort = '''<label class="sort"><span class="sr-only">sort by</span><select data-sort>
@@ -576,7 +602,7 @@ def page_catalog(groups):
   <div class="wrap chead__in">
     <div>
       <p class="label label--dot" data-reveal>shop</p>
-      <h1 class="chead__title" data-reveal style="--d:1">catalog<sup data-count-out>{len(groups)}</sup></h1>
+      <h1 class="chead__title" data-reveal style="--d:1">catalog<sup data-count-out>{len(pub)}</sup></h1>
     </div>
     <p class="chead__sub" data-reveal style="--d:2">every compound and every size, priced per single vial. filter by category or research goal, or search by name.</p>
   </div>
@@ -592,12 +618,12 @@ def page_catalog(groups):
         <div class="fgroup"><p class="label">category</p><div class="fcats">{radios}</div></div>
         <div class="fgroup"><p class="label">research goal <span class="fgroup__hint">any of</span></p><div class="fchips">{chips}</div>{more}</div>
       </div>
-      <div class="filters__foot"><button type="button" class="btn btn--ghost" data-reset>reset</button><button type="button" class="btn btn--solid" data-filters-close>show <span data-count-out>{len(groups)}</span> results</button></div>
+      <div class="filters__foot"><button type="button" class="btn btn--ghost" data-reset>reset</button><button type="button" class="btn btn--solid" data-filters-close>show <span data-count-out>{len(pub)}</span> results</button></div>
     </aside>
     <div class="results">
       <div class="bar" data-bar>
         <button type="button" class="pill bar__filters" data-filters-open>{SLIDERS} filters <b data-fcount hidden></b></button>
-        <p class="bar__count"><b data-count-out>{len(groups)}</b> <span data-count-noun>compounds</span></p>
+        <p class="bar__count"><b data-count-out>{len(pub)}</b> <span data-count-noun>compounds</span></p>
         <div class="bar__active" data-active></div>
         {sort}
         <div class="views" role="group" aria-label="layout"><button type="button" data-view="grid" aria-pressed="true" aria-label="grid view">{GRID}</button><button type="button" data-view="list" aria-pressed="false" aria-label="list view">{LIST}</button></div>
@@ -611,7 +637,7 @@ def page_catalog(groups):
     </div>
   </div>
 </div>'''
-    return shell(title="catalog", desc="the complete hlix research peptide catalog.", page="catalog", body=body, groups=groups, body_class="catalog")
+    return shell(title="catalog", desc="the complete hlix research peptide catalog.", page="catalog", body=body, groups=pub, body_class="catalog")
 
 
 # -------------------------------------------------------------- product ---
@@ -639,10 +665,22 @@ def page_product(g, groups):
     variants = g["variants"]
     multi = len(variants) > 1
     has_img = v2.has_photo(d)
-    rp = recon_price(d["price"])
-    pp = d["price"]  # powder: the form a product page starts on
+    # A liquid (bac water) comes one way, at its price: no powder / ready-to-use choice, and
+    # the cart line's form is "liquid" (the admin's database prices it at the website price).
+    liquid = all(b.is_liquid(v) for v in variants)
+    one = noun(g)  # "vial", or "bottle" for a liquid
+    form0 = "liquid" if liquid else "powder"  # the form the page starts on
+    # the price of the other form: ready to use is 20% more; a liquid has only the one price
+    rprice = (lambda base: base) if liquid else recon_price
+    rp = rprice(d["price"])
+    pp = d["price"]
+    members = b.members_only(g)
 
-    if has_img:
+    if has_img and liquid:
+        main = (f'<img src="{img_src(d, a, "recon", "l")}" alt="{esc(g["name"])} {esc(d["dose"])} bottle" width="1280" height="1600" '
+                f'decoding="sync" data-main-img data-base="{a}assets/img/vials/" data-sku="{d["sku"].lower()}" data-form="liquid">')
+        thumbs = ""
+    elif has_img:
         main = (f'<img src="{img_src(d, a, "powder", "l")}" alt="{esc(g["name"])} {esc(d["dose"])} research vial" width="1280" height="1600" '
                 f'decoding="sync" data-main-img data-base="{a}assets/img/vials/" data-sku="{d["sku"].lower()}" data-form="powder">')
         thumbs = "".join(
@@ -658,7 +696,7 @@ def page_product(g, groups):
     tiles = "".join(
         f'<button type="button" role="radio" class="size{" is-active" if v is d else ""}" aria-checked="{"true" if v is d else "false"}" '
         f'data-variant data-sku="{esc(v["sku"])}" data-dose="{esc(v["dose"])}" data-amt="{esc(v["dose_amount"] or "")}" data-dunit="{esc(v["dose_unit"])}" '
-        f'data-price="{v["price"]:.2f}" data-price-recon="{recon_price(v["price"]):.2f}" data-img="{v["sku"].lower()}">'
+        f'data-price="{v["price"]:.2f}" data-price-recon="{rprice(v["price"]):.2f}" data-img="{v["sku"].lower()}">'
         f'<b>{esc(v["dose"])}</b><span data-tile-price>{money(v["price"])}</span>'
         f'<small class="size__stock" data-tile-stock hidden></small></button>'
         for v in variants
@@ -675,7 +713,19 @@ def page_product(g, groups):
     sizes_all = ", ".join(v["dose"] for v in variants)
 
     table = ""
-    if multi:
+    if multi and liquid:
+        rows = "".join(
+            f'<tr data-pick="{esc(v["sku"])}"{ACTIVE_CLS if v is d else ""}><td><b>{esc(v["dose"])}</b></td><td class="mono">{esc(v["sku"])}</td>'
+            f'<td data-cell="{esc(v["sku"])}|liquid">{money(v["price"])}</td><td><button type="button" class="link" data-pick-btn="{esc(v["sku"])}">select</button></td></tr>'
+            for v in variants
+        )
+        table = f'''<div class="srow" id="sizes">
+        <h2 class="srow__k">all sizes</h2>
+        <div class="srow__v"><div class="tscroll"><table class="stable">
+          <thead><tr><th>size</th><th>sku</th><th>price</th><th><span class="sr-only">select</span></th></tr></thead>
+          <tbody>{rows}</tbody></table></div></div>
+      </div>'''
+    elif multi:
         rows = "".join(
             f'<tr data-pick="{esc(v["sku"])}"{ACTIVE_CLS if v is d else ""}><td><b>{esc(v["dose"])}</b></td><td class="mono">{esc(v["sku"])}</td>'
             f'<td data-cell="{esc(v["sku"])}|powder">{money(v["price"])}</td><td data-cell="{esc(v["sku"])}|recon">{money(recon_price(v["price"]))}</td>'
@@ -689,7 +739,8 @@ def page_product(g, groups):
           <tbody>{rows}</tbody></table></div></div>
       </div>'''
 
-    related = [x for x in groups if x["category"] == g["category"] and x["slug"] != g["slug"]][:8]
+    # a page everyone can see suggests only products everyone can see
+    related = [x for x in (groups if members else b.public(groups)) if x["category"] == g["category"] and x["slug"] != g["slug"]][:8]
     rel = ""
     if related:
         rel = f'''<section class="sec related">
@@ -699,13 +750,32 @@ def page_product(g, groups):
   </div>
 </section>'''
 
+    if liquid:
+        forms = (f'<div class="forms forms--one" role="radiogroup" aria-label="form">'
+                 f'<button type="button" role="radio" class="form is-active" data-form="liquid" aria-checked="true"><span><b>liquid</b><small>one {one}, ready to use</small></span><em data-form-price="liquid">{money(pp)}</em></button></div>')
+    else:
+        forms = f'''<div class="forms" role="radiogroup" aria-label="form">
+              <button type="button" role="radio" class="form is-active" data-form="powder" aria-checked="true"><span><b>powder</b><small>as powder, to reconstitute</small></span><em data-form-price="powder">{money(d['price'])}</em></button>
+              <button type="button" role="radio" class="form" data-form="recon" aria-checked="false"><span><b>ready to use</b><small>reconstituted</small></span><em data-form-price="recon">{money(rp)}</em></button>
+            </div>'''
+
+    # Members only: everyone else gets a note where the size, form and add to cart would be.
+    members_note = ""
+    if members:
+        members_note = f'''<div class="mnote" data-members-note>
+            <p class="label">{LOCK} members only</p>
+            <p>{esc(g['name'])} is for silver, gold and family &amp; friends members.</p>
+            <p class="mnote__out"><a class="btn btn--solid" href="{p}account">sign in {ARROW}</a></p>
+            <p class="mnote__in dim">ask us about a membership: <a href="mailto:{CONTACT_EMAIL}">{CONTACT_EMAIL}</a></p>
+          </div>'''
+
     body = f'''
-<div class="pdp" style="--c:{color(g)}" data-pdp data-slug="{g['slug']}">
+<div class="pdp" style="--c:{color(g)}" data-pdp data-slug="{g['slug']}" data-noun="{one}">
   <div class="wrap">
     <nav class="crumbs" aria-label="breadcrumb"><a href="{p or './'}">home</a><span>/</span><a href="{p}catalog">shop</a><span>/</span><a href="{p}catalog?cat={g['category']}">{esc(g['category_label'].lower())}</a><span>/</span><b>{esc(g['name'])}</b></nav>
     <div class="pdp__grid">
       <div class="pdp__gallery">
-        <div class="stage" data-zoom>{main}<span class="stage__form is-powder" data-form-badge>powder</span><span class="stage__zoom" aria-hidden="true">{ZOOM}</span></div>
+        <div class="stage" data-zoom>{main}<span class="stage__form{"" if liquid else " is-powder"}" data-form-badge>{form0}</span><span class="stage__zoom" aria-hidden="true">{ZOOM}</span></div>
         {thumbs}
       </div>
       <div class="pdp__panel">
@@ -713,10 +783,11 @@ def page_product(g, groups):
           <p class="pdp__cat"><i></i>{esc(g['category_label'].lower())}</p>
           <h1 class="pdp__name">{esc(g['name'])}</h1>
           {coa_line}
-          <div class="pdp__price" data-regular><b class="price__n" data-price-out>{money(pp)}</b><span>/ vial</span><small data-permg>{per_mg(pp, d)}</small></div>
+          <div class="pdp__price" data-regular><b class="price__n" data-price-out>{money(pp)}</b><span>/ {one}</span><small data-permg>{per_mg(pp, d)}</small></div>
+          {members_note}<div class="pdp__buyarea"{members_attr(g)}>
           <div class="fam" data-family hidden>
             <div class="fam__top"><p class="label">family &amp; friends price</p>
-              <div class="fam__units" role="group" aria-label="buy by the vial or the pack"><button type="button" data-unit="pack" aria-pressed="true">pack of 10</button><button type="button" data-unit="vial" aria-pressed="false">single vial</button></div></div>
+              <div class="fam__units" role="group" aria-label="buy by the {one} or the pack"><button type="button" data-unit="pack" aria-pressed="true">pack of 10</button><button type="button" data-unit="vial" aria-pressed="false">single {one}</button></div></div>
             <p class="fam__price"><b data-family-price></b> <span data-family-per>/ pack of 10</span></p>
           </div>
           <div class="pick">
@@ -725,14 +796,12 @@ def page_product(g, groups):
           </div>
           <div class="pick">
             <div class="pick__head"><span class="label">form</span></div>
-            <div class="forms" role="radiogroup" aria-label="form">
-              <button type="button" role="radio" class="form is-active" data-form="powder" aria-checked="true"><span><b>powder</b><small>as powder, to reconstitute</small></span><em data-form-price="powder">{money(d['price'])}</em></button>
-              <button type="button" role="radio" class="form" data-form="recon" aria-checked="false"><span><b>ready to use</b><small>reconstituted</small></span><em data-form-price="recon">{money(rp)}</em></button>
-            </div>
+            {forms}
           </div>
           <div class="buy" data-buy>
             <div class="qty" data-qty><button type="button" data-qty-dec aria-label="decrease quantity">{MINUS}</button><input type="number" min="1" step="1" value="1" inputmode="numeric" data-qty-input aria-label="quantity"><button type="button" data-qty-inc aria-label="increase quantity">{PLUS}</button></div>
             <button type="button" class="btn btn--solid buy__btn" data-add data-name="{esc(g['name'])}" data-slug="{g['slug']}" data-category="{esc(g['category_label'])}">add to cart <span class="buy__sum" data-add-sum>· {money(pp)}</span></button>
+          </div>
           </div>
           <ul class="pdp__notes">
             <li class="stockline" data-stock hidden><i class="dot"></i><span data-stock-text></span></li>
@@ -748,14 +817,14 @@ def page_product(g, groups):
     <div class="wrap">
       <div class="srow">
         <h2 class="srow__k">overview</h2>
-        <div class="srow__v"><p class="lead">{esc(g['name'])}, cataloged under {esc(g['category_label'].lower())}, available in {len(variants)} vial size{'s' if multi else ''}. logged at ≥99% purity per the standard applied across this catalog.</p></div>
+        <div class="srow__v"><p class="lead">{esc(g['name'])}, cataloged under {esc(g['category_label'].lower())}, available in {len(variants)} {one} size{'s' if multi else ''}{", as a liquid, ready to use" if liquid else ""}. logged at ≥99% purity per the standard applied across this catalog.{" for silver, gold and family &amp; friends members." if members else ""}</p></div>
       </div>
       <div class="srow">
         <h2 class="srow__k">specifications</h2>
         <dl class="srow__v specs">
           <div><dt>category</dt><dd>{esc(g['category_label'].lower())}</dd></div>
           <div><dt>sizes</dt><dd>{esc(sizes_all)}</dd></div>
-          <div><dt>selected</dt><dd><span data-dose-out>{esc(d['dose'])}</span> · <span data-form-out>powder</span></dd></div>
+          <div><dt>selected</dt><dd><span data-dose-out>{esc(d['dose'])}</span> · <span data-form-out>{form0}</span></dd></div>
           <div><dt>sku</dt><dd class="mono" data-sku-out>{esc(d['sku'])}</dd></div>
           <div><dt>purity</dt><dd>≥99% · hplc verified</dd></div>
           <div><dt>lab reports</dt><dd>{f'{len(certs)} published' if certs else 'on file, on request'}</dd></div>
@@ -775,11 +844,13 @@ def page_product(g, groups):
   </section>
   {rel}
 </div>
-<div class="buybar" data-buybar aria-hidden="true">
-  <div class="buybar__info"><b>{esc(g['name'])}</b><span><span data-dose-out>{esc(d['dose'])}</span> · <span data-form-out>powder</span></span></div>
+<div class="buybar" data-buybar aria-hidden="true"{members_attr(g)}>
+  <div class="buybar__info"><b>{esc(g['name'])}</b><span><span data-dose-out>{esc(d['dose'])}</span> · <span data-form-out>{form0}</span></span></div>
   <button type="button" class="btn btn--solid" data-add-proxy tabindex="-1">add · <span data-price-out>{money(pp)}</span></button>
 </div>'''
-    return shell(title=g["name"], desc=f"{g['name']}: {g['category_label']} research compound.", page="product", body=body, groups=groups, depth=1, body_class="product")
+    # menus list what everyone can see; a members-only page isn't for search engines
+    return shell(title=g["name"], desc=f"{g['name']}: {g['category_label']} research compound.", page="product", body=body, groups=b.public(groups), depth=1,
+                 body_class="product", noindex=members)
 
 
 # ---------------------------------------------------------------- about ---
@@ -1242,14 +1313,18 @@ def main():
         shutil.rmtree(OUT / "peptides")
     (OUT / "peptides").mkdir(parents=True)
 
-    (OUT / "index.html").write_text(page_home(groups))
+    # Members-only products (bac water) have their own page and a card in the catalog, both
+    # shown only to Silver, Gold and Family & friends accounts; everything else (menus,
+    # counts, home, search) lists the products everyone can see.
+    pub = b.public(groups)
+    (OUT / "index.html").write_text(page_home(pub))
     (OUT / "catalog.html").write_text(page_catalog(groups))
-    (OUT / "about.html").write_text(page_about(groups))
-    (OUT / "contact.html").write_text(page_contact(groups))
-    (OUT / "calculator.html").write_text(page_calculator(groups))
-    (OUT / "planner.html").write_text(page_planner(groups))
-    (OUT / "checkout.html").write_text(page_checkout(groups))
-    (OUT / "account.html").write_text(page_account(groups))
+    (OUT / "about.html").write_text(page_about(pub))
+    (OUT / "contact.html").write_text(page_contact(pub))
+    (OUT / "calculator.html").write_text(page_calculator(pub))
+    (OUT / "planner.html").write_text(page_planner(pub))
+    (OUT / "checkout.html").write_text(page_checkout(pub))
+    (OUT / "account.html").write_text(page_account(pub))
     for g in groups:
         (OUT / "peptides" / f"{g['slug']}.html").write_text(page_product(g, groups))
     print(f"v3: 7 pages + {len(groups)} product pages -> {'the repo root' if OUT == ROOT else OUT.relative_to(ROOT).as_posix() + '/'}")

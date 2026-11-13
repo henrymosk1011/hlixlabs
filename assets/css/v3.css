@@ -923,6 +923,19 @@ a.cinfo:hover, button.cinfo:hover { border-color: var(--line-2); }
 .fam__units button { height: 32px; padding: 0 13px; border-radius: 999px; color: var(--dim); font: 500 12px var(--f-mono); transition: background-color 0.2s, color 0.2s; }
 .fam__units button[aria-pressed="true"] { background: var(--accent); color: var(--accent-ink); }
 
+/* members only (bac water): shown to silver, gold and family & friends accounts once their
+   account has loaded (v3-cart.js sets .is-member on <html>); everyone else gets the note */
+html:not(.is-member) [data-members] { display: none !important; }
+html.is-member [data-members-note] { display: none !important; }
+.pdp__buyarea { display: contents; }
+.forms--one { grid-template-columns: 1fr; }
+.mnote { display: grid; gap: 10px; margin-top: 18px; padding: 18px; border: 1px solid var(--line-2); border-radius: var(--r-lg); }
+.mnote .label { color: var(--accent); }
+.mnote .label svg { width: 14px; height: 14px; }
+.mnote p { margin: 0; }
+.mnote__in a { color: var(--fg); }
+.signed-in .mnote__out, html:not(.signed-in) .mnote__in { display: none; }
+
 /* ------------------------------------------------------------
    calculator (v2-calc.js drives the [data-*] hooks). the dose
    planner (planner.css) scopes its own .opts / .opt / .opt-in

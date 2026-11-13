@@ -1479,7 +1479,9 @@
     "category": "supplies",
     "category_label": "Supplies",
     "sku": "HLX-BA10",
-    "in_stock": true
+    "in_stock": true,
+    "members_only": true,
+    "liquid": true
   },
   {
     "slug": "hcg-10000iu",

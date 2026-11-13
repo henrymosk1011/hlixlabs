@@ -157,6 +157,23 @@ def load_products():
     return json.loads(DATA.read_text())
 
 
+def is_liquid(v):
+    """Sold as one liquid form (bac water): no powder / ready-to-use choice, at its price."""
+    return bool(v.get("liquid"))
+
+
+def members_only(g):
+    """A product (every size of it) only Silver, Gold and Family & friends accounts can see and
+    order (bac water). The main site shows it to them once their account has loaded; the
+    archived designs leave it out, and the admin's database refuses it on anyone else's order."""
+    return all(v.get("members_only") for v in g["variants"])
+
+
+def public(groups):
+    """The products everyone can see."""
+    return [g for g in groups if not members_only(g)]
+
+
 # ---------------------------------------------------------------- shell ----
 
 def nav_html(prefix, active):
@@ -962,16 +979,25 @@ def render_calculator():
 # ----------------------------------------------------------------- main ----
 
 def render_search_index(groups):
-    entries = [{
-        "name": g["name"],
-        "slug": g["slug"],
-        "category": g["category_label"],
-        "priceFrom": math.ceil(g["min_price"] - 1e-9),
-        "multi": len(g["variants"]) > 1,
-        "skus": [v["sku"] for v in g["variants"]],
-        "tags": g["tags"],
-    } for g in groups]
-    js = "window.HLIX_SEARCH_INDEX = " + json.dumps(entries) + ";"
+    """HLIX_SEARCH_INDEX: every product everyone can see (every design's search, the chat's
+    links, the planner's names). HLIX_MEMBERS_INDEX: the members-only ones, which only the
+    main site reads, and only shows to Silver, Gold and Family & friends accounts (v3.js); its
+    cart also reads their SKUs (v3-cart.js)."""
+    def entry(g):
+        e = {
+            "name": g["name"],
+            "slug": g["slug"],
+            "category": g["category_label"],
+            "priceFrom": math.ceil(g["min_price"] - 1e-9),
+            "multi": len(g["variants"]) > 1,
+            "skus": [v["sku"] for v in g["variants"]],
+            "tags": g["tags"],
+        }
+        if all(is_liquid(v) for v in g["variants"]):
+            e["liquid"] = True
+        return e
+    js = ("window.HLIX_SEARCH_INDEX = " + json.dumps([entry(g) for g in public(groups)]) + ";\n"
+          "window.HLIX_MEMBERS_INDEX = " + json.dumps([entry(g) for g in groups if members_only(g)]) + ";")
     (ROOT / "assets" / "js" / "search-index.js").write_text(js)
 
 
@@ -1023,6 +1049,7 @@ def main():
     groups = group_products(products)
 
     render_search_index(groups)
+    groups = public(groups)   # v1 is kept for reference: members-only products aren't in it
 
     v1_out = ROOT / "v1"
     v1_out.mkdir(parents=True, exist_ok=True)

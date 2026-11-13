@@ -22,10 +22,13 @@ const WINDOW_MS = 60 * 60 * 1000;
 const MAX_PER_WINDOW = 30;
 
 // Prices are the live ones from the admin (falling back to the built-in
-// ones), so the assistant quotes what the product pages show.
+// ones), so the assistant quotes what the product pages show. Members-only
+// products (bac water) aren't in it: the site only shows them to Silver, Gold
+// and Family & friends accounts, and the assistant doesn't know who's asking.
 function buildCatalogSummary(prices) {
   const groups = new Map();
   for (const p of catalog) {
+    if (p.members_only) continue;
     if (!groups.has(p.name)) {
       groups.set(p.name, { name: p.name, category: p.category_label, doses: [], prices: [] });
     }
@@ -42,6 +45,10 @@ function buildCatalogSummary(prices) {
   }
   return lines.join("\n");
 }
+
+// e.g. ["bac.water (bacteriostatic water)"]
+const MEMBERS_ONLY = [...new Set(catalog.filter((p) => p.members_only).map((p) => p.name))]
+  .map((n) => (/bac\.?water/i.test(n) ? `${n} (bacteriostatic water)` : n));
 
 const systemPrompt = (catalogSummary) => `You are the hlix site assistant, embedded on hlixlabs.com, a research-peptide catalog for laboratory and research use.
 
@@ -67,7 +74,8 @@ The line you're drawing is "general research information" vs. "individualized me
   - Never open with "Great question," "Sure," or similar throat-clearing, and never restate the question back before answering.
 
 Current catalog (name, category, available vial sizes, price per vial):
-${catalogSummary}`;
+${catalogSummary}
+${MEMBERS_ONLY.length ? `\nNot in the list above, and only for Silver, Gold and Family & friends members: ${MEMBERS_ONLY.join(", ")}. If someone asks about ${MEMBERS_ONLY.length > 1 ? "them" : "it"}, say ${MEMBERS_ONLY.length > 1 ? "they're" : "it's"} for members only (they can sign in to their account to see it, or write to contact@hlixlabs.com), and don't give a price.` : ""}`;
 
 module.exports = async (req, res) => {
   if (req.method !== "POST") {

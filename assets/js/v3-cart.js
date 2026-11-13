@@ -49,11 +49,13 @@
   // ------------------------------------------------------------------
   function signedIn() { return /(?:^|;\s*)hlix_in=1/.test(d.cookie); }
   function text(v, max) { return typeof v === "string" ? v.slice(0, max) : ""; }
+  // powder, ready to use ("recon"), or liquid (bac water: one form, at its price)
+  function formOf(f) { return f === "powder" || f === "liquid" ? f : "recon"; }
   function slim(cart) {
     return cart.slice(0, 50).map(function (it) {
       var q = Math.max(1, Math.min(999, parseInt(it.qty, 10) || 1));
       return {
-        sku: text(it.sku, 40), form: it.form === "powder" ? "powder" : "recon", unit: it.unit === "pack" ? "pack" : "vial", qty: q,
+        sku: text(it.sku, 40), form: formOf(it.form), unit: it.unit === "pack" ? "pack" : "vial", qty: q,
         name: text(it.name, 160), dose: text(it.dose, 40), slug: text(it.slug, 120), category: text(it.category, 80),
         unitPrice: Math.max(0, Number(it.unitPrice) || 0)
       };
@@ -101,6 +103,7 @@
         data = data && typeof data === "object" ? data : { signedIn: false };
         account.data = data;
         root.classList.toggle("signed-in", !!data.signedIn);
+        setMember(data);
         if (data.signedIn) {
           var local = get(), server = Array.isArray(data.cart) ? data.cart : [];
           if (!merging && readSynced() !== null && shape(local) === readSynced()) {
@@ -112,6 +115,7 @@
             if (shape(both) !== shape(server)) push(); else setSynced(both);
           }
         }
+        dropMembersOnly();
         fire("hlix:account", data);
         return data;
       }, function () {
@@ -129,11 +133,34 @@
       try { localStorage.removeItem(SYNCED); localStorage.removeItem("hlix-plan:account"); } catch (e) {} // and the copy of their dose plan (v2-planner.js)
       root.classList.remove("signed-in");
       account.data = { signedIn: false };
+      setMember(account.data);
       save([], true);
       fire("hlix:account", account.data);
-    }
+    },
+    isMember: function () { return isMember(account.data); }
   };
+
+  // ------------------------------------------------------------------
+  // members only: some products (bac water) are only for silver, gold and family & friends
+  // accounts (search-index.js lists them in HLIX_MEMBERS_INDEX). Their pages, cards and search
+  // results show once the account says it's one of those (.is-member on <html>, v3.css); the
+  // cart lets go of them for anyone else. The database refuses them on anyone else's order.
+  // ------------------------------------------------------------------
+  var MEMBERS_ONLY = {};
+  (window.HLIX_MEMBERS_INDEX || []).forEach(function (it) { (it.skus || []).forEach(function (s) { MEMBERS_ONLY[s] = true; }); });
+  function isMember(a) { return !!(a && a.signedIn && (a.tier === "silver" || a.tier === "gold" || a.tier === "family")); }
+  function setMember(a) {
+    var on = isMember(a);
+    root.classList.toggle("is-member", on);
+    try { if (on) localStorage.setItem("hlix_member", "1"); else localStorage.removeItem("hlix_member"); } catch (e) {}
+  }
+  function dropMembersOnly() {
+    if (isMember(account.data)) return;
+    var cart = get(), kept = cart.filter(function (it) { return !MEMBERS_ONLY[it.sku]; });
+    if (kept.length !== cart.length) save(kept);
+  }
   account.ready = signedIn() ? load(false) : Promise.resolve((account.data = { signedIn: false }));
+  if (!signedIn()) { setMember(account.data); dropMembersOnly(); }
   window.HLIXAccount = account;
 
   // ------------------------------------------------------------------
@@ -192,7 +219,7 @@
   // ------------------------------------------------------------------
   function photo(it) { return cfg.assets + "assets/img/vials/" + String(it.sku || "").toLowerCase() + "-" + (it.form === "powder" ? "powder" : "recon") + "-s.webp"; }
   function url(it) { return cfg.base + "peptides/" + it.slug; }
-  function formLabel(f) { return f === "recon" ? "ready to use" : "powder"; }
+  function formLabel(f) { return f === "recon" ? "ready to use" : f === "liquid" ? "liquid" : "powder"; }
   function lineMeta(it) {
     return esc(it.dose) + " · " + formLabel(it.form) + (it.unit === "pack" ? " · pack of 10" : "");
   }
@@ -203,15 +230,20 @@
     count: function () { return count(get()); },
     clear: function () { save([]); },
     add: function (item) {
+      if (MEMBERS_ONLY[item.sku] && !isMember(account.data)) return false; // not theirs to order
       item.unit = item.unit === "pack" ? "pack" : "vial";
       var cart = get();
       var hit = cart.filter(function (it) { return key(it) === key(item); })[0];
       if (hit) { hit.qty += item.qty; hit.unitPrice = item.unitPrice; } else cart.push(item);
       save(cart);
+      return true;
     },
     setQty: function (i, q) { var cart = get(); if (!cart[i]) return; cart[i].qty = Math.max(1, q | 0); save(cart); },
     remove: function (i) { var cart = get(); cart.splice(i, 1); save(cart); },
     familyPrice: familyPrice,
+    isMember: function () { return isMember(account.data); },
+    membersOnly: function (sku) { return !!MEMBERS_ONLY[sku]; },
+    formLabel: formLabel,
     member: member,
     memberPrice: memberPrice,
     money: money,
