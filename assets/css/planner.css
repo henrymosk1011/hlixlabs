@@ -205,7 +205,7 @@ body.pc-page { padding: 4px; -webkit-font-smoothing: antialiased; }
 .cal__d.in-plan::after { width: calc((100% - 18px) * var(--lvl, 0)); background: color-mix(in srgb, var(--vc) 75%, transparent); transition: width 0.6s var(--ease) calc(var(--i, 0) * 12ms); }
 /* the other vials' doses that day: a chip each in its color (three, then "+n"); tap one for that vial */
 .cal__dots { position: absolute; left: 7px; right: 7px; bottom: 14px; display: flex; gap: 3px; overflow: hidden; }
-.cal__dots i { flex: none; display: inline-flex; align-items: center; height: 17px; padding: 0 5px; border-radius: 5px; background: var(--vc); color: var(--vink, #fff); font-size: 10.5px; font-style: normal; font-weight: 650; cursor: pointer; transition: transform 0.2s var(--ease); }
+.cal__dots i { flex: none; display: inline-flex; align-items: center; height: 17px; padding: 0 5px; border-radius: 5px; background: var(--vc); color: var(--vink, #fff); font-size: 10.5px; font-style: normal; font-weight: 650; cursor: pointer; transition: transform 0.2s var(--ease), opacity 0.25s, filter 0.25s; }
 .cal__dots i:nth-of-type(n + 4) { display: none; }
 .cal__dots b { flex: none; display: inline-flex; align-items: center; height: 17px; padding: 0 5px; border-radius: 5px; background: var(--card-3); color: var(--text-2); font-size: 10px; font-weight: 600; }
 @media (hover: hover) {
@@ -219,7 +219,7 @@ body.pc-page { padding: 4px; -webkit-font-smoothing: antialiased; }
 .cal__wk { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 2px 4px; margin: -1px 0 6px; padding: 0 2px; font-size: 12px; }
 .cal__wk-k { margin-right: 6px; color: var(--faint); font-size: 11.5px; font-weight: 500; white-space: nowrap; }
 .cal__wk-k span + span { display: none; }
-.cal__wk-i { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; border-radius: 7px; color: var(--text-2); white-space: nowrap; transition: background-color 0.2s; }
+.cal__wk-i { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 8px; border-radius: 7px; color: var(--text-2); white-space: nowrap; transition: background-color 0.2s, opacity 0.25s, filter 0.25s; }
 .cal__wk-i:hover { background: var(--card-2); }
 .cal__wk-i i { flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--vc); }
 .cal__wk-i span { max-width: 18ch; overflow: hidden; text-overflow: ellipsis; color: var(--muted); }
@@ -227,6 +227,18 @@ body.pc-page { padding: 4px; -webkit-font-smoothing: antialiased; }
 .cal__wk-i b small { margin-left: 2px; color: var(--muted); font-size: 0.9em; font-weight: 500; }
 .cal__wk-i.is-active { background: color-mix(in srgb, var(--vc) 12%, transparent); }
 .cal__wk-i.is-active span { color: var(--text); }
+
+/* spotlight: a vial picked in the list. its doses stand out, every other vial's fade back (tap one to pick it) */
+.pc-spot { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 10px; margin: -6px 0 14px; padding: 7px 8px 7px 12px; border-radius: 10px; background: color-mix(in srgb, var(--vc) 10%, var(--card-2)); color: var(--text-2); font-size: 13px; animation: spot-in 0.3s var(--ease) both; }
+.pc-spot b { color: var(--text); font-weight: 600; }
+.pc-spot__x { margin-left: auto; color: var(--text-2); font-weight: 600; }
+@keyframes spot-in { from { opacity: 0; transform: translateY(-4px); } }
+.pc[data-spot] .cal__dots i, .pc[data-spot] .cal__dots b { opacity: 0.25; filter: grayscale(0.7); }
+.pc[data-spot] .cal__dots i:hover { opacity: 0.8; filter: none; }
+.pc[data-spot] .cal__wk-i:not(.is-active) { opacity: 0.35; filter: grayscale(0.7); }
+.pc[data-spot] .cal__wk-i:not(.is-active):hover { opacity: 0.8; filter: none; }
+.pc[data-spot] .cal__d.has-dose { border-color: color-mix(in srgb, var(--vc) 55%, transparent); background: color-mix(in srgb, var(--vc) 8%, var(--card-2)); }
+.pc[data-spot] .cal__d.has-dose.is-short { border-color: color-mix(in srgb, var(--warn) 60%, transparent); }
 
 .pc-cal__foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px; margin-top: 16px; padding-top: 14px; border-top: 1px solid var(--line); color: var(--muted); font-size: 12.5px; }
 

@@ -393,6 +393,26 @@
   }
 
   // fromKey: the day just edited, so the change ripples forward from it instead of from the 1st
+  // ---- spotlight: pick a vial in the list (or a week's total for it) and the calendar shows its doses, every other
+  // vial's faded, until "Show all vials". it's the vial picked (state.active), so it follows a pick made any other
+  // way (another vial's dose tapped) while it's on. how you're looking, not the plan: never saved. framed apart
+  // (the admin's #side), the pick goes to the calendar's frame ("spot")
+  var spotOn = false;
+  var spotEl = $("[data-cal-spot]"), spotName = spotEl && $("[data-cal-spot-name]", spotEl);
+  function syncSpot() {
+    var v = V(), on = spotOn && !!v && state.vials.length > 1;
+    root.toggleAttribute("data-spot", on);
+    if (!spotEl) return;
+    spotEl.hidden = !on;
+    if (on) { spotName.textContent = label(v); tint(spotEl, v); }
+  }
+  function spot(on) {
+    spotOn = on;
+    syncSpot();
+    if (embed && (aside || part === "panel")) tell("spot", { on: on });
+  }
+  if (spotEl) $("[data-cal-spot-x]", spotEl).addEventListener("click", function () { spot(false); });
+
   function paint(fromKey) {
     var v = V(), L = ledger(v), sched = schedule(v), size = v.size, many = state.vials.length > 1;
     var others = state.vials.filter(function (o) { return o !== v; }).map(function (o) { return { o: o, s: schedule(o) }; });
@@ -463,6 +483,7 @@
     onScreen.forEach(function (s) { if (s.sum) s.sum.textContent = doses(s.a, s.b) || "No doses"; });
     clearBtn.hidden = !L.length;
     if (!clearBtn.classList.contains("is-armed")) clearBtn.textContent = many ? lc("Clear ") + label(v) : lc("Clear plan");
+    syncSpot();
   }
 
   // ---- "left in vial" panel ----
@@ -560,6 +581,7 @@
     if (!r) return;
     setActive(r.getAttribute("data-vial"));
     if (embed && part === "panel") tell("active", { id: r.getAttribute("data-vial") });
+    spot(true);
   });
 
   // ---- day editor (slides open under the tapped day's week) ----
@@ -729,7 +751,7 @@
 
   monthsEl.addEventListener("click", function (e) {
     var t = e.target.closest && e.target.closest(".cal__wk-i[data-vial]");
-    if (t) { setActive(t.getAttribute("data-vial")); return; } // a week's total: that peptide's vial
+    if (t) { setActive(t.getAttribute("data-vial")); spot(true); return; } // a week's total: that peptide's vial, in the spotlight
     var c = e.target.closest && e.target.closest("button.cal__d");
     if (!c) return;
     // another vial's dose chip: that vial, this day
@@ -980,8 +1002,9 @@
       return;
     }
     var id = b.getAttribute("data-vial");
-    if (id === state.active) { openSet(!setOpen); return; } // the vial you're on: its settings
-    setActive(id);
+    if (id === state.active) openSet(!setOpen); // the vial you're on: its settings
+    else setActive(id);
+    spot(true);
   });
 
   // ---- reorder: drag a tab where you want it (a line shows where it lands), or alt + arrow keys on it. on a touch
@@ -1597,6 +1620,11 @@
     }
     if (m.type === "hlix-plan:active" && e.origin === host && started && typeof m.id === "string") { // the vial picked in the panel or the bar
       setActive(m.id);
+      return;
+    }
+    if (m.type === "hlix-plan:spot" && e.origin === host && started) { // a vial picked there: its doses in the spotlight here
+      spotOn = m.on === true;
+      syncSpot();
       return;
     }
     if (m.type === "hlix-plan:goto" && e.origin === host && started && okDate(m.k) && part !== "panel" && !aside) { // a vial just added in the bar

@@ -641,7 +641,8 @@ def planner_app(embed=True):
     """The dose planner as the admin dashboard's Calendar page (planner-embed.html, embed=True) and the main
     site's calculator page (build_v3.py, embed=False: the plan kept in the browser) show it, styled by
     assets/css/planner.css: three cards. Vials: every vial as a row (pick, drag to reorder, add one). Calendar:
-    the month (or three), the day editor, each week's totals. The vial: what's left in the one picked, its
+    the month (or three), the day editor, each week's totals; a vial picked in the list puts its doses in the
+    spotlight ([data-cal-spot]: the other vials' faded, until "Show all vials"). The vial: what's left in the one picked, its
     dates, and its settings. The Vials and vial cards sit together (.pc-side): beside the calendar when
     there's room, around it when there isn't; the admin can frame each part on its own (see "part" in
     v2-planner.js). The /v2/ calculator shows it too, under that design's own heading."""
@@ -727,6 +728,7 @@ def planner_app(embed=True):
         <button type="button" class="pc-icon pc-look" data-cal-look title="Light or dark">{IC["moon"]}{IC["sun"]}<span class="pc-hidden">Dark</span></button>
       </div>
     </header>
+    <div class="pc-spot" data-cal-spot role="status" hidden><i class="pc-dot" aria-hidden="true"></i><span>Showing <b data-cal-spot-name></b> only</span><button type="button" class="pc-link pc-spot__x" data-cal-spot-x>Show all vials</button></div>
     <div class="cal__months" data-cal-months></div>
     <footer class="pc-cal__foot"><span data-cal-sum>&nbsp;</span><button type="button" class="pc-link cal__clear" data-cal-clear hidden>Clear plan</button></footer>
     <div class="cal__ed" data-cal-ed hidden><div class="cal__ed-in"><div class="cal__ed-box" role="group" aria-label="Dose for this day">

@@ -98,7 +98,10 @@ The admin frames the page more than once when it's wide, each copy showing part 
 the planner (`part` in `v2-planner.js`): the calendar, and beside it `#side` (the
 Vials and the vial picked, which saves like the calendar). Narrow, one copy shows
 it all. The admin passes the plan and the day or vial picked between them; a copy
-given back the plan it sent changes nothing. A load with `readOnly: true` (a website
+given back the plan it sent changes nothing. Picking a vial in the list (or a week's
+total for it) puts its doses in the spotlight: every other vial's doses and totals fade
+until **Show all vials** (`[data-cal-spot]`, `data-spot` on `.pc`; never saved). Framed
+apart, `#side` tells the admin (`spot`), which passes it to the calendar's frame. A load with `readOnly: true` (a website
 customer's own plan, which only they change) shows it to look at: `data-readonly` on
 `.pc` hides adding, editing and deleting (planner.css), days and vials can still be
 tapped, and the admin saves nothing that comes back. (`#vials` and `#panel`, each card on
