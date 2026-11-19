@@ -407,6 +407,10 @@ the admin's migration 0039), which is what really decides.
   friends members. Remove it from your cart and try again."); for an account, the database
   refuses it unless they're a member, with the same words.
 
+**LIPO-C** and **Lemon Bottle** are liquids too (one bottle at their price, form `"liquid"`,
+no ready to use), but not members only: anyone can see and buy them (`LIQUID` only; the
+admin's migration 0041).
+
 To make another product members only or liquid, add its name to `MEMBERS_ONLY` / `LIQUID`
 in `parse_pricelist.py` (or set the flags in `products.json`), set the same columns in the
 admin's database, and rebuild (`build.py` for the search index, `build_v2.py`,

@@ -1572,7 +1572,8 @@
     "category": "specialty",
     "category_label": "Specialty Research",
     "sku": "HLX-LEMON-BOTTLE",
-    "in_stock": true
+    "in_stock": true,
+    "liquid": true
   },
   {
     "slug": "survodutide-10mg",
@@ -1715,7 +1716,8 @@
     "category": "specialty",
     "category_label": "Specialty Research",
     "sku": "HLX-LIPO-C",
-    "in_stock": true
+    "in_stock": true,
+    "liquid": true
   },
   {
     "slug": "5-amino-1mq-10mg",

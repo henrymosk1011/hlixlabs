@@ -109,12 +109,13 @@ CATEGORY_MAP = {
     "bac.water": ("supplies", "Supplies"),
 }
 
-# Sold only to Silver, Gold and Family & friends accounts (members_only), and as one
-# liquid form, with no powder / ready-to-use choice (liquid): bac water. The website hides
-# members-only products from everyone else, and the admin's database refuses them on
-# anyone else's order (hlix-admin, products.members_only / products.liquid).
+# Sold only to Silver, Gold and Family & friends accounts (members_only): bac water. The
+# website hides members-only products from everyone else, and the admin's database refuses
+# them on anyone else's order. Sold as one liquid form, with no powder / ready-to-use choice
+# (liquid): bac water, and the 10ml liquids LIPO-C and Lemon Bottle, which anyone can buy.
+# (hlix-admin, products.members_only / products.liquid.)
 MEMBERS_ONLY = {"bac.water"}
-LIQUID = {"bac.water"}
+LIQUID = {"bac.water", "lipo-c", "lemon bottle"}
 
 UNIT_RE = re.compile(r"^\s*([\d.]+)\s*(mg|mcg|iu|ml|ug)\b", re.IGNORECASE)
 VIALS_RE = re.compile(r"(\d+)\s*vials?", re.IGNORECASE)
