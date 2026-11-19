@@ -108,6 +108,7 @@ TAG_MAP = {
     "SLU-PP-332": ["fat loss", "energy", "endurance", "metabolism", "heart"],
     "CU50mg+TB10mg+BC10mg+KPV10mg": ["skin", "recovery", "gut health", "digestion", "anti-aging", "wound healing"],
     "Lemon Bottle": ["fat loss", "body contouring", "skin"],
+    "LIPO-C": ["fat loss", "metabolism", "energy"],
     "Survodutide": ["weight loss", "fat loss", "blood sugar", "metabolism", "liver", "heart", "blood pressure"],
     "L-carnitine": ["fat loss", "energy", "metabolism", "endurance", "heart", "brain health", "blood pressure"],
     "B12": ["energy", "metabolism", "cognitive", "mood", "nerve health", "blood health"],

@@ -102,6 +102,7 @@ CATEGORY_MAP = {
 
     "b12": ("specialty", "Specialty Research"),
     "lemon bottle": ("specialty", "Specialty Research"),
+    "lipo-c": ("specialty", "Specialty Research"),
     "adipotide": ("specialty", "Specialty Research"),
     "ace-031": ("specialty", "Specialty Research"),
     "ll37": ("recovery", "Healing & Recovery"),

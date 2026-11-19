@@ -238,7 +238,7 @@ URL and public key default to the hlix project; set `SUPABASE_URL` /
 
 Both sites use real product photography: one AI-generated photo of a
 black-labeled vial (`data/photo/base-black.webp`), with a printed "badge"
-label composited on for every one of the 130 catalog variants, in **two
+label composited on for every one of the 135 catalog variants, in **two
 forms** — Powder (white pill, plain dose, as-shipped) and Reconstituted
 (mint pill, suggested bac-water volume e.g. "10MG/2ML"). A toggle on every
 product page lets the visitor switch between them. Regenerate after a
@@ -246,7 +246,7 @@ price/name change:
 
 ```bash
 python3 -m venv .venv && ./.venv/bin/pip install pillow numpy   # once
-./.venv/bin/python scripts/photo_labels.py                       # all 130 x 2 forms (~4min)
+./.venv/bin/python scripts/photo_labels.py                       # all 135 x 2 forms (~4min)
 ./.venv/bin/python scripts/photo_labels.py --only glp1-s         # one product, both forms
 python3 scripts/build_v3.py
 python3 scripts/build_v2.py

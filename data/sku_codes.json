@@ -128,5 +128,10 @@
   "thymosin alpha-1|2mg": "HLX-TA2",
   "thymosin alpha-1|5mg": "HLX-TA5",
   "triptorelin acetate/gnrh triptorelin|2mg": "HLX-TRI2",
-  "vip|10mg": "HLX-VIP"
+  "vip|10mg": "HLX-VIP",
+  "kpv|10mg": "HLX-KP10",
+  "lipo-c|10ml": "HLX-LIPO-C",
+  "5-amino-1mq|10mg": "HLX-10AM",
+  "mots-c|20mg": "HLX-MS20",
+  "dsip|10mg": "DS10"
 }

@@ -1690,5 +1690,70 @@
     "category_label": "Metabolic Research",
     "sku": "HLX-50AM",
     "in_stock": true
+  },
+  {
+    "slug": "kpv-10mg",
+    "name": "kpv",
+    "dose": "10mg",
+    "dose_amount": "10",
+    "dose_unit": "mg",
+    "pack_vial_count": 10,
+    "price": 60.0,
+    "category": "recovery",
+    "category_label": "Healing & Recovery",
+    "sku": "HLX-KP10",
+    "in_stock": true
+  },
+  {
+    "slug": "lipo-c-10ml",
+    "name": "LIPO-C",
+    "dose": "10ml",
+    "dose_amount": "10",
+    "dose_unit": "ml",
+    "pack_vial_count": 10,
+    "price": 57.0,
+    "category": "specialty",
+    "category_label": "Specialty Research",
+    "sku": "HLX-LIPO-C",
+    "in_stock": true
+  },
+  {
+    "slug": "5-amino-1mq-10mg",
+    "name": "5-amino-1mq",
+    "dose": "10mg",
+    "dose_amount": "10",
+    "dose_unit": "mg",
+    "pack_vial_count": 10,
+    "price": 60.0,
+    "category": "metabolic",
+    "category_label": "Metabolic Research",
+    "sku": "HLX-10AM",
+    "in_stock": true
+  },
+  {
+    "slug": "mots-c-20mg",
+    "name": "MOTS-c",
+    "dose": "20mg",
+    "dose_amount": "20",
+    "dose_unit": "mg",
+    "pack_vial_count": 10,
+    "price": 120.0,
+    "category": "longevity",
+    "category_label": "Longevity & Anti-Aging",
+    "sku": "HLX-MS20",
+    "in_stock": true
+  },
+  {
+    "slug": "dsip-10mg",
+    "name": "DSIP",
+    "dose": "10mg",
+    "dose_amount": "10",
+    "dose_unit": "mg",
+    "pack_vial_count": 10,
+    "price": 80.0,
+    "category": "cognitive",
+    "category_label": "Cognitive & Neuro Health",
+    "sku": "DS10",
+    "in_stock": true
   }
 ]
