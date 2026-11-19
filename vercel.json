@@ -3,7 +3,10 @@
   "trailingSlash": false,
   "redirects": [
     { "source": "/v3", "destination": "/", "permanent": false },
-    { "source": "/v3/:path*", "destination": "/:path*", "permanent": false }
+    { "source": "/v3/:path*", "destination": "/:path*", "permanent": false },
+    { "source": "/peptides/cjc-1295-whitout-dac", "destination": "/peptides/cjc-1295-without-dac", "permanent": true },
+    { "source": "/v2/peptides/cjc-1295-whitout-dac", "destination": "/v2/peptides/cjc-1295-without-dac", "permanent": true },
+    { "source": "/v1/peptides/cjc-1295-whitout-dac", "destination": "/v1/peptides/cjc-1295-without-dac", "permanent": true }
   ],
   "headers": [
     {

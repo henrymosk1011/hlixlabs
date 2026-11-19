@@ -27,6 +27,8 @@ RENAME_MAP = {
     "semaglutide": "GLP1-S",
     "tirzepatide": "GLP2-T",
     "retatrutide": "GLP3-R",
+    # the supplier's list spells it "Whitout"
+    "cjc-1295 whitout dac": "CJC-1295 Without DAC",
 }
 
 # Base peptide name -> (category slug, category label)
@@ -42,7 +44,6 @@ CATEGORY_MAP = {
     "slu-pp-332": ("metabolic", "Metabolic Research"),
     "aicar": ("metabolic", "Metabolic Research"),
 
-    "cjc-1295 whitout dac": ("growth", "Growth & GH Secretagogues"),
     "cjc-1295 without dac": ("growth", "Growth & GH Secretagogues"),
     "cjc-1295 with dac": ("growth", "Growth & GH Secretagogues"),
     "cjc-1295  without dac 5mg + ipa 5mg": ("growth", "Growth & GH Secretagogues"),

@@ -72,7 +72,7 @@ TAG_MAP = {
     "SS-31": ["longevity", "energy", "cardiovascular", "heart", "kidney", "cellular health"],
     "GHRP-2 Acetate": ["muscle growth", "growth hormone", "recovery", "appetite", "sleep", "bone health"],
     "GHRP-6 Acetate": ["muscle growth", "growth hormone", "recovery", "appetite", "sleep", "bone health"],
-    "CJC-1295 Whitout DAC": ["muscle growth", "growth hormone", "recovery", "sleep", "bone health"],
+    "CJC-1295 Without DAC": ["muscle growth", "growth hormone", "recovery", "sleep", "bone health"],
     "HGH 191AA(Somatropin)": ["muscle growth", "growth hormone", "recovery", "fat loss", "anti-aging", "bone health"],
     "CJC-1295 without DAC 5mg + IPA 5mg": ["muscle growth", "growth hormone", "recovery", "sleep", "bone health"],
     "CJC-1295 With DAC": ["muscle growth", "growth hormone", "recovery", "sleep", "anti-aging", "bone health"],
